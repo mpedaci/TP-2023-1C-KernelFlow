@@ -6,11 +6,11 @@
 #include "server.h"
 #include "client.h"
 #include <stdbool.h>
+#include <pthread.h>
 #include "a.h"
 
 
-t_log* logger;
-t_config* config;
-
+void close_program_cpu(int, int, int, t_config*, t_log*);
+void iterator(char*);
 
 #endif
