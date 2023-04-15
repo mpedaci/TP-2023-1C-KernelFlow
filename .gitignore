@@ -60,3 +60,6 @@ dkms.conf
 */obj/*
 */bin
 */bin/*
+
+# Logs files
+*.log
