@@ -2,69 +2,86 @@
 
 int start_server(char *port)
 {
-    int socket_servidor;
+    int server_socket;
     struct addrinfo hints, *servinfo;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
     getaddrinfo(NULL, port, &hints, &servinfo);
     // Creamos el socket de escucha del servidor
-    socket_servidor = socket(servinfo->ai_family,
+    server_socket = socket(servinfo->ai_family,
                              servinfo->ai_socktype,
                              servinfo->ai_protocol);
     // Asociamos el socket a un puerto
-    bind(socket_servidor, servinfo->ai_addr, servinfo->ai_addrlen);
+    bind(server_socket, servinfo->ai_addr, servinfo->ai_addrlen);
     // Escuchamos las conexiones entrantes
-    listen(socket_servidor, SOMAXCONN);
+    listen(server_socket, SOMAXCONN);
     freeaddrinfo(servinfo);
-    return socket_servidor;
+    return server_socket;
 }
 
-int wait_client(int socket_servidor)
+int wait_client(int server_socket)
 {
     // Aceptamos un nuevo cliente
-    int socket_cliente;
-    socket_cliente = accept(socket_servidor, NULL, NULL);
-    return socket_cliente;
+    int client_socket;
+    client_socket = accept(server_socket, NULL, NULL);
+    return client_socket;
 }
 
-int get_operation(int socket_cliente)
+bool server_pass_handshake(int client_socket, t_log *logger)
+{
+    log_info(logger, "Realizando handshake");
+    int handshake;
+    recv(client_socket, &handshake, sizeof(int), MSG_WAITALL);
+    int result = handshake == HSHELO ? HSOK : HSFAIL;
+    send(client_socket, &result, sizeof(int), 0);
+    if (result == -1)
+    {
+        log_error(logger, "Handshake fallido");
+        return false;
+    }else {
+        log_info(logger, "Handshake exitoso");
+        return true;
+    }
+}
+
+int get_operation(int client_socket)
 {
     int cod_op;
-    if (recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) > 0)
+    if (recv(client_socket, &cod_op, sizeof(int), MSG_WAITALL) > 0)
         return cod_op;
     else
     {
-        close(socket_cliente);
+        close(client_socket);
         return -1;
     }
 }
 
-void *get_buffer(int *size, int socket_cliente)
+void *get_buffer(int *size, int client_socket)
 {
     void *buffer;
-    recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
+    recv(client_socket, size, sizeof(int), MSG_WAITALL);
     buffer = malloc(*size);
-    recv(socket_cliente, buffer, *size, MSG_WAITALL);
+    recv(client_socket, buffer, *size, MSG_WAITALL);
     return buffer;
 }
 
-char *get_message(int socket_cliente)
+char *get_message(int client_socket)
 {
     int size;
-    char *buffer = get_buffer(&size, socket_cliente);
+    char *buffer = get_buffer(&size, client_socket);
     return buffer;
 }
 
-t_list *get_package(int socket_cliente)
+t_list *get_package(int client_socket)
 {
     int size;
     int desplazamiento = 0;
     void *buffer;
     t_list *valores = list_create();
     int tamanio;
-    buffer = get_buffer(&size, socket_cliente);
+    buffer = get_buffer(&size, client_socket);
     while (desplazamiento < size)
     {
         memcpy(&tamanio, buffer + desplazamiento, sizeof(int));

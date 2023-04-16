@@ -17,6 +17,7 @@ void *get_buffer(int *, int);
 
 int start_server(char *);
 int wait_client(int);
+bool server_pass_handshake(int socket_cliente, t_log *logger);
 t_list *get_package(int);
 char *get_message(int);
 int get_operation(int);

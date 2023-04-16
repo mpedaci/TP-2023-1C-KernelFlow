@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <stdlib.h>
+
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>

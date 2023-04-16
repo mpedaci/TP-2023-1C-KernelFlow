@@ -16,14 +16,15 @@ int main(int argc, char *argv[])
    }
 
    // Inicializar servidor
-   printf("Iniciando servidor en el puerto %s\n", config->puerto_escucha);
+   log_info(logger_aux, "Iniciando servidor");
    // start_kernel_server(config->puerto_escucha, logger_aux);
+   start_kernel_server_thread(config->puerto_escucha, logger_aux);
 
    // Iniciar clientes
-   printf("Iniciando clientes\n");
-   start_memory_client(config->ip_memoria, config->puerto_memoria, logger_aux);
-   start_filesystem_client(config->ip_filesystem, config->puerto_filesystem, logger_aux);
-   start_cpu_client(config->ip_cpu, config->puerto_cpu, logger_aux);
+   log_info(logger_aux, "Iniciando clientes");
+   // start_memory_client(config->ip_memoria, config->puerto_memoria, logger_aux);
+   // start_filesystem_client(config->ip_filesystem, config->puerto_filesystem, logger_aux);
+   // start_cpu_client(config->ip_cpu, config->puerto_cpu, logger_aux);
 
    // Fin del programa
    end_program(logger_main, logger_aux, config);

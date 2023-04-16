@@ -4,7 +4,11 @@
 typedef enum
 {
 	MENSAJE,
-	PAQUETE
-}op_code;
+	PAQUETE,
+	HSHELO,
+	HSOK,
+    HSFAIL
+} op_code;
+
 
 #endif /* COMMUNICATION_H_ */

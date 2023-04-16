@@ -37,4 +37,4 @@ $(SHARED_OBJ_DIR)/%.o: $(SHARED_SRC_DIR)/%.c
 
 .PHONY : clean
 clean :
-	rm -r $(OBJ_DIR) $(BIN_DIR) $(SHARED_OBJ_DIR)
+	rm -fr $(OBJ_DIR) $(BIN_DIR) $(SHARED_OBJ_DIR)
