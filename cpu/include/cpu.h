@@ -5,6 +5,7 @@
 #include <commons/config.h>
 #include "server.h"
 #include "client.h"
+#include "utils.h"
 #include <stdbool.h>
 #include <pthread.h>
 #include "a.h"

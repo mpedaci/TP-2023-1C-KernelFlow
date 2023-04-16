@@ -5,7 +5,7 @@
 int main() {
    // variables para el config
    char* instruction_delay;
-   char* ip;
+   char* memory_ip;
    char* memory_port;
    char* listening_port;
    char* max_segment_size;
@@ -29,14 +29,14 @@ int main() {
 
 
    // creo y traigo las config
-   config = create_config(config_path);
+   config = config_create(config_path);
 
    if(config == NULL) {
       close_program_cpu(memory_conexion, socket_clientKernel, socket_serverCPU, config, logger);
    }
 
    instruction_delay = config_get_string_value(config, "RETARDO_INSTRUCCION");
-   ip = config_get_string_value(config, "IP");
+   memory_ip = config_get_string_value(config, "IP_MEMORIA");
    memory_port = config_get_string_value(config,"PUERTO_MEMORIA");
    listening_port = config_get_string_value(config,"PUERTO_ESCUCHA");
    max_segment_size = config_get_string_value(config, "TAM_MAX_SEGMENTO");
@@ -70,7 +70,7 @@ int main() {
 
 
    // creo conexion a memoria
-   memory_conexion = create_conexion(memory_port);
+   memory_conexion = create_connection(memory_ip, memory_port);
    // char* handshake = "hola";
    // send_message(handshake, memory_conexion);
    // HABLAR TEMA DE HANDSHAKE CON EL GRUPETE ##############################
