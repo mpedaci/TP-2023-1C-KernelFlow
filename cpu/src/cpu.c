@@ -6,7 +6,7 @@ int main() {
    // variables para el config
    char* instruction_delay;
    char* ip;
-	char* memory_port;
+   char* memory_port;
    char* listening_port;
    char* max_segment_size;
 
@@ -21,14 +21,15 @@ int main() {
 
 
    // creo logger
-   logger = log_create("../log.log", "CPU", 1, LOG_LEVEL_DEBUG);
+   logger = log_create(logger_path, "CPU", 1, LOG_LEVEL_DEBUG);
 
    if(logger == NULL) {
       close_program_cpu(memory_conexion, socket_clientKernel, socket_serverCPU, config, logger);
    }
 
+
    // creo y traigo las config
-   config = create_config("../cpu.config");
+   config = create_config(config_path);
 
    if(config == NULL) {
       close_program_cpu(memory_conexion, socket_clientKernel, socket_serverCPU, config, logger);
@@ -36,7 +37,7 @@ int main() {
 
    instruction_delay = config_get_string_value(config, "RETARDO_INSTRUCCION");
    ip = config_get_string_value(config, "IP");
-	memory_port = config_get_string_value(config,"PUERTO_MEMORIA");
+   memory_port = config_get_string_value(config,"PUERTO_MEMORIA");
    listening_port = config_get_string_value(config,"PUERTO_ESCUCHA");
    max_segment_size = config_get_string_value(config, "TAM_MAX_SEGMENTO");
 
@@ -75,14 +76,7 @@ int main() {
    // HABLAR TEMA DE HANDSHAKE CON EL GRUPETE ##############################
 
    
-
    // HACER ERROR HANDLING EN LAS CONEXIONES #################################
-
-
-   
-
-
-
 
 
    close_program_cpu(memory_conexion, socket_clientKernel, socket_serverCPU, config, logger);
