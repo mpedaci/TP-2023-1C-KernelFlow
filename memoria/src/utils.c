@@ -19,14 +19,14 @@ t_config_memoria *read_config(char *config_path, t_log *logger)
    memoria_config->compactation_time_delay = string_duplicate(config_get_string_value(config,"RETARDO_COMPACTACION"));
    memoria_config->compactation_algorithm = string_duplicate(config_get_string_value(config,"ALGORITMO_ASIGNACION"));
 
-   log_debug(logger, "Archivo de configuración leído correctamente");
+   log_info(logger, "Archivo de configuración leído correctamente");
 
    config_destroy(config);
    return memoria_config;
 }
 
 void start_memory_server(char* port, t_log * logger)
-{   log_info(logger, "Iniciando servidor");
+{  log_info(logger, "Iniciando servidor");
 	int server_fd = start_server(port);
 	log_info(logger, "Servidor listo para recibir al cliente");
 	//Descomentar cuando se conecten los modulos que deberian
@@ -36,7 +36,7 @@ void start_memory_server(char* port, t_log * logger)
 
 	/* 
 	while (1) {
-		int handshake = get_operation(cliente_fd);
+      int handshake = get_operation(cliente_fd);
 		switch (handshake) {
 		case HSKERNEL:
 			log_info(logger_aux,"Se conecto el modulo Kernel");
@@ -54,8 +54,12 @@ void start_memory_server(char* port, t_log * logger)
 			log_warning(logger,"Cliente desconocido");
 			break;
 		}
+      free(handshake);
 	}
 	*/
+
+   client_destroy(client_fd);
+   server_destroy(server_fd);
 
 }
 
