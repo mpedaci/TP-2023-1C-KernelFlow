@@ -8,9 +8,6 @@
 #include <commons/config.h>
 #include <commons/string.h>
 
-t_log* logger;
-t_log* logger_aux;
-
 typedef struct {
     char* ip_memoria;
     char* puerto_memoria;
