@@ -1,20 +1,16 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<signal.h>
-#include<unistd.h>
-#include<sys/socket.h>
-#include<netdb.h>
-#include<string.h>
-#include<commons/log.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <string.h>
+#include <commons/log.h>
 
-typedef enum
-{
-	MENSAJE,
-	PAQUETE
-}op_code;
+#include "communication.h"
 
 typedef struct
 {
@@ -28,9 +24,8 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
-
-
 int create_connection(char* ip, char* puerto);
+bool client_pass_handshake(int socket_cliente, t_log *logger);
 void send_message(char* mensaje, int socket_cliente);
 t_paquete* create_package(void);
 void add_to_package(t_paquete* paquete, void* valor, int tamanio);
