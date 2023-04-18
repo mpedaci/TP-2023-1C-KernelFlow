@@ -24,7 +24,7 @@ void* get_buffer(int*, int);
 int start_server(char*);
 int wait_client(int);
 t_list* get_package(int);
-void get_message(int);
+char* get_message(int);
 int get_operation(int);
 
 void client_destroy(int);
