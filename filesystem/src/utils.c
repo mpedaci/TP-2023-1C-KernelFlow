@@ -37,10 +37,9 @@ void start_filesystem_server(char *listen_port, t_log *logger)
 
 void start_memory_client(char *ip, char *port, t_log *logger)
 {
-
     int memory_connection= create_connection(ip,port);
 
-    close(memory_connection);
+    close(memory_connection); //la cierro pa q no queda abierta al pedo
     destroy_connection(memory_connection);
 
 }
