@@ -30,7 +30,9 @@ void process_client(int client_socket, t_log *logger) {
         switch (cod_op)
         {
         case MENSAJE:
-            get_message(client_socket);
+            char* message = get_message(client_socket);
+            printf("Recibi el mensaje: %s", message);
+            free(message);
             break;
         case PAQUETE:
             lista = get_package(client_socket);
