@@ -1,14 +1,4 @@
-[INFO] 15:24:01:957 filesystem/(13671:13671): log creado
-[INFO] 15:24:01:957 filesystem/(13671:13671): config creado
-[INFO] 15:24:01:957 filesystem/(13671:13671): el puerto es: 8003
-[INFO] 15:51:11:857 filesystem/(14801:14801): log creado
-[INFO] 15:51:11:873 filesystem/(14801:14801): config creado
-[INFO] 15:53:43:329 filesystem/(14992:14992): log creado
-[INFO] 15:53:43:329 filesystem/(14992:14992): config creado
-[INFO] 15:53:59:781 filesystem/(15101:15101): log creado
-[INFO] 15:53:59:782 filesystem/(15101:15101): config creado
-[INFO] 15:53:59:782 filesystem/(15101:15101): el puerto es: 8003
-[INFO] 15:57:28:709 filesystem/(15385:15385): log creado
-[INFO] 15:57:28:709 filesystem/(15385:15385): config creado
-[INFO] 15:57:28:709 filesystem/(15385:15385): el puerto es: 8003
-[INFO] 15:57:28:709 filesystem/(15385:15385): filesystem corriendo en 8003
+[INFO] 23:00:48:949 FILESYSTEM/(7652:7652): Archivo de configuración leído correctamente
+[INFO] 23:01:52:782 FILESYSTEM/(7847:7847): Archivo de configuración leído correctamente
+[INFO] 23:15:08:561 FILESYSTEM/(9567:9567): Archivo de configuración leído correctamente
+[INFO] 23:16:05:108 FILESYSTEM/(9756:9756): Archivo de configuración leído correctamente

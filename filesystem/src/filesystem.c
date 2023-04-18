@@ -1,63 +1,33 @@
 #include "filesystem.h"
 int main() {
 
-t_log* logger; 
-t_config* config; 
-int conexion_memoria; 
-char* puerto_escucha; 
-char* puerto_memoria;
-char* ip_memoria;
+    // Inicializo los logs
+   logger_main = log_create(logger_main_path, "FILESYSTEM", true, LOG_LEVEL_INFO);
+   logger_aux = log_create(logger_aux_path, "FILESYSTEM AUX", true, LOG_LEVEL_DEBUG);
+
+    // configuracion
+   t_config_filesystem *config = NULL;
+   config = read_config(config_path, logger_main);
+   if (config == NULL)
+   {
+      end_program(logger_main, logger_aux, config);
+      return EXIT_FAILURE;
+   }
+
+    // filesystem en MODO cliente de memoria
+   log_info(logger_aux, "Iniciando cliente");
+   start_memory_client(config->ip_memoria,config->puerto_memoria,logger_aux);
 
 
-int server_socket; //var nueva pa el socket
-int client_socket;  // var nueva pa el socket 
+    //filesystem en MODO servidor de kernel 
+    log_info(logger_aux, "Iniciando servidor");
+    start_filesystem_server(config->puerto_escucha,logger_aux);
 
 
-//configuraciones iniciales 
+    //terminar programa 
+    end_program(logger_main,logger_aux,config);
 
-logger= log_create("filesystem.log", "filesystem", true, LOG_LEVEL_INFO);
-log_info(logger, "log creado");
-
-config= config_create("../config/filesystem.config");
-
-if(config == NULL){
-    log_info(config, "Eror al crear la config");
-    end_program(config,logger,conexion_memoria,server_socket,client_socket);
-
+    return EXIT_SUCCESS;
 }
 
-log_info(logger, "config creado");
 
-
-//filesystem en modo cliente de memoria
-
-puerto_memoria= config_get_string_value(config,"PUERTO_MEMORIA");
-ip_memoria= config_get_string_value(config,"IP_MEMORIA");
-conexion_memoria= create_connection(ip_memoria,puerto_memoria);
-
-close(conexion_memoria); // la cierro xq sino queda abierta al pedo ?
-
-//filesystem en modo servidor de kernel
-
-puerto_escucha= config_get_string_value(config,"PUERTO_ESCUCHA"); 
-log_info(logger, "el puerto es: %s",puerto_escucha);
-server_socket= start_server(puerto_escucha);
-log_info(logger, "Listo para escuchar a mi cliente");
-//log_info(logger, "filesystem corriendo en %s",puerto_escucha);
-client_socket= wait_client(server_socket);
-log_info(logger, "se conecto el cliente correctamente");
-
-//terminar el programa y liberar todo
-
-end_program(config,logger,conexion_memoria,server_socket,client_socket);
-return EXIT_SUCCESS;
-
-}
-
-void end_program( t_config* config, t_log* logger, int conexion_memoria, int server_socket, int client_socket){
-    log_destroy(logger);
-    config_destroy(config);
-    destroy_connection(conexion_memoria);
-    server_destroy(server_socket);
-    client_destroy(client_socket);
-}
