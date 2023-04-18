@@ -1,23 +1,17 @@
 #ifndef CPU_H
 #define CPU_H
+
 #include <stdio.h>
-#include <commons/log.h>
-#include <commons/config.h>
-#include "server.h"
-#include "client.h"
-#include "utils.h"
+#include <stdlib.h>
 #include <stdbool.h>
-#include <pthread.h>
-#include "a.h"
+
+#include "utils.h"
+#include "server_handle.h"
+#include "client_handle.h"
 
 char* logger_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/cpu/log/cpu.log";
+char* logger_aux_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/cpu/log_aux/cpu_aux.log";
 char* config_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/cpu/conf/cpu.config";
 
-// Instalar
-// duplicate line ctrl+d
-
-
-void close_program_cpu(int, int, int, t_config*, t_log*);
-void iterator(char*);
 
 #endif
