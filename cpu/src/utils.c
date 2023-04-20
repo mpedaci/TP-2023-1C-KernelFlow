@@ -24,7 +24,7 @@ t_config_cpu* read_config(char* path, t_log* logger) {
 }
 
 
-void close_program_cpu(t_config_cpu* config, t_log* logger, t_log* logger_aux) {
+void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logger, t_log* logger_aux) {
     // destruyo loggers
     log_destroy(logger);
     log_destroy(logger_aux);
@@ -36,4 +36,37 @@ void close_program_cpu(t_config_cpu* config, t_log* logger, t_log* logger_aux) {
     free(config->tam_max_segmento);
     free(config->retardo_instruccion);
     free(config);
+
+    // free registers
+    free(registers->AX);
+    free(registers->BX);
+    free(registers->CX);
+    free(registers->DX);
+    free(registers->EAX);
+    free(registers->EBX);
+    free(registers->ECX);
+    free(registers->EDX);
+    free(registers->RAX);
+    free(registers->RBX);
+    free(registers->RCX);
+    free(registers->RDX);
+}
+
+t_registers* init_registers() {
+    t_registers* registers;
+
+    registers->AX = malloc(4);
+    registers->BX = malloc(4);
+    registers->CX = malloc(4);
+    registers->DX = malloc(4);
+    registers->EAX = malloc(8);
+    registers->EBX = malloc(8);
+    registers->ECX = malloc(8);
+    registers->EDX = malloc(8);
+    registers->RAX = malloc(16);
+    registers->RBX = malloc(16);
+    registers->RCX = malloc(16);
+    registers->RDX = malloc(16);
+
+    return registers;
 }

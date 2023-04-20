@@ -53,3 +53,8 @@ void iteratorFunction(char *value)
 {
     printf("Recibido valor %s\n", value);
 }
+
+
+void send_context_kernel(t_execution_context* context) {
+    // enviar mensaje al kernel con el contexto de ejecucion, hablar con equipo para ver como mandamos esto #########################################
+}

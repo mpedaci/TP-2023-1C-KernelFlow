@@ -8,11 +8,14 @@ int main() {
    logger = log_create(logger_path, "CPU", 1, LOG_LEVEL_INFO);
    logger_aux = log_create(logger_aux_path, "CPU_AUX", 1, LOG_LEVEL_DEBUG);
 
+   // inicializo registros
+   t_registers* registers = init_registers();
+
    // leer configuracion
    t_config_cpu* config = NULL;
    config = read_config(config_path, logger);
    if(config == NULL) {
-      close_program_cpu(config, logger, logger_aux);
+      close_program_cpu(config, registers, logger, logger_aux);
       return EXIT_FAILURE;
    }
    
@@ -26,6 +29,6 @@ int main() {
 
 
    // fin del programa
-   close_program_cpu(config, logger, logger_aux);
+   close_program_cpu(config, registers, logger, logger_aux);
    return EXIT_SUCCESS;
 }
