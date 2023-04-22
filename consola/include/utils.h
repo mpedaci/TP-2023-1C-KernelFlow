@@ -16,8 +16,10 @@ typedef struct{
 
 }t_config_console;
 
+
 t_config_console* read_config(char* path, t_log* logger_console);
-void end_program(t_log* logger_console, t_log* logger_aux, t_config_console* config);
+void end_program(t_log* logger_console, t_config_console* config, FILE* archivo_instrucciones);
+
 
 
 #endif

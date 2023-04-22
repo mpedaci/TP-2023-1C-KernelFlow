@@ -3,32 +3,44 @@
 int main(int argc, char** argv){
 
   // inicializo loggers
-  logger_aux = log_create(logger_aux_path, "Consola_aux", 1, LOG_LEVEL_DEBUG);
   logger_console = log_create(logger_console_path, "Consola", 1, LOG_LEVEL_DEBUG);
 
   // leer configuracion
+  char* path_console_config = argv[1];
   t_config_console* config = NULL;
-  config = read_config(config_console_path, logger_console);
+  config = read_config(path_console_config, logger_console);
+
+  // abro archivo de instrucciones
+  char* path_pseudocodigo = argv[2];
+  FILE* file_instructions = fopen(path_pseudocodigo, "r");
 
   if(config == NULL){
-      end_program(logger_console, logger_aux, config);
+      end_program(logger_console, config, file_instructions);
       return EXIT_FAILURE;
     }
 
   if(logger_console == NULL){
       log_error(logger_console, "No se pudo iniciar la consola"),
-      end_program(logger_console, logger_aux, config);
+      end_program(logger_console, config, file_instructions);
       return EXIT_FAILURE;
    }
-
-  
   log_debug(logger_console, "Consola iniciada.");
 
-  //inicializo socket
-  start_console_client(config->ip_kernel, config->puerto_kernel, logger_console);
+  // inicializo socket
+  int kernel_socket = start_console_client(config->ip_kernel, config->puerto_kernel, logger_console);
+
+  // parsear archivo pseudocodigo
+  t_lista_instrucciones* lista_instrucciones = parsear_pseudocodigo(file_instructions, logger_console);
+
+  if(lista_instrucciones == NULL){
+    end_program(logger_console, config, file_instructions);
+    return 0;
+  }
 
   // fin del programa
-  end_program(logger_console, logger_aux, config);
+  end_program(logger_console, config, file_instructions);
+  destroy_connection(kernel_socket);
+
   return EXIT_SUCCESS;
 }
 

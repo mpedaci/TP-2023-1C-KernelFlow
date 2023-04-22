@@ -19,16 +19,17 @@ t_config_console* read_config(char* config_path, t_log* logger_console){
     return console_config;
 }
 
-void end_program(t_log* logger_console, t_log* logger_aux, t_config_console* config){
+void end_program(t_log* logger_console, t_config_console* config, FILE* archivo_instrucciones){
 
     
-    log_debug(logger_aux, "Finalizando programa");
+    log_debug(logger_console, "Finalizando programa");
     log_destroy(logger_console);
-    log_destroy(logger_aux);
 
     free(config->ip_kernel);
     free(config->puerto_kernel);
     free(config);
+
+   // fclose(archivo_instrucciones);    segmentation fault
 }
 
 

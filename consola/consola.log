@@ -7,3 +7,306 @@
 [DEBUG] 22:39:44:897 Consola/(5565:5565): Consola iniciada.
 [DEBUG] 04:06:10:472 Consola/(7420:7420): Archivo de configuracion leido correctamente
 [DEBUG] 04:06:10:498 Consola/(7420:7420): Consola iniciada.
+[DEBUG] 22:36:31:392 Consola/(2005:2005): Archivo de configuracion leido correctamente
+[DEBUG] 22:36:31:407 Consola/(2005:2005): Consola iniciada.
+[DEBUG] 22:41:50:755 Consola/(2333:2333): Archivo de configuracion leido correctamente
+[DEBUG] 22:41:50:765 Consola/(2333:2333): Consola iniciada.
+[INFO] 22:41:50:769 Consola/(2333:2333): Conexion exitosa con kernel
+[DEBUG] 23:23:06:744 Consola/(2955:2955): Archivo de configuracion leido correctamente
+[DEBUG] 23:23:06:764 Consola/(2955:2955): Consola iniciada.
+[DEBUG] 23:23:06:781 Consola/(2955:2955): Conexion exitosa con kernel: 5
+[DEBUG] 23:39:50:241 Consola/(3125:3125): Archivo de configuracion leido correctamente
+[DEBUG] 23:39:50:249 Consola/(3125:3125): Consola iniciada.
+[DEBUG] 23:39:50:250 Consola/(3125:3125): Conexion exitosa con kernel: 5
+[DEBUG] 23:41:48:003 Consola/(3307:3307): Archivo de configuracion leido correctamente
+[DEBUG] 23:41:48:015 Consola/(3307:3307): Consola iniciada.
+[DEBUG] 23:41:48:016 Consola/(3307:3307): Conexion exitosa con kernel: 5
+[DEBUG] 16:03:56:064 Consola/(3287:3287): Archivo de configuracion leido correctamente
+[DEBUG] 16:03:56:079 Consola/(3287:3287): Consola iniciada.
+[DEBUG] 16:03:56:081 Consola/(3287:3287): Conexion exitosa con kernel: 6
+[DEBUG] 16:03:56:085 Consola/(3287:3287): Se agrego el operador SET
+[DEBUG] 16:03:56:085 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:03:56:086 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:03:56:086 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:03:56:087 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:03:56:087 Consola/(3287:3287): Se agrego el operador MOV_OUT
+[DEBUG] 16:03:56:100 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:03:56:103 Consola/(3287:3287): Se agrego el parametro 120
+[DEBUG] 16:03:56:116 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:03:56:117 Consola/(3287:3287): Se agrego el operador WAIT
+[DEBUG] 16:03:56:117 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:03:56:117 Consola/(3287:3287): Se agrego el parametro 0
+[DEBUG] 16:12:28:030 Consola/(3463:3463): Archivo de configuracion leido correctamente
+[DEBUG] 16:12:28:072 Consola/(3463:3463): Consola iniciada.
+[DEBUG] 16:12:28:089 Consola/(3463:3463): Conexion exitosa con kernel: 6
+[DEBUG] 16:12:28:105 Consola/(3463:3463): Se agrego el operador SET
+[DEBUG] 16:12:28:106 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:12:28:106 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:12:28:106 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:12:28:107 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:12:28:107 Consola/(3463:3463): Se agrego el operador MOV_OUT
+[DEBUG] 16:12:28:107 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:12:28:107 Consola/(3463:3463): Se agrego el parametro 120
+[DEBUG] 16:12:28:107 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:12:28:107 Consola/(3463:3463): Se agrego el operador WAIT
+[DEBUG] 16:12:28:110 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:12:28:110 Consola/(3463:3463): Se agrego el parametro 0
+[DEBUG] 16:13:04:397 Consola/(3541:3541): Archivo de configuracion leido correctamente
+[DEBUG] 16:13:04:412 Consola/(3541:3541): Consola iniciada.
+[DEBUG] 16:13:04:414 Consola/(3541:3541): Conexion exitosa con kernel: 6
+[DEBUG] 16:13:04:420 Consola/(3541:3541): Se agrego el operador SET
+[DEBUG] 16:13:04:423 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:13:04:424 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:13:04:424 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:13:04:424 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:13:04:424 Consola/(3541:3541): Se agrego el operador MOV_OUT
+[DEBUG] 16:13:04:424 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:13:04:425 Consola/(3541:3541): Se agrego el parametro 120
+[DEBUG] 16:13:04:425 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:13:04:425 Consola/(3541:3541): Se agrego el operador WAIT
+[DEBUG] 16:13:04:425 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:13:04:425 Consola/(3541:3541): Se agrego el parametro 0
+[DEBUG] 16:14:39:026 Consola/(3741:3741): Archivo de configuracion leido correctamente
+[DEBUG] 16:14:39:042 Consola/(3741:3741): Consola iniciada.
+[DEBUG] 16:14:39:044 Consola/(3741:3741): Conexion exitosa con kernel: 6
+[DEBUG] 16:14:39:045 Consola/(3741:3741): Se agrego el operador SET
+[DEBUG] 16:14:39:047 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 16:14:39:048 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 16:14:39:049 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 16:14:39:049 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 16:14:39:050 Consola/(3741:3741): Se agrego el operador MOV_OUT
+[DEBUG] 16:14:39:050 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 16:14:39:051 Consola/(3741:3741): Se agrego el parametro 120
+[DEBUG] 16:14:39:051 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 16:14:39:051 Consola/(3741:3741): Se agrego el operador WAIT
+[DEBUG] 16:14:39:051 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 16:14:39:052 Consola/(3741:3741): Se agrego el parametro 0
+[DEBUG] 18:06:51:534 Consola/(2538:2538): Archivo de configuracion leido correctamente
+[DEBUG] 18:06:51:547 Consola/(2538:2538): Consola iniciada.
+[DEBUG] 18:06:51:549 Consola/(2538:2538): Conexion exitosa con kernel: 6
+[DEBUG] 18:06:51:550 Consola/(2538:2538): Se agrego el operador SET
+[DEBUG] 18:06:51:552 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:06:51:552 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:06:51:553 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:06:51:553 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:06:51:553 Consola/(2538:2538): Se agrego el operador MOV_OUT
+[DEBUG] 18:06:51:554 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:06:51:554 Consola/(2538:2538): Se agrego el parametro 120
+[DEBUG] 18:06:51:554 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:06:51:554 Consola/(2538:2538): Se agrego el operador WAIT
+[DEBUG] 18:06:51:554 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:06:51:554 Consola/(2538:2538): Se agrego el parametro 0
+[DEBUG] 18:15:38:172 Consola/(2832:2832): Archivo de configuracion leido correctamente
+[DEBUG] 18:15:38:188 Consola/(2832:2832): Consola iniciada.
+[DEBUG] 18:15:38:191 Consola/(2832:2832): Conexion exitosa con kernel: 6
+[DEBUG] 18:15:38:196 Consola/(2832:2832): Se agrego el operador SET
+[DEBUG] 18:15:38:197 Consola/(2832:2832): Se agrego el parametro 0
+[DEBUG] 18:15:38:197 Consola/(2832:2832): Se agrego el parametro 0
+[DEBUG] 18:15:38:198 Consola/(2832:2832): Se agrego el parametro 0
+[DEBUG] 18:15:38:204 Consola/(2832:2832): Se agrego el operador MOV_OUT
+[DEBUG] 18:15:38:205 Consola/(2832:2832): Se agrego el parametro 120
+[DEBUG] 18:15:38:205 Consola/(2832:2832): Se agrego el parametro 0
+[DEBUG] 18:15:38:206 Consola/(2832:2832): Se agrego el operador WAIT
+[DEBUG] 18:15:38:206 Consola/(2832:2832): Se agrego el parametro 0
+[DEBUG] 18:17:53:288 Consola/(2921:2921): Archivo de configuracion leido correctamente
+[DEBUG] 18:17:53:303 Consola/(2921:2921): Consola iniciada.
+[DEBUG] 18:17:53:309 Consola/(2921:2921): Conexion exitosa con kernel: 6
+[DEBUG] 18:17:53:310 Consola/(2921:2921): Se agrego el operador SET
+[DEBUG] 18:17:53:311 Consola/(2921:2921): Se agrego el parametro 0
+[DEBUG] 18:17:53:311 Consola/(2921:2921): Se agrego el parametro 0
+[DEBUG] 18:17:53:311 Consola/(2921:2921): Se agrego el parametro 0
+[DEBUG] 18:17:53:311 Consola/(2921:2921): Se agrego el operador MOV_OUT
+[DEBUG] 18:17:53:311 Consola/(2921:2921): Se agrego el parametro 120
+[DEBUG] 18:17:53:311 Consola/(2921:2921): Se agrego el parametro 0
+[DEBUG] 18:17:53:312 Consola/(2921:2921): Se agrego el operador WAIT
+[DEBUG] 18:17:53:312 Consola/(2921:2921): Se agrego el parametro 0
+[DEBUG] 18:20:50:898 Consola/(3063:3063): Archivo de configuracion leido correctamente
+[DEBUG] 18:20:50:909 Consola/(3063:3063): Consola iniciada.
+[DEBUG] 18:20:50:912 Consola/(3063:3063): Conexion exitosa con kernel: 6
+[DEBUG] 18:20:50:913 Consola/(3063:3063): Se agrego el operador SET
+[DEBUG] 18:20:50:914 Consola/(3063:3063): Se agrego el parametro 0
+[DEBUG] 18:20:50:914 Consola/(3063:3063): Se agrego el parametro 0
+[DEBUG] 18:20:50:914 Consola/(3063:3063): Se agrego el parametro 0
+[DEBUG] 18:20:50:914 Consola/(3063:3063): Se agrego el operador MOV_OUT
+[DEBUG] 18:20:50:920 Consola/(3063:3063): Se agrego el parametro 120
+[DEBUG] 18:20:50:920 Consola/(3063:3063): Se agrego el parametro 0
+[DEBUG] 18:20:50:920 Consola/(3063:3063): Se agrego el operador WAIT
+[DEBUG] 18:20:50:920 Consola/(3063:3063): Se agrego el parametro 0
+[DEBUG] 18:22:46:465 Consola/(3146:3146): Archivo de configuracion leido correctamente
+[DEBUG] 18:22:46:484 Consola/(3146:3146): Consola iniciada.
+[DEBUG] 18:22:46:486 Consola/(3146:3146): Conexion exitosa con kernel: 6
+[DEBUG] 18:22:46:489 Consola/(3146:3146): Se agrego el operador SET
+[DEBUG] 18:22:46:492 Consola/(3146:3146): Se agrego el parametro 0
+[DEBUG] 18:22:46:494 Consola/(3146:3146): Se agrego el parametro 0
+[DEBUG] 18:22:46:494 Consola/(3146:3146): Se agrego el parametro 0
+[DEBUG] 18:22:46:495 Consola/(3146:3146): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:22:46:499 Consola/(3146:3146): Se agrego el parametro 120
+[DEBUG] 18:22:46:499 Consola/(3146:3146): Se agrego el parametro 0
+[DEBUG] 18:22:46:500 Consola/(3146:3146): Se agrego el operador WAIT
+[DEBUG] 18:22:46:500 Consola/(3146:3146): Se agrego el parametro 0
+[DEBUG] 18:26:46:743 Consola/(3280:3280): Archivo de configuracion leido correctamente
+[DEBUG] 18:26:46:758 Consola/(3280:3280): Consola iniciada.
+[DEBUG] 18:26:46:761 Consola/(3280:3280): Conexion exitosa con kernel: 6
+[DEBUG] 18:26:46:763 Consola/(3280:3280): Se agrego el operador SET
+[DEBUG] 18:26:46:764 Consola/(3280:3280): Se agrego el parametro 0
+[DEBUG] 18:26:46:765 Consola/(3280:3280): Se agrego el parametro 0
+[DEBUG] 18:26:46:766 Consola/(3280:3280): Se agrego el parametro 0
+[DEBUG] 18:26:46:766 Consola/(3280:3280): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:26:46:766 Consola/(3280:3280): Se agrego el parametro 120
+[DEBUG] 18:26:46:766 Consola/(3280:3280): Se agrego el parametro 0
+[DEBUG] 18:26:46:767 Consola/(3280:3280): Se agrego el operador WAIT
+[DEBUG] 18:26:46:767 Consola/(3280:3280): Se agrego el parametro 0
+[DEBUG] 18:28:28:214 Consola/(3375:3375): Archivo de configuracion leido correctamente
+[DEBUG] 18:28:28:229 Consola/(3375:3375): Consola iniciada.
+[DEBUG] 18:28:28:234 Consola/(3375:3375): Conexion exitosa con kernel: 6
+[DEBUG] 18:28:28:237 Consola/(3375:3375): Se agrego el operador SET
+[DEBUG] 18:28:28:238 Consola/(3375:3375): Se agrego el parametro 0
+[DEBUG] 18:28:28:238 Consola/(3375:3375): Se agrego el parametro 0
+[DEBUG] 18:28:28:239 Consola/(3375:3375): Se agrego el parametro 0
+[DEBUG] 18:28:28:239 Consola/(3375:3375): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:28:28:239 Consola/(3375:3375): Se agrego el parametro 120
+[DEBUG] 18:28:28:239 Consola/(3375:3375): Se agrego el parametro 0
+[DEBUG] 18:28:28:240 Consola/(3375:3375): Se agrego el operador WAIT
+[DEBUG] 18:28:28:240 Consola/(3375:3375): Se agrego el parametro 0
+[DEBUG] 18:35:13:835 Consola/(3550:3550): Archivo de configuracion leido correctamente
+[DEBUG] 18:35:13:858 Consola/(3550:3550): Consola iniciada.
+[DEBUG] 18:35:13:860 Consola/(3550:3550): Conexion exitosa con kernel: 6
+[DEBUG] 18:35:13:863 Consola/(3550:3550): Se agrego el operador SET
+[DEBUG] 18:35:13:866 Consola/(3550:3550): Se agrego el parametro AX
+[DEBUG] 18:35:13:866 Consola/(3550:3550): Se agrego el parametro HOLA
+[DEBUG] 18:35:13:866 Consola/(3550:3550): Se agrego el parametro 
+[DEBUG] 18:35:13:867 Consola/(3550:3550): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:35:13:867 Consola/(3550:3550): Se agrego el parametro 120
+[DEBUG] 18:35:13:867 Consola/(3550:3550): Se agrego el parametro AX
+[DEBUG] 18:35:13:868 Consola/(3550:3550): Se agrego el operador WAIT
+[DEBUG] 18:35:13:868 Consola/(3550:3550): Se agrego el parametro DISCO
+[DEBUG] 18:36:17:119 Consola/(3671:3671): Archivo de configuracion leido correctamente
+[DEBUG] 18:36:17:137 Consola/(3671:3671): Consola iniciada.
+[DEBUG] 18:36:17:142 Consola/(3671:3671): Conexion exitosa con kernel: 6
+[DEBUG] 18:36:17:147 Consola/(3671:3671): Se agrego el operador SET
+[DEBUG] 18:36:17:148 Consola/(3671:3671): Se agrego el parametro AX
+[DEBUG] 18:36:17:149 Consola/(3671:3671): Se agrego el parametro HOLA
+[DEBUG] 18:36:17:149 Consola/(3671:3671): Se agrego el parametro 
+[DEBUG] 18:36:17:149 Consola/(3671:3671): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:36:17:156 Consola/(3671:3671): Se agrego el parametro 120
+[DEBUG] 18:36:17:157 Consola/(3671:3671): Se agrego el parametro AX
+[DEBUG] 18:36:17:158 Consola/(3671:3671): Se agrego el operador WAIT
+[DEBUG] 18:36:17:159 Consola/(3671:3671): Se agrego el parametro DISCO
+[DEBUG] 18:48:46:887 Consola/(3831:3831): Archivo de configuracion leido correctamente
+[DEBUG] 18:48:46:909 Consola/(3831:3831): Consola iniciada.
+[DEBUG] 18:48:46:913 Consola/(3831:3831): Conexion exitosa con kernel: 6
+[DEBUG] 18:48:46:917 Consola/(3831:3831): Se agrego el operador SET
+[DEBUG] 18:48:46:919 Consola/(3831:3831): Se agrego el parametro AX
+[DEBUG] 18:48:46:920 Consola/(3831:3831): Se agrego el parametro HOLA
+[DEBUG] 18:48:46:920 Consola/(3831:3831): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:48:46:920 Consola/(3831:3831): Se agrego el parametro 120
+[DEBUG] 18:48:46:921 Consola/(3831:3831): Se agrego el parametro AX
+[DEBUG] 18:48:46:921 Consola/(3831:3831): Se agrego el operador WAIT
+[DEBUG] 18:48:46:921 Consola/(3831:3831): Se agrego el parametro DISCO
+[DEBUG] 18:48:46:922 Consola/(3831:3831): Se agrego el operador F_READ
+[DEBUG] 18:48:46:922 Consola/(3831:3831): Se agrego el parametro ARCHIVO
+[DEBUG] 18:48:46:922 Consola/(3831:3831): Se agrego el parametro 15
+[DEBUG] 18:48:46:922 Consola/(3831:3831): Se agrego el parametro 4
+[DEBUG] 18:54:07:498 Consola/(4304:4304): Archivo de configuracion leido correctamente
+[DEBUG] 18:54:07:514 Consola/(4304:4304): Consola iniciada.
+[DEBUG] 18:54:07:515 Consola/(4304:4304): Conexion exitosa con kernel: 6
+[DEBUG] 18:54:07:515 Consola/(4304:4304): Se agrego el operador SET
+[DEBUG] 18:54:07:521 Consola/(4304:4304): Se agrego el parametro AX
+[DEBUG] 18:54:07:521 Consola/(4304:4304): Se agrego el parametro HOLA
+[DEBUG] 18:54:07:522 Consola/(4304:4304): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:54:07:523 Consola/(4304:4304): Se agrego el parametro 120
+[DEBUG] 18:54:07:523 Consola/(4304:4304): Se agrego el parametro AX
+[DEBUG] 18:54:07:523 Consola/(4304:4304): Se agrego el operador WAIT
+[DEBUG] 18:54:07:523 Consola/(4304:4304): Se agrego el parametro DISCO
+[DEBUG] 18:54:07:525 Consola/(4304:4304): Se agrego el operador F_READ
+[DEBUG] 18:54:07:526 Consola/(4304:4304): Se agrego el parametro ARCHIVO
+[DEBUG] 18:54:07:526 Consola/(4304:4304): Se agrego el parametro 15
+[DEBUG] 18:54:07:526 Consola/(4304:4304): Se agrego el parametro 4
+[DEBUG] 18:55:53:604 Consola/(4399:4399): Archivo de configuracion leido correctamente
+[DEBUG] 18:55:53:617 Consola/(4399:4399): Consola iniciada.
+[DEBUG] 18:55:53:623 Consola/(4399:4399): Conexion exitosa con kernel: 6
+[DEBUG] 18:55:53:626 Consola/(4399:4399): Se agrego el operador SET
+[DEBUG] 18:55:53:627 Consola/(4399:4399): Se agrego el parametro AX
+[DEBUG] 18:55:53:627 Consola/(4399:4399): Se agrego el parametro HOLA
+[DEBUG] 18:55:53:627 Consola/(4399:4399): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:55:53:628 Consola/(4399:4399): Se agrego el parametro 120
+[DEBUG] 18:55:53:628 Consola/(4399:4399): Se agrego el parametro AX
+[DEBUG] 18:55:53:629 Consola/(4399:4399): Se agrego el operador WAIT
+[DEBUG] 18:55:53:629 Consola/(4399:4399): Se agrego el parametro DISCO
+[DEBUG] 18:55:53:629 Consola/(4399:4399): Se agrego el operador F_READ
+[DEBUG] 18:55:53:629 Consola/(4399:4399): Se agrego el parametro ARCHIVO
+[DEBUG] 18:55:53:630 Consola/(4399:4399): Se agrego el parametro 15
+[DEBUG] 18:55:53:630 Consola/(4399:4399): Se agrego el parametro 4
+[DEBUG] 18:57:20:100 Consola/(4487:4487): Archivo de configuracion leido correctamente
+[DEBUG] 18:57:20:110 Consola/(4487:4487): Consola iniciada.
+[DEBUG] 18:57:20:112 Consola/(4487:4487): Conexion exitosa con kernel: 6
+[DEBUG] 18:57:20:114 Consola/(4487:4487): Se agrego el operador SET
+[DEBUG] 18:57:20:116 Consola/(4487:4487): Se agrego el parametro AX
+[DEBUG] 18:57:20:116 Consola/(4487:4487): Se agrego el parametro HOLA
+[DEBUG] 18:57:20:116 Consola/(4487:4487): SET
+[DEBUG] 18:57:20:123 Consola/(4487:4487): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:57:20:123 Consola/(4487:4487): Se agrego el parametro 120
+[DEBUG] 18:57:20:123 Consola/(4487:4487): Se agrego el parametro AX
+[DEBUG] 18:57:20:123 Consola/(4487:4487): CREATE_SEGMENT
+[DEBUG] 18:57:20:124 Consola/(4487:4487): Se agrego el operador WAIT
+[DEBUG] 18:57:20:125 Consola/(4487:4487): Se agrego el parametro DISCO
+[DEBUG] 18:57:20:125 Consola/(4487:4487): Se agrego el operador F_READ
+[DEBUG] 18:57:20:125 Consola/(4487:4487): Se agrego el parametro ARCHIVO
+[DEBUG] 18:57:20:125 Consola/(4487:4487): Se agrego el parametro 15
+[DEBUG] 18:57:20:125 Consola/(4487:4487): Se agrego el parametro 4
+[DEBUG] 18:58:48:359 Consola/(4620:4620): Archivo de configuracion leido correctamente
+[DEBUG] 18:58:48:374 Consola/(4620:4620): Consola iniciada.
+[DEBUG] 18:58:48:379 Consola/(4620:4620): Conexion exitosa con kernel: 6
+[DEBUG] 18:58:48:385 Consola/(4620:4620): Se agrego el operador SET
+[DEBUG] 18:58:48:385 Consola/(4620:4620): Se agrego el parametro AX
+[DEBUG] 18:58:48:385 Consola/(4620:4620): Se agrego el parametro HOLA
+[DEBUG] 18:58:48:386 Consola/(4620:4620): AX
+[DEBUG] 18:58:48:386 Consola/(4620:4620): Se agrego el operador CREATE_SEGMENT
+[DEBUG] 18:58:48:386 Consola/(4620:4620): Se agrego el parametro 120
+[DEBUG] 18:58:48:386 Consola/(4620:4620): Se agrego el parametro AX
+[DEBUG] 18:58:48:387 Consola/(4620:4620): 120
+[DEBUG] 18:58:48:387 Consola/(4620:4620): Se agrego el operador WAIT
+[DEBUG] 18:58:48:388 Consola/(4620:4620): Se agrego el parametro DISCO
+[DEBUG] 18:58:48:388 Consola/(4620:4620): Se agrego el operador F_READ
+[DEBUG] 18:58:48:388 Consola/(4620:4620): Se agrego el parametro ARCHIVO
+[DEBUG] 18:58:48:388 Consola/(4620:4620): Se agrego el parametro 15
+[DEBUG] 18:58:48:388 Consola/(4620:4620): Se agrego el parametro 4
+[ERROR] 20:33:47:890 Consola/(5843:5843): NO se pudo leer el archivo de configuracion
+[DEBUG] 20:33:47:901 Consola/(5843:5843): Finalizando programa
+[DEBUG] 20:35:42:853 Consola/(6065:6065): Archivo de configuracion leido correctamente
+[DEBUG] 20:35:42:867 Consola/(6065:6065): Consola iniciada.
+[DEBUG] 20:35:42:872 Consola/(6065:6065): Conexion exitosa con kernel: 4
+[DEBUG] 20:37:37:995 Consola/(6237:6237): Archivo de configuracion leido correctamente
+[DEBUG] 20:37:38:005 Consola/(6237:6237): Consola iniciada.
+[DEBUG] 20:37:38:010 Consola/(6237:6237): Conexion exitosa con kernel: 5
+[DEBUG] 20:37:38:013 Consola/(6237:6237): Se agregó el operador SET
+[DEBUG] 20:37:38:014 Consola/(6237:6237): Se agregó el parametro AX
+[DEBUG] 20:37:38:021 Consola/(6237:6237): Se agregó el parametro HOLA
+[DEBUG] 20:37:38:022 Consola/(6237:6237): Se agregó el operador CREATE_SEGMENT
+[DEBUG] 20:37:38:022 Consola/(6237:6237): Se agregó el parametro 120
+[DEBUG] 20:37:38:022 Consola/(6237:6237): Se agregó el parametro AX
+[DEBUG] 20:37:38:022 Consola/(6237:6237): Se agregó el operador WAIT
+[DEBUG] 20:37:38:022 Consola/(6237:6237): Se agregó el parametro DISCO
+[DEBUG] 20:37:38:028 Consola/(6237:6237): Se agregó el operador F_READ
+[DEBUG] 20:37:38:033 Consola/(6237:6237): Se agregó el parametro ARCHIVO
+[DEBUG] 20:37:38:033 Consola/(6237:6237): Se agregó el parametro 15
+[DEBUG] 20:37:38:033 Consola/(6237:6237): Se agregó el parametro 4
+[DEBUG] 20:37:38:033 Consola/(6237:6237): Finalizando programa
+[ERROR] 20:42:32:665 Consola/(6823:6823): NO se pudo leer el archivo de configuracion
+[DEBUG] 20:42:32:783 Consola/(6823:6823): Finalizando programa
+[DEBUG] 20:54:51:645 Consola/(7227:7227): Archivo de configuracion leido correctamente
+[DEBUG] 20:54:51:814 Consola/(7227:7227): Consola iniciada.
+[DEBUG] 20:54:51:923 Consola/(7227:7227): Conexion exitosa con kernel: 5
+[DEBUG] 20:54:52:019 Consola/(7227:7227): Se agregó el operador SET
+[DEBUG] 20:54:52:033 Consola/(7227:7227): Se agregó el parametro AX
+[DEBUG] 20:54:52:046 Consola/(7227:7227): Se agregó el parametro HOLA
+[DEBUG] 20:54:52:069 Consola/(7227:7227): Se agregó el operador CREATE_SEGMENT
+[DEBUG] 20:54:52:096 Consola/(7227:7227): Se agregó el parametro 120
+[DEBUG] 20:54:52:101 Consola/(7227:7227): Se agregó el parametro AX
+[DEBUG] 20:54:52:108 Consola/(7227:7227): Se agregó el operador WAIT
+[DEBUG] 20:54:52:125 Consola/(7227:7227): Se agregó el parametro DISCO
+[DEBUG] 20:54:52:131 Consola/(7227:7227): Se agregó el operador F_READ
+[DEBUG] 20:54:52:155 Consola/(7227:7227): Se agregó el parametro ARCHIVO
+[DEBUG] 20:54:52:159 Consola/(7227:7227): Se agregó el parametro 15
+[DEBUG] 20:54:52:164 Consola/(7227:7227): Se agregó el parametro 4
+[DEBUG] 20:54:52:174 Consola/(7227:7227): Finalizando programa

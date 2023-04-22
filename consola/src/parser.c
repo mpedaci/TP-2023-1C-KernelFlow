@@ -1,97 +1,169 @@
-/*#include "parser.h"
+#include "parser.h"
 
+t_identificador mapear_identificador(char *identificador){
 
-bool el_proceso_es_valido(FILE* instrucciones){
+    t_identificador id;
 
-    char* linea = malloc(16);
-    char** instruccion_leida;
-    ID_INSTRUCCION id = EXIT;
-  
-        if(!es_una_instruccion_valida(instruccion_leida)){
-            return false;
-        }
-        id = get_id(instruccion_leida[0]);
-        string_array_destroy(instruccion_leida);
-    
- 
-    free(linea);
-    return true;
-}
-
-bool es_una_instruccion_valida(char** instruccion){
-    if(string_contains(IDENTIFICADORES_VALIDOS, instruccion[0])){   //podria hacerla en una funcion aparte, VER DESPUES
-        if(tiene_los_parametros_correctos(instruccion)){
-            return true;
-        }
-        return false;
+    if (string_equals_ignore_case(identificador, "F_READ"))
+    {
+        id = F_READ;
     }
-    printf("El identificador %s es desconocido", instruccion[0]);
-
-    return false;
-}
-
-bool es_valido(char* identificador){
-    return string_contains(IDENTIFICADORES_VALIDOS, identificador);
-}
-
-bool tiene_los_parametros_correctos(char** instruccion){
-
-    int cantidad_de_parametros = string_array_size(instruccion);
-    int cant_parametros_leidos = cant_parametros_leidos + cantidad_de_parametros; //puede tener errores si no esta inicializada en 0, PROBAR
-
-    if(cantidad_de_parametros == parametros_segun_id(instruccion[0])){
-        return true;
+    else if (string_equals_ignore_case(identificador, "F_WRITE"))
+    {
+        id = F_WRITE;
     }
-    else 
-        return false;
+    else if (string_equals_ignore_case(identificador, "SET"))
+    {
+        id = SET;
+    }
+    else if (string_equals_ignore_case(identificador, "MOV_IN"))
+    {
+        id = MOV_IN;
+    }
+    else if (string_equals_ignore_case(identificador, "MOV_OUT"))
+    {
+        id = MOV_OUT;
+    }
+    else if (string_equals_ignore_case(identificador, "F_TRUNCATE"))
+    {
+        id = F_TRUNCATE;
+    }
+    else if (string_equals_ignore_case(identificador, "F_SEEK"))
+    {
+        id = F_SEEK;
+    }
+    else if (string_equals_ignore_case(identificador, "CREATE_SEGMENT"))
+    {
+        id = CREATE_SEGMENT;
+    }
+    else if (string_equals_ignore_case(identificador, "I_O"))
+    {
+        id = I_O;
+    }
+    else if (string_equals_ignore_case(identificador, "WAIT"))
+    {
+        id = WAIT;
+    }
+    else if (string_equals_ignore_case(identificador, "SIGNAL"))
+    {
+        id = SIGNAL;
+    }
+    else if (string_equals_ignore_case(identificador, "F_OPEN"))
+    {
+        id = F_OPEN;
+    }
+    else if (string_equals_ignore_case(identificador, "F_CLOSE"))
+    {
+        id = F_CLOSE;
+    }
+    else if (string_equals_ignore_case(identificador, "DELETE_SEGMENT"))
+    {
+        id = DELETE_SEGMENT;
+    }
+    else if (string_equals_ignore_case(identificador, "EXIT"))
+    {
+        id = EXIT;
+    }
+    else if (string_equals_ignore_case(identificador, "YIELD"))
+    {
+        id = YIELD;
+    }
+    return id;
 }
 
-//devuelve la cantidad de parametros del identificador ingresado
-int parametros_segun_id(char* identificador){
-
-    ID_INSTRUCCION id = get_id(identificador);
-    int cantidad_de_parametros_del_identificador_ingresado = cantidad_de_parametros(id);
-
-    return cantidad_de_parametros_del_identificador_ingresado;
-}
-
-//devuelve la cantidad de parametros que tiene que tener cada instruccion
-int cantidad_de_parametros(ID_INSTRUCCION identificador){
+void add_param(t_identificador identificador, t_instruccion *instruccion, t_list *parametros, t_log *logger_console){
 
     switch (identificador){
+    // instruccion que lleva 3 parametros
     case F_READ:
     case F_WRITE:
-        return 3;
+        add_param_to_instruction(instruccion, list_get(parametros, 1)); // Retorna el contenido de una posicion determianda de la lista
+        add_param_to_instruction(instruccion, list_get(parametros, 2));
+        add_param_to_instruction(instruccion, list_get(parametros, 3));
         break;
+
+    // instruccion que lleva 2 parametros
     case SET:
     case MOV_IN:
     case MOV_OUT:
     case F_TRUNCATE:
     case F_SEEK:
     case CREATE_SEGMENT:
-        return 2;
+        add_param_to_instruction(instruccion, list_get(parametros, 1)); // Retorna el contenido de una posicion determianda de la lista, lo casteo a (int) para definir tipo
+        add_param_to_instruction(instruccion, list_get(parametros, 2));
         break;
+
+    // instruccion que lleva 1 parametros
+    case I_O:
+    case WAIT:
+    case SIGNAL:
+    case F_OPEN:
+    case F_CLOSE:
+    case DELETE_SEGMENT:
+        add_param_to_instruction(instruccion, list_get(parametros, 1));
+        break;
+
+    // instruccion que no lleva parametros
     case EXIT:
     case YIELD:
-        return 0;
         break;
     }
-    return 0;
 }
 
-//devuelve la instruccion si es que es valida
-ID_INSTRUCCION get_id(char* identificador){
-    
-    ID_INSTRUCCION id;
-    char** identificadores = string_split(IDENTIFICADORES_VALIDOS, ","); //Separo un string con un separador, retorna un array con cada palabra
+void add_param_to_instruction(t_instruccion *instruccion, char *parametro){ 
+    list_add(instruccion->parametros, parametro);
+}
 
-    for(int i = 0; i < string_array_size(identificadores); i++) { //Retorna la cantidad de líneas del array de strings
-        if(string_equals_ignore_case(identificadores[i], identificador)){ //retorna si dos string son iguales
-            id = i;
+t_lista_instrucciones *new_list_instruction(void){
+    t_lista_instrucciones *tmp = list_create();
+    return tmp;
+}
+
+t_instruccion *new_instruction(t_identificador identificador){
+    t_instruccion *tmp = malloc(sizeof(t_instruccion));
+
+    tmp->identificador = identificador;
+    tmp->parametros = list_create();
+
+    return tmp;
+}
+
+t_lista_instrucciones *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola){
+
+    t_lista_instrucciones *list_instructions = new_list_instruction();
+
+    size_t len = 0;     // tamanio de la linea leida
+    size_t read;        // cant de caracteres leido
+    char *line = NULL;  // linea leida
+
+    while ((read = getline(&line, &len, pseudo_file)) != -1){ 
+        // lee una linea entera de pseudofile, almacena el texto en line y devuelve un nro de caracteres leidos sin contar el /o (si hay un error devuelve -1)
+
+        // por cada linea que leo, obtengo los tokens, armo la instruccione con sus parametros y la agrego a la lista
+        t_list *lines = list_create();
+        char *t = strtok(line, "\n");         // separo la primera linea y almaceno en un char
+        char **tokens = string_split(t, " "); // separo los tokens (identificador y parametros) SET AX HOLA
+
+        //Agrego a la lista el identificador
+        list_add(lines, (void *)tokens[0]);
+        log_debug(logger_consola, "Se agregó el operador %s", tokens[0]);
+
+        //Agrego a la lista los parametros de la instruccion
+        int i = 1;
+
+        while (tokens[i] != NULL){
+            list_add(lines, (void *)tokens[i]);
+            log_debug(logger_consola, "Se agregó el parametro %s", tokens[i]);
+
+            i++;
         }
-    }
-    string_array_destroy(identificadores);
-    return id;
-}
 
-*/
+        t_identificador identificador = mapear_identificador(list_get(lines, 0)); 
+
+        t_instruccion *instruccion = new_instruction(identificador); 
+        add_param(identificador, instruccion, lines, logger_consola);
+        list_add(list_instructions, instruccion);
+    }
+
+    return list_instructions;
+}
