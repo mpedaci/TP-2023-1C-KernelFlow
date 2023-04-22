@@ -1,4 +1,8 @@
 PROCESS_NAME = consola
+IDIR=./include
+CC=gcc
+ODIR=./obj
+SRCDIR =./src
 
 TARGET = $(BIN_DIR)/$(PROCESS_NAME)
 
