@@ -2,128 +2,54 @@
 
 void start_kernel_server(char *listen_port, t_log *logger)
 {
-    int server_socket = start_server(listen_port);
+    int server_socket = server_start(listen_port, logger);
     // Forma unico cliente
     int client_socket;
     int i = 0;
-    while (i < 3)
+    // i < 3 Para que se conecten 3 clientes y cortar servidor
+    while (i < 2)
     {
-        client_socket = wait_client(server_socket);
+        client_socket = client_wait(server_socket, logger);
         if (client_socket == -1)
-        {
-            log_error(logger, "Error al aceptar conexion");
-            continue;
-        }
+            continue; // Significa que fallo la conexion
         log_info(logger, "Se conecto un cliente");
-        if (server_pass_handshake(client_socket, logger))
+
+        if (hs_server_to_module_valid(client_socket, HSKERNEL, logger))
             process_client(client_socket, logger);
-        client_destroy(client_socket);
+        socket_destroy(client_socket);
         i++;
     }
     // Cierro todos socket
-    // client_destroy(client_socket);
-    server_destroy(server_socket);
+    socket_destroy(server_socket);
 }
 
-// GENERA SEGMENTATION FAULT AL CERRAR EL SERVIDOR
-void start_kernel_server_thread(char *listen_port, t_log *logger)
+void process_client(int socket, t_log *logger)
 {
-    int server_socket = start_server(listen_port);
-    // Forma multiples clientes
-    int i = 0;
-    while (i < 3)
-    {
-        pthread_t thread;
-        int *client_socket = malloc(sizeof(int));
-        client_socket = wait_client(server_socket);
-        /* if (client_socket == -1)
-        {
-            log_error(logger, "Error al aceptar conexion");
-            continue;
-        } */
-        log_info(logger, "Se conecto un cliente");
-       
-        pthread_create(&thread,
-                       NULL,
-                       (void *)atender_cliente,
-                       client_socket);
-        pthread_detach(thread);
-
-        i++;
-    }
-    // Cierro todos socket
-    // client_destroy(client_socket);
-    server_destroy(server_socket);
-}
-
-void atender_cliente(int socket_cliente)
-{
-    /* if (server_pass_handshake(*socket_cliente, logger)) */
-    t_list *lista;
     bool exit = false;
     while (exit == false)
     {
-        int cod_op = get_operation(socket_cliente);
-        printf("Recibido codigo de operacion %d\n", cod_op);
-        switch (cod_op)
+        t_package* package = get_package(socket, logger);
+        switch (package->operation_code)
         {
-        case MENSAJE:
-            char *message = get_message(socket_cliente);
-            printf("Recibido mensaje %s\n", message);
-            free(message);
+        case INSTRUCCIONES:
+            t_persona *persona = get_instrucciones(package);
+            printf("Se recibio el nombre: %s\n", persona->nombre);
+            printf("Se recibio la longitud de nombre: %d\n", persona->nombre_length);
+            printf("Se recibio el dni: %d\n", persona->dni);
+            printf("Se recibio el edad: %d\n", persona->edad);
+            printf("Se recibio el pasaporte: %d\n", persona->pasaporte);
+            free(persona->nombre);
+            free(persona);
             break;
-        case PAQUETE:
-            lista = get_package(socket_cliente);
-            list_iterate(lista, (void *)iteratorFunction);
-            break;
-        case -1:
-            printf("el cliente se desconecto. Terminando servidor");
+        case END:
+            printf("Conexion Finalizada");
             exit = true;
             break;
         default:
-            printf("Default %d\n", cod_op);
             printf("Operacion desconocida.");
-            break;
-        }
-    }
-    client_destroy(socket_cliente);
-    free(socket_cliente);
-}
-
-void process_client(int client_socket, t_log *logger)
-{
-    t_list *lista;
-    bool exit = false;
-    while (exit == false)
-    {
-        int cod_op = get_operation(client_socket);
-        printf("Recibido codigo de operacion %d\n", cod_op);
-        switch (cod_op)
-        {
-        case MENSAJE:
-            char *message = get_message(client_socket);
-            log_debug(logger, "Recibido mensaje %s\n", message);
-            free(message);
-            break;
-        case PAQUETE:
-            lista = get_package(client_socket);
-            list_iterate(lista, (void *)iteratorFunction);
-            break;
-        case -1:
-            log_error(logger, "el cliente se desconecto. Terminando servidor");
             exit = true;
             break;
-        default:
-            printf("Default %d\n", cod_op);
-            log_warning(logger, "Operacion desconocida.");
-            break;
         }
+        package_destroy(package);
     }
-    // SEGMENTATION FAULT
-    // list_destroy(lista);
-}
-
-void iteratorFunction(char *value)
-{
-    printf("Recibido valor %s\n", value);
 }

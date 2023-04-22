@@ -17,8 +17,7 @@ int main(int argc, char *argv[])
 
    // Inicializar servidor
    log_info(logger_aux, "Iniciando servidor");
-   // start_kernel_server(config->puerto_escucha, logger_aux);
-   start_kernel_server_thread(config->puerto_escucha, logger_aux);
+   start_kernel_server(config->puerto_escucha, logger_aux);
 
    // Iniciar clientes
    log_info(logger_aux, "Iniciando clientes");
