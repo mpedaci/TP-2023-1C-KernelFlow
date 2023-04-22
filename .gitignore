@@ -63,3 +63,9 @@ dkms.conf
 
 # Logs files
 *.log
+
+# Other
+.vscode
+.metadata
+*/.metadata
+*/.metadata/*
