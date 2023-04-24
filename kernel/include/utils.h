@@ -20,9 +20,16 @@ typedef struct
     char *puerto_escucha; // Puerto en el que el kernel escucha las conexiones entrantes
 } t_config_kernel;
 
+typedef struct
+{
+    int memory_client_socket;
+    int filesystem_client_socket;
+    int cpu_client_socket;
+} t_modules_client;
+
 t_config_kernel *read_config(char *path, t_log *logger);
 
-void end_program(t_log *logger_main, t_log *logger_aux, t_config_kernel *config);
+void end_program(t_log *logger_main, t_log *logger_aux, t_config_kernel *config, t_modules_client *modules_client);
 
 
 #endif /* UTILS_H */

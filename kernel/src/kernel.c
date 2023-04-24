@@ -11,21 +11,26 @@ int main(int argc, char *argv[])
    config = read_config(config_path, logger_main);
    if (config == NULL)
    {
-      end_program(logger_main, logger_aux, config);
+      end_program(logger_main, logger_aux, config, NULL);
+      return EXIT_FAILURE;
+   }
+
+   // Iniciar clientes
+   log_info(logger_aux, "Iniciando clientes");
+   t_modules_client *modules_client = start_modules_client(config, logger_aux);
+
+   if (modules_client == NULL)
+   {
+      end_program(logger_main, logger_aux, config, modules_client);
       return EXIT_FAILURE;
    }
 
    // Inicializar servidor
    log_info(logger_aux, "Iniciando servidor");
-   start_kernel_server(config->puerto_escucha, logger_aux);
-
-   // Iniciar clientes
-   log_info(logger_aux, "Iniciando clientes");
-   // start_memory_client(config->ip_memoria, config->puerto_memoria, logger_aux);
-   // start_filesystem_client(config->ip_filesystem, config->puerto_filesystem, logger_aux);
-   // start_cpu_client(config->ip_cpu, config->puerto_cpu, logger_aux);
+   start_kernel_server_one_thread(config->puerto_escucha, logger_aux);
+   // start_kernel_server(config->puerto_escucha, logger_aux); // Multihilo
 
    // Fin del programa
-   end_program(logger_main, logger_aux, config);
+   end_program(logger_main, logger_aux, config, modules_client);
    return EXIT_SUCCESS;
 }

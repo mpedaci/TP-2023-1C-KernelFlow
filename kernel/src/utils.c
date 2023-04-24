@@ -25,12 +25,20 @@ t_config_kernel *read_config(char *config_path, t_log *logger)
    return kernel_config;
 }
 
-void end_program(t_log *logger_main, t_log *logger_aux, t_config_kernel *config)
+void end_program(t_log *logger_main, t_log *logger_aux, t_config_kernel *config, t_modules_client *modules_client)
 {
    log_debug(logger_aux, "Finalizando programa");
    // Logs destroy
    log_destroy(logger_main);
    log_destroy(logger_aux);
+   // Modules Client destroy
+   if (modules_client != NULL)
+   {
+      close(modules_client->cpu_client_socket);
+      close(modules_client->filesystem_client_socket);
+      close(modules_client->memory_client_socket);
+      free(modules_client);
+   }
    // Kernel Config destroy
    free(config->ip_cpu);
    free(config->ip_filesystem);
