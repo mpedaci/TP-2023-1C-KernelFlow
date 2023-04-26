@@ -15,6 +15,13 @@ t_config_filesystem *read_config(char *config_path, t_log *logger)
    filesystem_config->puerto_memoria = string_duplicate(config_get_string_value(config, "PUERTO_MEMORIA"));
    filesystem_config->puerto_escucha = string_duplicate(config_get_string_value(config, "PUERTO_ESCUCHA"));
 
+   //agrego los paths 
+   filesystem_config->path_superbloque = string_duplicate(config_get_string_value(config, "PATH_SUPERBLOQUE"));
+   filesystem_config->path_bitmap = string_duplicate(config_get_string_value(config, "PATH_BITMAP"));
+   filesystem_config->path_bloques = string_duplicate(config_get_string_value(config, "PATH_BLOQUES"));
+   filesystem_config->path_fcb = string_duplicate(config_get_string_value(config, "PATH_FCB"));
+
+
    log_info(logger, "Archivo de configuración leído correctamente");
 
    config_destroy(config);

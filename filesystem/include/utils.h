@@ -12,7 +12,14 @@ typedef struct
 {
     char *puerto_escucha;        
     char *puerto_memoria;   
-    char *ip_memoria;    
+    char *ip_memoria;   
+
+     //agrego los paths
+    char *path_superbloque; 
+    char *path_bitmap; 
+    char *path_bloques;
+    char *path_fcb; 
+    
 
 } t_config_filesystem;
 

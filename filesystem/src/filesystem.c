@@ -1,6 +1,7 @@
 #include "filesystem.h"
+#include "archivo.h"
 int main() {
-
+   
     // Inicializo los logs
    logger_main = log_create(logger_main_path, "FILESYSTEM", true, LOG_LEVEL_INFO);
    logger_aux = log_create(logger_aux_path, "FILESYSTEM AUX", true, LOG_LEVEL_DEBUG);
@@ -13,6 +14,10 @@ int main() {
       end_program(logger_main, logger_aux, config);
       return EXIT_FAILURE;
    }
+
+
+    initialize_filesystem(config);
+
 
     // filesystem en MODO cliente de memoria
    log_info(logger_aux, "Iniciando cliente");
