@@ -40,18 +40,7 @@ int main(int argc, char** argv){
 
   // enviar lista de instrucciones a kernel
 
-  for(int i = 1; i < list_size(lista_instrucciones); i++){
-    t_instruccion* ins = list_get(lista_instrucciones, i);
-    bool res = send_instrucciones2(kernel_socket, ins, logger_console);
-    if(res == 0){
-      log_debug(logger_console, "hubo un error");
-    }
-    else 
-    log_debug(logger_console, "se envio correctamente");
-  }
-
-  //hs_server_to_module_valid(kernel_socket, HSOK, logger_console);
-
+  
   
   // fin del programa
   socket_destroy(kernel_socket);
