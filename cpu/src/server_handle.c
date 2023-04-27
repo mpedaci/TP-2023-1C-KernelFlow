@@ -55,6 +55,6 @@ void iteratorFunction(char *value)
 }
 
 
-void send_context_kernel(t_execution_context* context) {
+void send_context_kernel(t_pcontexto* context) {
     // enviar mensaje al kernel con el contexto de ejecucion, hablar con equipo para ver como mandamos esto #########################################
 }

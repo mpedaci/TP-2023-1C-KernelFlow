@@ -31,24 +31,6 @@ typedef struct {
     void* RDX;
 } t_registers;
 
-typedef struct {
-    int pib;
-    char** instructions; // por ahora es una lista de strings, puede cambiar
-    int program_counter;
-    t_registers registers;
-    // tablas de segmento
-    // tabla de archivos
-} t_execution_context; // hablar con equipo para ver este tema ##################################
-
-typedef enum {
-    NEW,
-    READY,
-    EXEC,
-    BLOCK,
-    EXIT,
-} process_state;
-
-
 t_config_cpu* read_config(char* path, t_log* logger);
 
 void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logger, t_log* logger_aux);
