@@ -15,7 +15,7 @@ typedef struct
 } t_block;
 
 void initialize_filesystem();
-void create_blocks(char *path_blockfile,int block_quantity,size_t block_size);
+t_block* create_blocks(char *path_blockfile,int block_quantity,size_t block_size);
 void create_block_file(char *path_blockfile,int block_quantity,size_t block_size);
 t_superbloque* create_superbloque(); 
 void create_bitmap(); 

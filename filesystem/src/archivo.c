@@ -4,9 +4,12 @@ void initialize_filesystem( t_config_filesystem *config ){
 
 create_fcb(config->path_fcb);
 t_superbloque* superbloque = create_superbloque(config->path_superbloque);
-create_bitmap(config->path_bitmap,superbloque);
-//create_blocks(config->path_bloques);
-
+if(superbloque == NULL){
+    free_superbloque(superbloque);
+    exit(1);
+}
+create_bitmap(config->path_bitmap,superbloque->block_quantity);
+t_block* bloques =  create_blocks(config->path_bloques, superbloque->block_quantity, superbloque->block_size);
 }
 
 void create_fcb(char *path_fcb){
@@ -14,7 +17,7 @@ mkdir(path_fcb,0777);
 
 }
 
-void create_blocks(char *path_blockfile,int block_quantity,size_t block_size) {
+t_block* create_blocks(char *path_blockfile,int block_quantity,size_t block_size) {
     FILE* block_file = fopen(path_blockfile, "rb");
     if (block_file == NULL) {
         log_debug(logger_aux,"No se encontro el archivo de bloques.\n");
@@ -31,7 +34,7 @@ void create_blocks(char *path_blockfile,int block_quantity,size_t block_size) {
     }
 
     munmap(all_blocks, block_quantity*block_size);
-    close(block_file);
+    fclose(block_file);
     return blocks;
 }
 
@@ -42,15 +45,22 @@ void create_block_file(char *path_blockfile, int block_quantity, size_t block_si
         exit(1);
     }
     
-    //Create an empty block/filling a block with 0
-    char* empty_block = malloc(block_size);
-    memset(empty_block, 0, block_size);
+    // Fill the blocks with zeros
+    t_block* empty_blocks = mmap(NULL, block_quantity * block_size, PROT_WRITE, MAP_SHARED, block_file, 0);
 
-    for (int i = 0; i < block_quantity; i++) {
-        fwrite(empty_block, block_size, 1, block_file);
+    // Fill the blocks with zeros
+    for (size_t i = 0; i < block_quantity; i++) {
+        empty_blocks[i].data = malloc(block_size);
+        memset(empty_blocks[i].data, 0, block_size);
     }
 
-    free(empty_block);
+    // Synchronize the memory mapping with the file 
+    msync(empty_blocks, block_quantity * block_size, MS_SYNC);
+
+    // Unmap the memory mapping
+    munmap(empty_blocks, block_quantity * block_size);
+    
+    //Close the block_file
     fclose(block_file);
 }
 
@@ -86,6 +96,9 @@ t_superbloque* create_superbloque(char *path_superblock){
 	fclose(fileBitmap);
  }
 
-
-
+void free_superbloque(t_superbloque* superbloque){
+    free(superbloque->block_quantity);
+    free(superbloque->block_size);
+    free(superbloque);
+}
 
