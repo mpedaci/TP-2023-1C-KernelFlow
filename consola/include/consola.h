@@ -11,9 +11,7 @@
 
 
 t_log* logger_console; 
-t_log* logger_aux;
 
-char* logger_aux_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/consola/logger_aux_path";
 char* logger_console_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/consola/consola.log";
 
 #endif
