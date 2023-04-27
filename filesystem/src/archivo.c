@@ -1,13 +1,12 @@
-
 #include<archivo.h>
-
 
 void initialize_filesystem( t_config_filesystem *config ){
 
 create_fcb(config->path_fcb);
-create_superbloque(config->path_superbloque);
-create_bitmap(config);
+t_superbloque* superbloque = create_superbloque(config->path_superbloque);
+create_bitmap(config->path_bitmap,superbloque);
 //create_blocks(config->path_bloques);
+
 }
 
 void create_fcb(char *path_fcb){
@@ -15,41 +14,67 @@ mkdir(path_fcb,0777);
 
 }
 
+void create_blocks(char *path_blockfile,int block_quantity,size_t block_size) {
+    FILE* block_file = fopen(path_blockfile, "rb");
+    if (block_file == NULL) {
+        log_debug(logger_aux,"No se encontro el archivo de bloques.\n");
+        create_block_file(path_blockfile,block_quantity, block_size);
+        block_file = fopen(path_blockfile, "rb");
+    }
 
-void create_superbloque(char *path_superblock){
-
-    FILE* archivoSuperbloque = fopen(path_superblock, "wb"); // wb xq es archivo binario
-
-    //if(archivoSuperbloque == NULL){
-    //    log_info(logger_aux, "NO se pudo abrir el archivo de superbloque");
-    //    EXIT_FAILURE;
-    //}
-
-    t_superbloque *pSuperbloque= malloc(sizeof(t_superbloque)); //Asigno memoria dinamica al punterosuperbloque
+    t_block* blocks = malloc(block_quantity * sizeof(block_size));
+    char* all_blocks = mmap(NULL,block_quantity*block_size,PROT_READ,MAP_SHARED,block_file,0);
     
-    //asigno los dos valores de ejemplo que me da el tp 
-    pSuperbloque ->block_size = 64;
-    pSuperbloque ->block_count = 30;
+    for (int i = 0; i < block_quantity; i++) {
+        blocks[i].data = malloc(block_size);
+        memcpy(blocks[i].data, &all_blocks[i * block_size], block_size);
+    }
 
-    fwrite(pSuperbloque, sizeof(t_superbloque), 1, archivoSuperbloque);
-
-    free(pSuperbloque); 
-    fclose(archivoSuperbloque);
-
+    munmap(all_blocks, block_quantity*block_size);
+    close(block_file);
+    return blocks;
 }
 
- void create_bitmap(t_config_filesystem *config ){
+void create_block_file(char *path_blockfile, int block_quantity, size_t block_size) {
+    FILE* block_file = fopen(path_blockfile, "w");
+    if (block_file == NULL) {
+        log_debug(logger_aux,"No se pudo crear el archivo de bloques.\n");
+        exit(1);
+    }
+    
+    //Create an empty block/filling a block with 0
+    char* empty_block = malloc(block_size);
+    memset(empty_block, 0, block_size);
 
-    FILE* fileSuperblock= fopen(config->path_superbloque, "rb");
-    FILE* fileBitmap = fopen(config->path_bitmap, "wb");
+    for (int i = 0; i < block_quantity; i++) {
+        fwrite(empty_block, block_size, 1, block_file);
+    }
 
-    t_superbloque *pSuperbloque= malloc(sizeof(t_superbloque)); //asigno y creo el puntero con memoria para dsps poder acceder al blockcout
+    free(empty_block);
+    fclose(block_file);
+}
 
-    fread(pSuperbloque,sizeof(t_superbloque),1,fileSuperblock);
 
+t_superbloque* create_superbloque(char *path_superblock){
+    t_config* config = config_create(path_superblock);
+    t_superbloque* superbloque = malloc(sizeof(t_superbloque));;
+
+    superbloque->block_size = config_get_long_value(config, "BLOCK_SIZE");
+    superbloque->block_quantity = config_get_int_value(config, "BLOCK_COUNT");
+
+    log_info(logger, "Archivo de Superbloque leido correctamente");
+
+    config_destroy(config);
+
+    return superbloque;
+}
+    
+
+ void create_bitmap(char* path_bitmap, int block_quantity){
+    FILE* fileBitmap = fopen(path_bitmap, "wb");
 
     t_bitarray* bitarray = malloc(sizeof(t_bitarray));
-    bitarray->size = pSuperbloque->block_count; 
+    bitarray->size = block_quantity;
     bitarray->bitarray = malloc(bitarray->size);
     for(int i = 0; i < bitarray->size; i++){
         bitarray->bitarray[i] = '0';
@@ -59,9 +84,6 @@ void create_superbloque(char *path_superblock){
     
     free(bitarray);
 	fclose(fileBitmap);
-	free(pSuperbloque);
-	fclose(fileSuperblock);
-
  }
 
 
