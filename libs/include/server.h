@@ -1,33 +1,22 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<sys/socket.h>
-#include<unistd.h>
-#include<netdb.h>
-#include<commons/log.h>
-#include<commons/collections/list.h>
-#include<string.h>
-#include<assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-typedef enum
-{
-	MENSAJE,
-	PAQUETE
-}op_code;
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netdb.h>
 
-extern t_log* logger;
+#include <commons/log.h>
+#include <commons/collections/list.h>
 
-void* get_buffer(int*, int);
+#include <string.h>
+#include <assert.h>
 
-int start_server(char*);
-int wait_client(int);
-t_list* get_package(int);
-void get_message(int);
-int get_operation(int);
+#include "communication.h"
 
-void client_destroy(int);
-void server_destroy(int);
+int server_start(char *, t_log *);
+int client_wait(int, t_log *);
 
 #endif /* SERVER_H_ */

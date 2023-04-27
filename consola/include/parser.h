@@ -8,30 +8,6 @@
 #include <commons/log.h>
 #include <commons/collections/list.h>
 
-typedef enum {
-    F_READ ,
-    F_WRITE,
-    SET ,
-    MOV_IN ,
-    MOV_OUT ,
-    F_TRUNCATE,
-    F_SEEK ,
-    CREATE_SEGMENT,
-    I_O ,
-    WAIT,
-    SIGNAL,
-    F_OPEN,
-    F_CLOSE,
-    DELETE_SEGMENT,
-    EXIT,
-    YIELD 
-}t_identificador;
-
-typedef struct{
-    t_identificador identificador;
-    uint32_t cant_parametros;
-    char** parametros;
-}t_instruccion;
 
 
 t_identificador mapear_identificador(char *identificador);

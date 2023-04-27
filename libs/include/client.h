@@ -1,43 +1,20 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<signal.h>
-#include<unistd.h>
-#include<sys/socket.h>
-#include<netdb.h>
-#include<string.h>
-#include<commons/log.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-typedef enum
-{
-	MENSAJE,
-	PAQUETE,
-	CONFIRMACION,
-	FINALIZACION_PROCESO
-}op_code;
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <signal.h>
 
-typedef struct
-{
-	int size;
-	void* stream;
-} t_buffer;
+#include <string.h>
 
-typedef struct
-{
-	op_code codigo_operacion;
-	t_buffer* buffer;
-} t_paquete;
+#include <commons/log.h>
 
+#include "communication.h"
 
-
-int create_connection(char* ip, char* puerto);
-void send_message(char* mensaje, int socket_cliente);
-t_paquete* create_package(void);
-void add_to_package(t_paquete* paquete, void* valor, int tamanio);
-void send_package(t_paquete* paquete, int socket_cliente);
-void destroy_connection(int socket_cliente);
-void destroy_package(t_paquete* paquete);
+int create_connection(char* ip, char* puerto, t_log* logger);
 
 #endif /* CLIENT_H_ */

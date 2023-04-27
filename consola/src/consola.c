@@ -40,6 +40,9 @@ int main(int argc, char** argv){
 
   // enviar lista de instrucciones a kernel
 
+  if(send_instrucciones(kernel_socket, lista_instrucciones, logger_console)){
+    log_debug(logger_console, "kkkkkk");
+  }
   
   
   // fin del programa
