@@ -27,7 +27,7 @@ t_config_memoria *read_config(char *config_path, t_log *logger)
 
 void start_memory_server(char* port, t_log * logger)
 {  log_info(logger, "Iniciando servidor");
-	int server_fd = start_server(port);
+	int server_fd = server_start(port, logger);
 	log_info(logger, "Servidor listo para recibir al cliente");
 	//Descomentar cuando se conecten los modulos que deberian
 	//int client_fd = wait_client(server_fd);
