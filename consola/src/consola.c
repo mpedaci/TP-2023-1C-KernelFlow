@@ -15,31 +15,49 @@ int main(int argc, char** argv){
   FILE* file_instructions = fopen(path_pseudocodigo, "r");
 
   if(config == NULL){
-      end_program(logger_console, config, file_instructions);
+      end_program(logger_console, config);
       return EXIT_FAILURE;
     }
 
   if(logger_console == NULL){
       log_error(logger_console, "No se pudo iniciar la consola"),
-      end_program(logger_console, config, file_instructions);
+      end_program(logger_console, config);
       return EXIT_FAILURE;
    }
+
   log_debug(logger_console, "Consola iniciada.");
 
   // inicializo socket
   int kernel_socket = start_console_client(config->ip_kernel, config->puerto_kernel, logger_console);
 
   // parsear archivo pseudocodigo
-  t_lista_instrucciones* lista_instrucciones = parsear_pseudocodigo(file_instructions, logger_console);
+  t_list* lista_instrucciones = parsear_pseudocodigo(file_instructions, logger_console);
 
   if(lista_instrucciones == NULL){
-    end_program(logger_console, config, file_instructions);
+    end_program(logger_console, config);
     return 0;
   }
 
+  // enviar lista de instrucciones a kernel
+
+  for(int i = 1; i < list_size(lista_instrucciones); i++){
+    t_instruccion* ins = list_get(lista_instrucciones, i);
+    bool res = send_instrucciones2(kernel_socket, ins, logger_console);
+    if(res == 0){
+      log_debug(logger_console, "hubo un error");
+    }
+    else 
+    log_debug(logger_console, "se envio correctamente");
+  }
+
+  //hs_server_to_module_valid(kernel_socket, HSOK, logger_console);
+
+  
   // fin del programa
-  end_program(logger_console, config, file_instructions);
-  destroy_connection(kernel_socket);
+  socket_destroy(kernel_socket);
+  end_program(logger_console, config);
+  fclose(file_instructions);
+  destroy_lista_instrucciones(lista_instrucciones);
 
   return EXIT_SUCCESS;
 }

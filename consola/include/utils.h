@@ -1,9 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 
+#include <stdlib.h>
 
 #include <commons/log.h>
 #include <commons/config.h>
@@ -18,7 +16,7 @@ typedef struct{
 
 
 t_config_console* read_config(char* path, t_log* logger_console);
-void end_program(t_log* logger_console, t_config_console* config, FILE* archivo_instrucciones);
+void end_program(t_log* logger_console, t_config_console* config);
 
 
 
