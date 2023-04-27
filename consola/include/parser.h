@@ -33,7 +33,6 @@ typedef struct{
     char** parametros;
 }t_instruccion;
 
-//void enviar_instrucciones_por_socket(int socket, t_list* lista_instrucciones); 
 
 t_identificador mapear_identificador(char *identificador);
 void add_param_to_instruction(t_list *parametros, t_instruccion *instruccion);
@@ -42,6 +41,5 @@ t_instruccion *new_instruction(t_identificador identificador, t_list* parametros
 t_list *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola);
 void destroy_instruccion(t_instruccion* instruccion);
 void destroy_lista_instrucciones(t_list* lista_instrucciones);
-bool send_instrucciones2(int socket, t_instruccion* instruccion, t_log* logger);
-//bool send_instrucciones2(int socket, t_list* lista_instrucciones, t_log* logger);
+
 
