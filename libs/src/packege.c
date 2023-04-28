@@ -20,6 +20,8 @@ t_buffer* t_lista_instrucciones_create_buffer(t_list* lista_instrucciones){
         size_total += sizeof(t_identificador) + sizeof(uint32_t) + 
         espacio_de_array_parametros(instruccion);
     }
+    
+    buffer -> size = size_total;
 
     void* stream = malloc(size_total);
     //Desplazamiento
