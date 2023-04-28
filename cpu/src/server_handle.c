@@ -1,60 +1,42 @@
 #include "server_handle.h"
 
-void start_cpu_server(char *listen_port, t_log *logger) {
-    int server_socket = start_server(listen_port);
 
+void start_cpu_server(char *listen_port, t_log *logger)
+{
+    int server_socket = server_start(listen_port, logger);
     int client_socket;
 
-    client_socket = wait_client(server_socket);
-    if (client_socket == -1)
-    {
-        log_error(logger, "Error al aceptar conexion");
-        return;
-    }
+    client_socket = client_wait(server_socket, logger);
     log_info(logger, "Se conecto un cliente");
-    if (server_pass_handshake(client_socket, logger))
+
+    if (hs_server_to_module_valid(client_socket, HSCPU, logger))
         process_client(client_socket, logger);
-    client_destroy(client_socket);
     
-    // Cierro todos socket
-    client_destroy(client_socket);
-    server_destroy(server_socket);
+    socket_destroy(client_socket);
+    socket_destroy(server_socket);
 }
 
 void process_client(int client_socket, t_log *logger) {
-    t_list *lista;
-    while (1)
+    bool exit = false;
+    while (exit == false)
     {
-        int cod_op = get_operation(client_socket);
-        printf("Recibido codigo de operacion %d\n", cod_op);
-        switch (cod_op)
+        t_package* package = get_package(socket, logger);
+        switch (package->operation_code)
         {
-        case MENSAJE:
-            char* message = get_message(client_socket);
-            printf("Recibi el mensaje: %s", message);
-            free(message);
+        case PCONTEXTO:
+            t_pcontexto* contexto = get_pcontexto(package->buffer);
+            contexto = execute_process(contexto);
+            send_pcontexto(client_socket, contexto, logger_aux);
             break;
-        case PAQUETE:
-            lista = get_package(client_socket);
-            list_iterate(lista, (void *)iteratorFunction);
-            break;
-        case -1:
-            log_error(logger, "el cliente se desconecto. Terminando servidor");
+        case END:
+            printf("Conexion Finalizada");
+            exit = true;
             break;
         default:
-            printf("Default %d\n", cod_op);
-            log_warning(logger, "Operacion desconocida.");
+            printf("Operacion desconocida.");
+            exit = true;
             break;
         }
+        package_destroy(package);
     }
-}
-
-void iteratorFunction(char *value)
-{
-    printf("Recibido valor %s\n", value);
-}
-
-
-void send_context_kernel(t_pcontexto* context) {
-    // enviar mensaje al kernel con el contexto de ejecucion, hablar con equipo para ver como mandamos esto #########################################
 }

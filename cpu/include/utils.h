@@ -7,6 +7,7 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>
+#include "types.h"
 
 typedef struct {
     char* ip_memoria;
@@ -15,21 +16,6 @@ typedef struct {
     char* tam_max_segmento;
     char* retardo_instruccion;
 } t_config_cpu;
-
-typedef struct {
-    void* AX;
-    void* BX;
-    void* CX;
-    void* DX;
-    void* EAX;
-    void* EBX;
-    void* ECX;
-    void* EDX;
-    void* RAX;
-    void* RBX;
-    void* RCX;
-    void* RDX;
-} t_registers;
 
 t_config_cpu* read_config(char* path, t_log* logger);
 

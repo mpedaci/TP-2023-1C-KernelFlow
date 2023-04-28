@@ -39,9 +39,34 @@ typedef enum {
 
 typedef struct {
     uint32_t pib;
-    t_list* instructions; // por ahora es una lista de strings, puede cambiar
+    t_list* instructions;
     uint32_t program_counter;
     t_registers* registers;
 } t_pcontexto;
+
+typedef enum {
+    I_F_READ ,
+    I_F_WRITE,
+    I_SET ,
+    I_MOV_IN ,
+    I_MOV_OUT ,
+    I_F_TRUNCATE,
+    I_F_SEEK ,
+    I_CREATE_SEGMENT,
+    I_I_O ,
+    I_WAIT,
+    I_SIGNAL,
+    I_F_OPEN,
+    I_F_CLOSE,
+    I_DELETE_SEGMENT,
+    I_EXIT,
+    I_YIELD 
+}t_identificador;
+
+typedef struct{
+    t_identificador identificador;
+    uint32_t cant_parametros;
+    char** parametros;
+}t_instruccion;
 
 #endif /* TYPES_H_ */

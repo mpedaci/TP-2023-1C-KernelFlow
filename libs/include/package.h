@@ -24,12 +24,14 @@ typedef struct {
 /* BUFFERS TIPOS DE DATOS -> SEND */
 
 t_buffer* t_persona_create_buffer(t_persona persona);
+t_buffer* t_pcontexto_create_buffer(t_pcontexto* pcontexto);
 
 t_buffer* null_buffer();
 
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
 t_persona* t_persona_create_from_buffer(t_buffer* buffer);
+t_pcontexto* t_pcontexto_create_from_buffer(t_buffer* buffer);
 
 /* PAQUETE */
 

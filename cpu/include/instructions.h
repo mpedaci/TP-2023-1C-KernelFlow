@@ -4,11 +4,11 @@
 #include "cpu.h"
 
 
-void SET(char* registro, char* valor);
+void SET(void* registro, void* valor);
 
-void YIELD(t_execution_context* context);
+void YIELD();
 
-void EXIT(t_execution_context* context);
+void EXIT();
 
 
 #endif
