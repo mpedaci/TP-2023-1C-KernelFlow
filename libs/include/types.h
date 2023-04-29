@@ -29,14 +29,6 @@ typedef struct {
     void* RDX;
 } t_registers;
 
-typedef enum {
-    NEW,
-    READY,
-    EXEC,
-    BLOCK,
-    EXIT,
-} process_state;
-
 typedef struct {
     uint32_t pib;
     t_list* instructions;

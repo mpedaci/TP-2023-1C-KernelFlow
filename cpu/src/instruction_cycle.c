@@ -1,6 +1,5 @@
 #include "instruction_cycle.h"
 
-
 t_instruccion* fetch(t_pcontexto* contexto) {
     t_instruccion* instruccionSiguiente = list_get(contexto->instructions, contexto->program_counter);
     contexto->program_counter++;
@@ -13,7 +12,7 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
     instruccionListaParaEjecutar->identificador = instruccionSiguiente->identificador;
     instruccionListaParaEjecutar->cant_parametros = instruccionSiguiente->cant_parametros;
     
-    switch (instruccionSiguiente->identificador)
+    switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
         // AGREGAR RETARDO DE INSTRUCCION
@@ -40,7 +39,7 @@ void execute(t_instruccion* instruccionListaParaEjecutar) { // por ahora no devu
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
-        SET(instruccionListaParaEjecutar->parametros[0], instruccionListaParaEjecutar->parametros[1]);
+        //SET();
         break;
     case I_MOV_IN:
         
@@ -97,6 +96,7 @@ t_pcontexto* execute_instruction_cycle(t_pcontexto* contexto) {
     t_instruccion* instruccionSiguiente = fetch(contexto);
     t_instruccion* instruccionListaParaEjecutar = decode(instruccionSiguiente);
     execute(instruccionListaParaEjecutar);
+    return contexto;
 }
 
 t_pcontexto* execute_process(t_pcontexto* contexto) {

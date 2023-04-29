@@ -1,5 +1,9 @@
 #include "instructions.h"
 
+void stop_exec() {
+    ejecutando = false;
+}
+
 
 void SET(void* registro, void* valor) { // setea el registro pasado por param a el valor pasado por parametro
     // registro = valor;
@@ -11,10 +15,10 @@ void SET(void* registro, void* valor) { // setea el registro pasado por param a 
 
 
 void YIELD() { // desaloja voluntariamente el proceso de la CPU
-    ejecutando = false;
+    stop_exec();
 } 
 
 
 void EXIT() { // instruccion de finalizacion de proceso
-    ejecutando = false;
+    stop_exec();
 }

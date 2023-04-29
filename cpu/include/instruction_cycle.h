@@ -1,7 +1,10 @@
 #ifndef INSTRUCTION_CYCLE_H
 #define INSTRUCTION_CYCLE_H
 
-#include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 #include "instructions.h"
 
 // Busca la siguiente instruccion a ejecutar del pcb y suma 1 al program counter
@@ -16,6 +19,5 @@ void execute(t_instruccion* instruccionListaParaEjecutar);
 t_pcontexto* execute_instruction_cycle(t_pcontexto* contexto);
 
 t_pcontexto* execute_process(t_pcontexto* contexto);
-
 
 #endif
