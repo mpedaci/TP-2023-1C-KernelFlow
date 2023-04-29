@@ -44,7 +44,7 @@ void start_memory_server(char* port, t_log * logger)
 		case HSCPU:
 			log_info(logger_aux,"Se conecto el modulo CPU");
 			send_message("Conexión establecida Memoria - CPU", client_fd)
-		case HSFILESYSTEM:
+		case HSFS:
 			log_info(logger_aux,"Se conecto el modulo File System");
 			send_message("Conexión establecida Memoria - File System", client_fd)
 		case -1:
@@ -58,8 +58,8 @@ void start_memory_server(char* port, t_log * logger)
 	}
 	*/
 
-   client_destroy(client_fd);
-   server_destroy(server_fd);
+   socket_destroy(client_fd);
+   socket_destroy(server_fd);
 
 }
 

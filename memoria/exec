@@ -1,6 +1,7 @@
 #!/bin/bash
-FILE=memoria
-make $FILE
+FILE=bin/memoria
+make clean
+make
 if test -f "./$FILE"; then
     ./$FILE
 fi
