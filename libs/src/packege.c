@@ -3,42 +3,65 @@
 /* BUFFERS TIPOS DE DATOS -> SEND */
 
 uint32_t espacio_de_array_parametros(t_instruccion* instruccion){
-	uint32_t espacio = 0; //para que no tenga nada antes de sumar
-	for(int i=0; i< instruccion->cant_parametros; i++)
+	uint32_t espacio = 0; 
+
+	for(int i = 0; i < instruccion->cant_parametros; i++)
 		espacio += strlen(instruccion->parametros[i]) * sizeof(char*);
 	return espacio;
 }
 
+t_buffer* t_instruccion_create_buffer(t_instruccion* instruccion){
+    t_buffer* buffer = malloc(sizeof(t_buffer));
+
+    buffer->size = sizeof(t_identificador)
+                   + sizeof(uint32_t)
+                   + espacio_de_array_parametros(instruccion);
+
+    void* stream = malloc(buffer->size);
+    int offset = 0;
+
+    memcpy(stream + offset, &instruccion -> identificador, sizeof(t_identificador));
+        offset += sizeof(t_identificador);
+
+    memcpy(stream + offset, &instruccion->cant_parametros, sizeof(uint32_t));
+        offset += sizeof(uint32_t);
+
+    for(int i = 0; i< instruccion->cant_parametros; i++)
+        memcpy(stream + offset, instruccion->parametros[i], strlen(instruccion->parametros[i]) * sizeof(char*));
+
+    buffer -> stream = stream;
+
+    return buffer;
+}
+
 t_buffer* t_lista_instrucciones_create_buffer(t_list* lista_instrucciones){
 
-     t_buffer* buffer = malloc(sizeof(t_buffer));
-     
+    t_buffer* buffer = malloc(sizeof(t_buffer));
+
     uint32_t size_total = 0;
 
     for(int i = 0; i < list_size(lista_instrucciones); i++){
         t_instruccion* instruccion = list_get(lista_instrucciones, i);
-        size_total += sizeof(t_identificador) + sizeof(uint32_t) + 
-        espacio_de_array_parametros(instruccion);
-    }
-    
-    buffer -> size = size_total;
+        t_buffer* buffer_instruccion = t_instruccion_create_buffer(instruccion);
 
+        size_total += sizeof(uint32_t) + buffer_instruccion->size;
+    }
+    buffer->size = size_total;
+
+    // creo el stream y copio los datos de cada buffer
     void* stream = malloc(size_total);
-    //Desplazamiento
-    int offset=0;
+    int offset = 0;
 
     for(int i = 0; i < list_size(lista_instrucciones); i++){
         t_instruccion* instruccion = list_get(lista_instrucciones, i);
+        t_buffer* buffer_instruccion = t_instruccion_create_buffer(instruccion);
 
-        memcpy(stream + offset, &instruccion -> identificador, sizeof(t_instruccion));
-        offset += sizeof(t_instruccion);
-
-        memcpy(stream + offset, &instruccion->cant_parametros, sizeof(uint32_t));
+        memcpy(stream + offset, &buffer_instruccion->size, sizeof(uint32_t));
         offset += sizeof(uint32_t);
-
-        for(int i = 0; i< instruccion->cant_parametros; i++)
-        memcpy(stream + offset, instruccion->parametros, strlen(instruccion->parametros[i]) * sizeof(char*));
+        memcpy(stream + offset, &buffer_instruccion->stream, buffer_instruccion->size);
+        offset += buffer_instruccion->size;
     }
+
     buffer -> stream = stream;
     return buffer;
 }
@@ -83,10 +106,11 @@ t_buffer* null_buffer(){
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
 t_list* t_lista_instrucciones_create_from_buffer(t_buffer* buffer){
-    t_list* lista_instrucciones = malloc(sizeof(t_list));
+    t_list* lista_instrucciones = list_create();
     void* stream = buffer->stream;
     uint32_t offset = 0;
         
+        // leo cada instruccion del stream
         while (offset < buffer->size){
         t_identificador identificador;
         uint32_t cant_parametros;
@@ -152,7 +176,7 @@ t_package* package_create(t_buffer *buffer, int operation_code)
     if (buffer == NULL)
         paquete->buffer = null_buffer();
     else
-        paquete->buffer = buffer;
+        paquete->buffer = malloc(sizeof(t_buffer));//buffer;
     return paquete;
 }
 

@@ -15,22 +15,22 @@ typedef struct {
 } t_persona;
 
 typedef enum {
-    F_READ ,
-    F_WRITE,
-    SET ,
-    MOV_IN ,
-    MOV_OUT ,
-    F_TRUNCATE,
-    F_SEEK ,
-    CREATE_SEGMENT,
-    I_O ,
-    WAIT,
-    SIGNAL,
-    F_OPEN,
-    F_CLOSE,
-    DELETE_SEGMENT,
-    EXIT,
-    YIELD 
+    I_F_READ ,
+    I_F_WRITE,
+    I_SET ,
+    I_MOV_IN ,
+    I_MOV_OUT ,
+    I_F_TRUNCATE,
+    I_F_SEEK ,
+    I_CREATE_SEGMENT,
+    I_I_O ,
+    I_WAIT,
+    I_SIGNAL,
+    I_F_OPEN,
+    I_F_CLOSE,
+    I_DELETE_SEGMENT,
+    I_EXIT,
+    I_YIELD 
 }t_identificador;
 
 typedef struct{

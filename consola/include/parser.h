@@ -17,5 +17,3 @@ t_instruccion *new_instruction(t_identificador identificador, t_list* parametros
 t_list *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola);
 void destroy_instruccion(t_instruccion* instruccion);
 void destroy_lista_instrucciones(t_list* lista_instrucciones);
-
-

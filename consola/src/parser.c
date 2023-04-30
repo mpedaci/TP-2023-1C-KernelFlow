@@ -7,61 +7,60 @@ t_identificador mapear_identificador(char *identificador){
     t_identificador id;
 
     if (string_equals_ignore_case(identificador, "F_READ")){
-        id = F_READ;
+        id = I_F_READ;
     }
     else if (string_equals_ignore_case(identificador, "F_WRITE")){
-        id = F_WRITE;
+        id = I_F_WRITE;
     }
     else if (string_equals_ignore_case(identificador, "SET")){
-        id = SET;
+        id = I_SET;
     }
     else if (string_equals_ignore_case(identificador, "MOV_IN")){
-        id = MOV_IN;
+        id = I_MOV_IN;
     }
     else if (string_equals_ignore_case(identificador, "MOV_OUT")){
-        id = MOV_OUT;
+        id = I_MOV_OUT;
     }
     else if (string_equals_ignore_case(identificador, "F_TRUNCATE")){
-        id = F_TRUNCATE;
+        id = I_F_TRUNCATE;
     }
     else if (string_equals_ignore_case(identificador, "F_SEEK")){
-        id = F_SEEK;
+        id = I_F_SEEK;
     }
     else if (string_equals_ignore_case(identificador, "CREATE_SEGMENT")){
-        id = CREATE_SEGMENT;
+        id = I_CREATE_SEGMENT;
     }
     else if (string_equals_ignore_case(identificador, "I_O")){
-        id = I_O;
+        id = I_I_O;
     }
     else if (string_equals_ignore_case(identificador, "WAIT")){
-        id = WAIT;
+        id = I_WAIT;
     }
     else if (string_equals_ignore_case(identificador, "SIGNAL")){
-        id = SIGNAL;
+        id = I_SIGNAL;
     }
     else if (string_equals_ignore_case(identificador, "F_OPEN")){
-        id = F_OPEN;
+        id = I_F_OPEN;
     }
     else if (string_equals_ignore_case(identificador, "F_CLOSE")){
-        id = F_CLOSE;
+        id = I_F_CLOSE;
     }
     else if (string_equals_ignore_case(identificador, "DELETE_SEGMENT")){
-        id = DELETE_SEGMENT;
+        id = I_DELETE_SEGMENT;
     }
     else if (string_equals_ignore_case(identificador, "EXIT")){
-        id = EXIT;
+        id = I_EXIT;
     }
     else if (string_equals_ignore_case(identificador, "YIELD")){
-        id = YIELD;
+        id = I_YIELD;
     }
     return id;
 }
 
 void add_param_to_instruction(t_list *parametros, t_instruccion *instruccion){
-    int valor = instruccion -> cant_parametros;
     int i = 0;
     if(parametros != NULL){
-        while(i < instruccion -> cant_parametros && i < list_size(parametros)){
+        while(i < instruccion -> cant_parametros){
             instruccion -> parametros[i] = list_get(parametros, i);
             i++;
         }
@@ -126,7 +125,7 @@ t_list *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola){
 
         list_destroy(lines);
         free(tokens);
-        free(t);
+    
     }
     free(line);
     return list_instructions;
