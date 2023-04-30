@@ -18,11 +18,14 @@ extern t_modules_client *modules_client;
 extern int server_socket;
 extern bool accept_connections;
 
+extern bool end_program_flag;
+
 extern t_queues *queues;
 
 extern uint32_t pid_counter;
 
 extern pthread_t thr_server;
+extern pthread_t thr_server_conn;
 extern pthread_t thr_core;
 
 extern bool core_running;

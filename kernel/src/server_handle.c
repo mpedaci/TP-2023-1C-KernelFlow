@@ -6,6 +6,11 @@ t_client_connection *connection;
 
 void start_kernel_server(char *listen_port)
 {
+    pthread_create(&thr_server, 0, process_client_entry, (void *)listen_port);
+}
+
+void *start_server_listen(char *listen_port)
+{
     server_socket = server_start(listen_port, logger_aux);
     while (accept_connections)
     {
@@ -15,19 +20,21 @@ void start_kernel_server(char *listen_port)
         if (connection->socket != -1)
         {
             pid_counter++;
-            pthread_create(&thr_server, 0, process_client_entry, (void *)connection);
+            pthread_create(&thr_server_conn, 0, process_client_entry, (void *)connection);
         }else {
             free(connection);
         }
     }
+    pthread_exit(0);
 }
 
 void end_kernel_server()
 {
     accept_connections = false;
-    pthread_join(thr_server, NULL); 
+    pthread_join(thr_server_conn, NULL); 
     socket_destroy(server_socket);
     free(connection);
+    pthread_join(thr_server, NULL);
 }
 
 void *process_client_entry(void *ptr)

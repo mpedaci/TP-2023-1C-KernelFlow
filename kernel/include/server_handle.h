@@ -14,6 +14,7 @@
 
 
 void start_kernel_server(char *listen_port);
+void *start_server_listen(char *listen_port);
 void end_kernel_server();
 
 void *process_client_entry(void *ptr);

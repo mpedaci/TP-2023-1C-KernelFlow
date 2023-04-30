@@ -3,8 +3,10 @@
 
 #include <stdlib.h>
 #include <signal.h> // Para cierre seguro
+#include <readline/readline.h> // Para prints
 
 #include <commons/log.h>
+#include <commons/collections/list.h>
 
 #include "kernel_vars.h"
 
@@ -20,5 +22,13 @@ char *logger_aux_path = "/home/utnso/Desktop/tp-2023-1c-KernelFlow/kernel/logs/k
 
 int main();
 void sigintHandler(int signum); // Para cierre seguro
+
+void print_menu();
+void print_config();
+void print_recurso();
+void print_instancias_recursos();
+void print_queues();
+void print_pcb();
+void print_internal_states();
 
 #endif /* KERNEL_H */
