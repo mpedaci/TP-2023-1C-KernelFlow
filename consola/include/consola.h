@@ -12,6 +12,6 @@
 
 t_log* logger_console; 
 
-char* logger_console_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/consola/consola.log";
+char* logger_console_path = "/home/utnso/Desktop/New Folder/tp-2023-1c-KernelFlow/consola/consola.log";
 
 #endif

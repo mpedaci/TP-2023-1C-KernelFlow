@@ -3,41 +3,51 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+
+#include <commons/temporal.h>
+#include <commons/bitarray.h>
 #include <commons/collections/list.h>
 
 /* TIPO DE DATO */
-typedef struct {
+typedef struct
+{
     uint32_t dni;
     uint8_t edad;
     uint32_t pasaporte;
     uint32_t nombre_length;
-    char* nombre;
+    char *nombre;
 } t_persona;
 
-typedef enum {
-    I_F_READ ,
+// CONSOLA
+typedef enum
+{
+    I_F_READ,
     I_F_WRITE,
-    I_SET ,
-    I_MOV_IN ,
-    I_MOV_OUT ,
+    I_SET,
+    I_MOV_IN,
+    I_MOV_OUT,
     I_F_TRUNCATE,
-    I_F_SEEK ,
+    I_F_SEEK,
     I_CREATE_SEGMENT,
-    I_I_O ,
+    I_I_O,
     I_WAIT,
     I_SIGNAL,
     I_F_OPEN,
     I_F_CLOSE,
     I_DELETE_SEGMENT,
     I_EXIT,
-    I_YIELD 
-}t_identificador;
+    I_YIELD
+} t_identificador;
 
-typedef struct{
+typedef struct
+{
     t_identificador identificador;
     uint32_t cant_parametros;
-    char** parametros;
-}t_instruccion;
-
+    uint32_t p1_length;
+    uint32_t p2_length;
+    uint32_t p3_length;
+    uint32_t p4_length;
+    char **parametros;
+} t_instruccion;
 
 #endif /* TYPES_H_ */

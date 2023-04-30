@@ -38,6 +38,7 @@ t_persona* get_tsegmento(t_package* paquete);
 t_persona* get_ofile(t_package* paquete);
 t_persona* get_file(t_package* paquete);
 t_persona* get_data(t_package* paquete);
+t_persona* get_instruccion(t_package* paquete);
 
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
@@ -47,6 +48,7 @@ bool send_tsegmento(int socket, t_persona persona, t_log *logger);
 bool send_ofile(int socket, t_persona persona, t_log *logger);
 bool send_file(int socket, t_persona persona, t_log *logger);
 bool send_data(int socket, t_persona persona, t_log *logger);
+bool send_instruccion(int socket, t_persona persona, t_log *logger);
 bool send_end(int socket, t_log *logger);
 
 /* HANDSHAKE */

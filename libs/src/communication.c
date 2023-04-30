@@ -12,8 +12,8 @@ t_package* get_package(int socket, t_log *logger)
 
 t_list* get_instrucciones(t_package* paquete)
 {
-    t_list* lista_instrucciones = t_lista_instrucciones_create_from_buffer(paquete->buffer);
-    return lista_instrucciones;
+    t_list* persona = t_lista_instrucciones_create_from_buffer(paquete->buffer);
+    return persona;
 };
 
 t_persona* get_pcontexto(t_package* paquete)
@@ -46,18 +46,29 @@ t_persona* get_data(t_package* paquete)
     return persona;
 };
 
+t_persona* get_instruccion(t_package* paquete)
+{
+    t_persona* persona = t_persona_create_from_buffer(paquete->buffer);
+    return persona;
+};
+
 
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
 bool send_instrucciones(int socket, t_list* lista_instrucciones, t_log *logger)
 {
+    // t_buffer *buffer = t_instruccion_create_buffer(list_get(lista_instrucciones, 0));
+    // uint32_t offset = 0;
+    // t_instruccion_create_from_buffer(buffer, &offset);
+
     t_buffer *buffer = t_lista_instrucciones_create_buffer(lista_instrucciones);
+    t_lista_instrucciones_create_from_buffer(buffer);
+    
     t_package *paquete = package_create(buffer, INSTRUCCIONES);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
 };
-
 
 bool send_pcontexto(int socket, t_persona persona, t_log *logger)
 {
@@ -99,6 +110,15 @@ bool send_data(int socket, t_persona persona, t_log *logger)
 {
     t_buffer *buffer = t_persona_create_buffer(persona);
     t_package *paquete = package_create(buffer, DATA);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_instruccion(int socket, t_persona persona, t_log *logger)
+{
+    t_buffer *buffer = t_persona_create_buffer(persona);
+    t_package *paquete = package_create(buffer, INSTRUCCION);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
