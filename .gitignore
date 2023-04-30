@@ -60,3 +60,12 @@ dkms.conf
 */obj/*
 */bin
 */bin/*
+
+# Logs files
+*.log
+
+# Other
+.vscode
+.metadata
+*/.metadata
+*/.metadata/*
