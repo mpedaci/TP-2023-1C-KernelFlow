@@ -13,5 +13,6 @@ t_pcb *FIFO(t_list *queue)
 t_pcb *HRRN(t_list *queue)
 {
     // list_sort(t_list *, bool (*comparator)(void *, void *));
-    return queue;
+    // ORDENAR queue;
+    return list_remove(queue, 0);
 }

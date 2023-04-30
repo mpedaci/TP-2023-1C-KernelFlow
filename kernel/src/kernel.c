@@ -49,7 +49,7 @@ int main()
 }
 
 void sigintHandler(int signum){
-    printf("\nIniciando fin del modulo por signal\n", signum);
+    printf("\nIniciando fin del modulo por signal: %d\n", signum);
     end_kernel_server();
     end_kernel_core();
     end_program(logger_main, logger_aux, config_kernel, modules_client, queues);

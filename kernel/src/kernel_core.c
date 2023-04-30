@@ -47,6 +47,7 @@ void *process_queues()
         sleep(1);
     }
     // free(to_execute); // NO HARIA FALTA SI ESTA DENTRO DE UNA COLA
+    pthread_exit(0);
 }
 
 // MOVIMIENTO DE COLAS

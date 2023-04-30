@@ -46,20 +46,6 @@ typedef struct
     char **parametros;
 } t_instruccion;
 
-// KERNEL
-
-typedef struct
-{
-    uint32_t pid;
-    t_instruccion **instrucciones;
-    uint32_t program_counter;
-    t_registers *registers;
-    t_segments_table *segments_table;
-    double est_sig_rafaga;
-    t_temporal *tiempo_llegada_ready;
-    t_open_files *open_files_table;
-} t_pcb;
-
 // CPU
 
 typedef struct
@@ -81,7 +67,7 @@ typedef struct
 typedef struct
 {
     uint32_t pid;
-    t_list *instructions;
+    t_instruccion **instructions;
     uint32_t program_counter;
     t_registers *registers;
 } t_pcontexto;
@@ -106,9 +92,6 @@ typedef struct
 
 } t_superbloque;
 
-int bitmap_size;
-t_bitarray *bitmap;
-
 typedef struct
 {
     char *nombre_archivo;
@@ -121,5 +104,19 @@ typedef struct
 {
     char **archivos_abiertos;
 } t_open_files;
+
+// KERNEL
+
+typedef struct
+{
+    uint32_t pid;
+    t_instruccion **instrucciones;
+    uint32_t program_counter;
+    t_registers *registers;
+    t_segments_table *segments_table;
+    double est_sig_rafaga;
+    t_temporal *tiempo_llegada_ready;
+    t_open_files *open_files_table;
+} t_pcb;
 
 #endif /* TYPES_H_ */
