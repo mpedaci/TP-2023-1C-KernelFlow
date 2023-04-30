@@ -13,55 +13,28 @@ uint32_t espacio_de_array_parametros(t_instruccion *instruccion)
 t_buffer *t_instruccion_create_buffer(t_instruccion *instruccion)
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
-    buffer->size =  sizeof(uint32_t) + // identificador
-                    sizeof(uint32_t) + // cant_parametros
-                    espacio_de_array_parametros(instruccion) + // p1 + p2 + p3 + p4
-                    sizeof(uint32_t) * 4; // p1_length, p2_length, p3_length, p4_length
+    buffer->size = sizeof(uint32_t) +                         // identificador
+                   sizeof(uint32_t) +                         // cant_parametros
+                   espacio_de_array_parametros(instruccion) + // p1 + p2 + p3 + p4
+                   sizeof(uint32_t) * 4;                      // p1_length, p2_length, p3_length, p4_length
     void *stream = malloc(buffer->size);
     int offset = 0;
-    // ESTO NO VA ACA VA EN EL PARSER
-    /* ################################### */
-    uint32_t p1_length = 0;
-    uint32_t p2_length = 0;
-    uint32_t p3_length = 0;
-    uint32_t p4_length = 0;
-    p1_length = strlen(instruccion->parametros[0]) + 1;
-    if (instruccion->cant_parametros >= 2){
-        p2_length = strlen(instruccion->parametros[1]) + 1;
-        if (instruccion->cant_parametros >= 3){
-            p3_length = strlen(instruccion->parametros[2]) + 1;
-            if (instruccion->cant_parametros >= 4){
-                p4_length = strlen(instruccion->parametros[3]) + 1;
-            }
-        }
-    }
-    if (p1_length == 0)
-        p1_length = 1;
-    if (p2_length == 0)
-        p2_length = 1;
-    if (p3_length == 0)
-        p3_length = 1;
-    if (p4_length == 0)
-        p4_length = 1;
-    /* ################################### */
     memcpy(stream + offset, &instruccion->identificador, sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(stream + offset, &instruccion->cant_parametros, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(stream + offset, &p1_length, sizeof(uint32_t));
+    memcpy(stream + offset, &instruccion->p1_length, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(stream + offset, &p2_length, sizeof(uint32_t));
+    memcpy(stream + offset, &instruccion->p2_length, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(stream + offset, &p3_length, sizeof(uint32_t));
+    memcpy(stream + offset, &instruccion->p3_length, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(stream + offset, &p4_length, sizeof(uint32_t));
+    memcpy(stream + offset, &instruccion->p4_length, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    printf("Offset: %d\n", offset);
     for (int i = 0; i < instruccion->cant_parametros; i++)
     {
         memcpy(stream + offset, instruccion->parametros[i], strlen(instruccion->parametros[i]) + 1);
         offset += strlen(instruccion->parametros[i]) + 1;
-        printf("Offset: %d\n", offset);
     }
     buffer->stream = stream;
     return buffer;
@@ -74,29 +47,21 @@ t_buffer *t_lista_instrucciones_create_buffer(t_list *lista_instrucciones)
     for (int i = 0; i < list_size(lista_instrucciones); i++)
     {
         t_instruccion *instruccion = list_get(lista_instrucciones, i);
-        t_buffer *buffer_instruccion = t_instruccion_create_buffer(instruccion); // 10 - 20 - 4 
-        // Suma del buffer de todas las instrucciones
+        t_buffer *buffer_instruccion = t_instruccion_create_buffer(instruccion); // 10 - 20 - 4
         size_total += buffer_instruccion->size;
-        // free(buffer_instruccion->stream);
-        // free(buffer_instruccion);
     }
     // creo el stream y copio los datos de cada buffer
     void *stream = malloc(size_total);
     buffer->size = size_total;
-    printf("AGREGANDO A LISTA - t_lista_instrucciones_create_buffer\n");
     uint32_t offset = 0;
     for (int i = 0; i < list_size(lista_instrucciones); i++)
     {
         t_buffer *buffer_instruccion = t_instruccion_create_buffer(list_get(lista_instrucciones, i));
         uint32_t size = buffer_instruccion->size;
         void *stream_instruccion = buffer_instruccion->stream;
-        printf("Size instruccion: %d || Offset: %d\n", size, offset);
         memcpy(stream + offset, stream_instruccion, size);
         offset += size;
-        // free(buffer_instruccion->stream);
-        // free(buffer_instruccion);
     }
-    printf("Offset FINAL t_lista_instrucciones_create_buffer: %d\n", offset);
     buffer->stream = stream;
     return buffer;
 }
@@ -147,7 +112,6 @@ t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offs
     void *stream = buffer->stream;
     // printf("STREAM t_instruccion_create_from_buffer: %s\n", stream);
     uint32_t offset_aux = 0;
-    uint32_t no_value = 0;
     stream += (*offset);
 
     memcpy(&(instruccion->identificador), stream, sizeof(uint32_t));
@@ -164,81 +128,57 @@ t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offs
     stream += sizeof(uint32_t);
 
     offset_aux += sizeof(uint32_t) * 6;
-
-    printf("Offset: %d\n", offset_aux);
-    // TEST PRINT
-    printf("identificador: %d\n", instruccion->identificador);
-    printf("cant_parametros: %d\n", instruccion->cant_parametros);
-    printf("S2 P1: %d - S2 P2: %d - S2 P3: %d - S2 P4: %d\n", instruccion->p1_length, instruccion->p2_length, instruccion->p3_length, instruccion->p4_length);
-    instruccion->parametros = (char **) malloc(instruccion->cant_parametros * sizeof(char *));
-    
+    instruccion->parametros = (char **)malloc(instruccion->cant_parametros * sizeof(char *));
     instruccion->parametros[0] = malloc(instruccion->p1_length);
     memcpy(instruccion->parametros[0], stream, instruccion->p1_length);
     offset_aux += instruccion->p1_length;
     stream += instruccion->p1_length;
-    if (instruccion->p1_length == 1){
+    if (instruccion->p1_length == 1)
+    {
         offset_aux -= 1;
         stream -= 1;
     }
-    printf("Offset: %d\n", offset_aux);
-
     instruccion->parametros[1] = malloc(instruccion->p2_length);
     memcpy(instruccion->parametros[1], stream, instruccion->p2_length);
     offset_aux += instruccion->p2_length;
     stream += instruccion->p2_length;
-    if (instruccion->p2_length == 1){
+    if (instruccion->p2_length == 1)
+    {
         offset_aux -= 1;
         stream -= 1;
     }
-    printf("Offset: %d\n", offset_aux);
-
     instruccion->parametros[2] = malloc(instruccion->p3_length);
     memcpy(instruccion->parametros[2], stream, instruccion->p3_length);
     offset_aux += instruccion->p3_length;
     stream += instruccion->p3_length;
-    if (instruccion->p3_length == 1){
+    if (instruccion->p3_length == 1)
+    {
         offset_aux -= 1;
         stream -= 1;
     }
-    printf("Offset: %d\n", offset_aux);
-
     instruccion->parametros[3] = malloc(instruccion->p4_length);
     memcpy(instruccion->parametros[3], stream, instruccion->p4_length);
     offset_aux += instruccion->p4_length;
     stream += instruccion->p4_length;
-    if (instruccion->p4_length == 1){
+    if (instruccion->p4_length == 1)
+    {
         offset_aux -= 1;
         stream -= 1;
     }
-    printf("Offset: %d\n", offset_aux);
-    // TEST PRINT
-    printf("LEIDO PARAM 1: %s\n", instruccion->parametros[0]);
-    printf("LEIDO PARAM 2: %s\n", instruccion->parametros[1]);
-    printf("LEIDO PARAM 3: %s\n", instruccion->parametros[2]);
-    printf("LEIDO PARAM 4: %s\n", instruccion->parametros[3]);
-
-
-    printf("Size instruccion: %d || Offset: %d\n", offset_aux, *offset);
     *offset += offset_aux;
     return instruccion;
 }
 
 t_list *t_lista_instrucciones_create_from_buffer(t_buffer *buffer)
 {
-    // t_list *lista_instrucciones = malloc(sizeof(t_list));
+    t_list *lista_instrucciones = list_create();
     uint32_t offset = 0;
-    printf("SIZE: %d\n", buffer->size);
-    while (offset != buffer->size)
+    while (offset <= buffer->size)
     {
-        // Crear la estructura para la instrucción y almacenarla en la lista
         t_instruccion *instruccion = t_instruccion_create_from_buffer(buffer, &offset);
-        free(instruccion);
-        // offset += sizeof(1);
-        // list_add(lista_instrucciones, instruccion);
+        list_add(lista_instrucciones, instruccion);
     }
-
-    // return lista_instrucciones;
-    return list_create();
+    return lista_instrucciones;
 }
 
 t_persona *t_persona_create_from_buffer(t_buffer *buffer)
@@ -299,7 +239,6 @@ bool package_send(int socket, t_package *paquete, t_log *logger)
         free(a_enviar);
         return false;
     }
-    printf("Enviado paquete con codigo de operacion: %d\n", paquete->operation_code);
     free(a_enviar);
     return true;
 }

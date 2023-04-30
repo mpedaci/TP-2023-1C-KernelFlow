@@ -52,18 +52,11 @@ t_persona* get_instruccion(t_package* paquete)
     return persona;
 };
 
-
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
 bool send_instrucciones(int socket, t_list* lista_instrucciones, t_log *logger)
 {
-    // t_buffer *buffer = t_instruccion_create_buffer(list_get(lista_instrucciones, 0));
-    // uint32_t offset = 0;
-    // t_instruccion_create_from_buffer(buffer, &offset);
-
     t_buffer *buffer = t_lista_instrucciones_create_buffer(lista_instrucciones);
-    t_lista_instrucciones_create_from_buffer(buffer);
-    
     t_package *paquete = package_create(buffer, INSTRUCCIONES);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);

@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "utils.h": "c",
-        "config.h": "c",
-        "consola.h": "c"
-    }
-}
