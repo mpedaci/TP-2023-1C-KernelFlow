@@ -1,36 +1,57 @@
 #include "kernel.h"
 
-int main(int argc, char *argv[])
+int main()
 {
-   // Inicializo los logs
-   logger_main = log_create(logger_main_path, "KERNEL", true, LOG_LEVEL_INFO);
-   logger_aux = log_create(logger_aux_path, "KERNEL AUX", true, LOG_LEVEL_DEBUG);
+    // Para cierre seguro
+    signal(SIGINT, sigintHandler);
+    // 0. Inicializar loggers
+    logger_main = log_create(logger_main_path, "KERNEL", true, LOG_LEVEL_INFO);
+    logger_aux = log_create(logger_aux_path, "KERNEL AUX", true, LOG_LEVEL_DEBUG);
+    // 1. Cargar configuracion
+    config_kernel = read_config(config_path, logger_aux);
+    if (config_kernel == NULL)
+    {
+        log_error(logger_main, "No se pudo cargar la configuracion");
+        end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+        return EXIT_FAILURE;
+    }
+    // 2. Crear clientes
+    modules_client = start_modules_client(config_kernel, logger_aux);
+    /* if (modules_client == NULL)
+    {
+        log_error(logger_main, "No se pudo crear los clientes");
+        end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+        return EXIT_FAILURE;
+    } */
+    // 3. Crear estructuras kernel
+    queues = create_queues();
+    // 4. Levantar hilo de servidor
+    start_kernel_server(config_kernel->puerto_escucha);
+    // 4.1. Levantar servidor - OK
+    // 4.2. Recibir cliente - OK
+    // 4.3. Crear hilo para cliente - OK
+    // 4.4. Crear PCB - OK
+    // 4.5. Solicitar Tabla de Segmentos - OK
+    // 4.6. Alojar PCB en cola de ready - OK
+    // 5. Levantar hilo de kernel
+    start_kernel_core();
+    // 5.1. Verificar contenido de colas - OK
+    // 5.1. Aplicar algoritmo - OK
+    // 5.1. Procesar CPU
+    // 5.1. Actualizar estados - OK
+    // 6. Mostrar info del sistema
+    // Mantengo abierto el programa por ahora
+    while (1) {}
+    // 6. Cerrar servidor - OK
+    // 7. Limpiar estructuras - OK
+    end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+    return EXIT_SUCCESS;
+}
 
-   // Leer configuracion
-   t_config_kernel *config = NULL;
-   config = read_config(config_path, logger_main);
-   if (config == NULL)
-   {
-      end_program(logger_main, logger_aux, config, NULL);
-      return EXIT_FAILURE;
-   }
-
-   // Iniciar clientes
-   log_info(logger_aux, "Iniciando clientes");
-   t_modules_client *modules_client = start_modules_client(config, logger_aux);
-
-   if (modules_client == NULL)
-   {
-      end_program(logger_main, logger_aux, config, modules_client);
-      return EXIT_FAILURE;
-   }
-
-   // Inicializar servidor
-   log_info(logger_aux, "Iniciando servidor");
-   start_kernel_server_one_thread(config->puerto_escucha, logger_aux);
-   // start_kernel_server(config->puerto_escucha, logger_aux); // Multihilo
-
-   // Fin del programa
-   end_program(logger_main, logger_aux, config, modules_client);
-   return EXIT_SUCCESS;
+void sigintHandler(int signum){
+    printf("\nIniciando fin del modulo por signal\n", signum);
+    end_kernel_server();
+    end_kernel_core();
+    end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+    exit(signum);
 }

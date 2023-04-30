@@ -2,34 +2,42 @@
 #define UTILS_H
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>
 
-typedef struct
-{
-    // Configuración del cliente
-    char *ip_memoria;        // Dirección IP de la memoria
-    char *puerto_memoria;    // Puerto de la memoria
-    char *ip_filesystem;     // Dirección IP del filesystem
-    char *puerto_filesystem; // Puerto del filesystem
-    char *ip_cpu;            // Dirección IP de la CPU
-    char *puerto_cpu;        // Puerto de la CPU
-    // Configuración del servidor
-    char *puerto_escucha; // Puerto en el que el kernel escucha las conexiones entrantes
-} t_config_kernel;
+#include "types.h"
+#include "kernel_structs.h"
 
-typedef struct
-{
-    int memory_client_socket;
-    int filesystem_client_socket;
-    int cpu_client_socket;
-} t_modules_client;
+#include "communication.h"
+
+// AUXILIAR FUNCTIONS
+
+void add_to_list(char **source, t_list *destiny);
+void free_arr(char **arr);
+
+// KERNEL FUNCTIONS
 
 t_config_kernel *read_config(char *path, t_log *logger);
 
-void end_program(t_log *logger_main, t_log *logger_aux, t_config_kernel *config, t_modules_client *modules_client);
+t_queues *create_queues();
 
+t_pcb *pcb_create(uint32_t pid, t_instruccion **instrucciones);
+
+// END PROGRAM
+
+void end_program(
+    t_log *logger_main, t_log *logger_aux,
+    t_config_kernel *config,
+    t_modules_client *modules_client,
+    t_queues *queues);
+
+// FREE FUNCTIONS
+
+void free_config_kernel(t_config_kernel *config);
+void free_modules_client(t_modules_client *modules_client);
+void free_queues(t_queues *queues);
 
 #endif /* UTILS_H */
