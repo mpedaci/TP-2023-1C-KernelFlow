@@ -10,7 +10,7 @@
 
 void stop_exec();
 
-void SET(void* registro, void* valor);
+void SET(char* registro, void* valor);
 
 void YIELD();
 

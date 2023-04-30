@@ -46,7 +46,7 @@ t_buffer* t_pcontexto_create_buffer(t_pcontexto* pcontexto) {
 
     int offset = 0;
 
-    memcpy(stream, pcontexto->pib, sizeof(uint32_t));
+    memcpy(stream, pcontexto->pid, sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(stream + offset, buffer_instrucciones->stream, buffer_instrucciones->size);
     offset += buffer_instrucciones->size;
@@ -120,7 +120,7 @@ t_pcontexto* t_pcontexto_create_from_buffer(t_buffer* buffer) {
     t_pcontexto* pcontexto = malloc(sizeof(t_pcontexto));
     void* stream = buffer->stream;
 
-    memcpy(&(pcontexto->pib), stream, sizeof(uint32_t));
+    memcpy(&(pcontexto->pid), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
 
     // usar intrucciones_create_from_buffer

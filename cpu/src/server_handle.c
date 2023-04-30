@@ -27,6 +27,7 @@ void process_client(int client_socket, t_log *logger) {
             t_pcontexto* contexto = get_pcontexto(package->buffer);
             contexto = execute_process(contexto);
             send_pcontexto(client_socket, contexto, logger);
+            //free(contexto); // liberar todo antes marcos puto
             break;
         case END:
             printf("Conexion Finalizada");

@@ -15,7 +15,6 @@ int main() {
    }
 
    init_registers();
-   ejecutando = false;
    
    // inicializar servidor para kernel
    log_info(logger_aux, "Iniciando servidor");

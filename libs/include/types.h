@@ -30,7 +30,7 @@ typedef struct {
 } t_registers;
 
 typedef struct {
-    uint32_t pib;
+    uint32_t pid;
     t_list* instructions;
     uint32_t program_counter;
     t_registers* registers;

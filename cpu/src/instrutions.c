@@ -5,10 +5,20 @@ void stop_exec() {
 }
 
 
-void SET(void* registro, void* valor) { // setea el registro pasado por param a el valor pasado por parametro
+void SET(char* registro, void* valor) { // setea el registro pasado por param a el valor pasado por parametro
     // registro = valor;
 
-    // recibe un registro en formade string
+    // switch ((*registro))
+    // {
+    // case "AX":
+        
+    //     break;
+    
+    // default:
+    //     break;
+    // }
+
+    // recibe un registro en forma de string
     // hay que hacer un switch con los registros y cuando machea buscar ese registro y setearlo al valor
     // ojo que el valor va a estar en formato string, osea sacarle el \0 y meterlo en el registro
 }
