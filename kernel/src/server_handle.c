@@ -68,17 +68,7 @@ void process_client_communication(t_client_connection *conn)
             // t_tabla_segmentos *tabla_segmentos = get_tabla_segmentos(package);
             // pcb->segments_table = tabla_segmentos;
             // list_add(queues->NEW, pcb);
-
-            t_persona *persona = get_instrucciones(package);
-            printf("Thread con PID: %d\n", conn->pid);
-            printf("Se recibio el nombre: %s\n", persona->nombre);
-            printf("Se recibio la longitud de nombre: %d\n", persona->nombre_length);
-            printf("Se recibio el dni: %d\n", persona->dni);
-            printf("Se recibio el edad: %d\n", persona->edad);
-            printf("Se recibio el pasaporte: %d\n", persona->pasaporte);
-            free(persona->nombre);
-            free(persona);
-            
+            printf("Instrucciones recibidas\n");
             break;
         case END:
             printf("Conexion Finalizada\n");

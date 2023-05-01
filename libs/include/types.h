@@ -50,4 +50,77 @@ typedef struct
     char **parametros;
 } t_instruccion;
 
+// CPU
+
+typedef struct
+{
+    void *AX;
+    void *BX;
+    void *CX;
+    void *DX;
+    void *EAX;
+    void *EBX;
+    void *ECX;
+    void *EDX;
+    void *RAX;
+    void *RBX;
+    void *RCX;
+    void *RDX;
+} t_registers;
+
+typedef struct
+{
+    uint32_t pid;
+    t_instruccion **instructions;
+    uint32_t program_counter;
+    t_registers *registers;
+} t_pcontexto;
+
+// MEMORIA
+
+typedef struct
+{
+    uint32_t id;
+    uint32_t segment_size;
+    uint32_t base_direction_lenght;
+    char *base_direction;
+
+} t_segments_table;
+
+// FILESYSTEM
+
+typedef struct
+{
+    uint32_t block_size;
+    uint32_t block_count;
+
+} t_superbloque;
+
+typedef struct
+{
+    char *nombre_archivo;
+    int tamanio_archivo;
+    uint32_t puntero_directo;
+    uint32_t puntero_indirecto;
+} t_fcb;
+
+typedef struct
+{
+    char **archivos_abiertos;
+} t_open_files;
+
+// KERNEL
+
+typedef struct
+{
+    uint32_t pid;
+    t_instruccion **instrucciones;
+    uint32_t program_counter;
+    t_registers *registers;
+    t_segments_table *segments_table;
+    double est_sig_rafaga;
+    t_temporal *tiempo_llegada_ready;
+    t_open_files *open_files_table;
+} t_pcb;
+
 #endif /* TYPES_H_ */
