@@ -72,7 +72,7 @@ t_queues *create_queues()
     return queues;
 }
 
-t_pcb *pcb_create(uint32_t pid, t_instruccion **instrucciones){
+t_pcb *pcb_create(uint32_t pid, t_list *instrucciones){
     t_pcb *pcb = malloc(sizeof(t_pcb));
     pcb->pid = pid;
     pcb->instrucciones = instrucciones;

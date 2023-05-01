@@ -24,7 +24,7 @@ t_config_kernel *read_config(char *path, t_log *logger);
 
 t_queues *create_queues();
 
-t_pcb *pcb_create(uint32_t pid, t_instruccion **instrucciones);
+t_pcb *pcb_create(uint32_t pid, t_list *instrucciones);
 
 // END PROGRAM
 

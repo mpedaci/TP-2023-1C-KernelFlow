@@ -20,11 +20,11 @@ void process_client(int client_socket, t_log *logger) {
     bool exit = false;
     while (exit == false)
     {
-        t_package* package = get_package(socket, logger);
+        t_package* package = get_package(client_socket, logger);
         switch (package->operation_code)
         {
         case PCONTEXTO:
-            t_pcontexto* contexto = get_pcontexto(package->buffer);
+            t_pcontexto* contexto = get_pcontexto(package);
             contexto = execute_process(contexto);
             send_pcontexto(client_socket, contexto, logger);
             //free(contexto); // liberar todo antes marcos puto

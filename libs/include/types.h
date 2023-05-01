@@ -71,7 +71,7 @@ typedef struct
 typedef struct
 {
     uint32_t pid;
-    t_instruccion **instructions;
+    t_list *instructions;
     uint32_t program_counter;
     t_registers *registers;
 } t_pcontexto;
@@ -114,7 +114,7 @@ typedef struct
 typedef struct
 {
     uint32_t pid;
-    t_instruccion **instrucciones;
+    t_list *instrucciones;
     uint32_t program_counter;
     t_registers *registers;
     t_segments_table *segments_table;
