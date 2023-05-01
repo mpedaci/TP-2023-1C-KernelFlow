@@ -2,5 +2,5 @@
 FILE=bin/filesystem
 make
 if test -f "./$FILE"; then
-    valgrind --tool=memcheck --leak-check=yes --show-possibly-lost=no --show-reachable=no --num-callers=20 ./$FILE
+    valgrind --tool=helgrind ./$FILE
 fi

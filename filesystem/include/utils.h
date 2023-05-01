@@ -12,7 +12,15 @@ typedef struct
 {
     char *puerto_escucha;        
     char *puerto_memoria;   
-    char *ip_memoria;    
+    char *ip_memoria;   
+
+     //agrego los paths
+    char *path_superbloque; 
+    char *path_bitmap; 
+    char *path_bloques;
+    char *path_fcb; 
+    
+    char *retardo_acceso_bloque; 
 
 } t_config_filesystem;
 
@@ -20,7 +28,7 @@ t_config_filesystem *read_config(char *path, t_log *logger);
 void end_program(t_log *logger_main, t_log *logger_aux, t_config_filesystem *config);
 void start_memory_client(char *ip, char *port, t_log *logger);
 void start_filesystem_server(char *listen_port, t_log *logger);
-
+//void handle_requests();
 
 
 #endif /* UTILS_H */
