@@ -1,22 +1,27 @@
-#include <utils.h>
-#include <filesystem.h>
-#include <commons/bitarray.h>
-#include <sys/mman.h>
+#include <utils.h> 
+#include <commons/bitarray.h> 
+#include <fcntl.h> //para la funcion open 
+#include <sys/mman.h> //para el mmap
+#include <math.h> // para el ceil 
 
 typedef struct
 {
-    size_t block_size;
-    int block_quantity;
+    uint32_t block_size;
+    uint32_t block_count;
+
 } t_superbloque;
+typedef struct {
 
-typedef struct
-{
-    char* data;
-} t_block;
+    char* nombre_archivo;
+    int tamanio_archivo;
+    uint32_t puntero_directo;
+    uint32_t puntero_indirecto;
+
+} t_fcb;
+
 
 void initialize_filesystem();
-t_block* create_blocks(char *path_blockfile,int block_quantity,size_t block_size);
-void create_block_file(char *path_blockfile,int block_quantity,size_t block_size);
-t_superbloque* create_superbloque(); 
+void create_superbloque(); 
 void create_bitmap(); 
 void create_fcb();
+void create_blocks();
