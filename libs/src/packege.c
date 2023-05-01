@@ -137,6 +137,12 @@ t_buffer *t_segment_table_create_buffer(t_segments_table *segment_table)
     return buffer;
 }
 
+t_buffer *t_open_files_create_buffer(t_open_files *open_files){
+    t_buffer *buffer = malloc(sizeof(t_buffer));
+    // POR IMPLEMENTAR
+    return buffer;
+}
+
 t_buffer *null_buffer()
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
@@ -281,6 +287,12 @@ t_segments_table *t_segment_table_create_from_buffer(t_buffer *buffer)
     memcpy(segment_table->base_direction, stream, segment_table->base_direction_length);
 
     return segment_table;
+}
+
+t_open_files *t_open_files_create_from_buffer(t_buffer *buffer){
+    t_open_files *open_files = malloc(sizeof(t_open_files));
+    // POR IMPLEMENTAR
+    return open_files;
 }
 
 /* PAQUETES */
