@@ -1,10 +1,14 @@
 #ifndef CLIENT_HANDLE_H
 #define CLIENT_HANDLE_H
 
-#include "client.h"
+#include <commons/log.h>
 
-void start_memory_client(char *ip, char *port, t_log *logger);
-void start_filesystem_client(char *ip, char *port, t_log *logger);
-void start_cpu_client(char *ip, char *port, t_log *logger);
+#include "kernel_structs.h"
+
+#include "client.h"
+#include "communication.h"
+
+t_modules_client *start_modules_client(t_config_kernel *config, t_log *logger);
+int start_client(char *ip, char *port, hs_code hsmodule, t_log *logger);
 
 #endif /* CLIENT_HANDLE_H */

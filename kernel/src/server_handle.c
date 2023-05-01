@@ -1,38 +1,76 @@
 #include "server_handle.h"
 
-void start_kernel_server(char *listen_port, t_log *logger)
-{
-    int server_socket = server_start(listen_port, logger);
-    // Forma unico cliente
-    int client_socket;
-    int i = 0;
-    // i < 3 Para que se conecten 3 clientes y cortar servidor
-    while (i < 2)
-    {
-        client_socket = client_wait(server_socket, logger);
-        if (client_socket == -1)
-            continue; // Significa que fallo la conexion
-        log_info(logger, "Se conecto un cliente");
+// Multihilo - Paralelo
 
-        if (hs_server_to_module_valid(client_socket, HSKERNEL, logger))
-            process_client(client_socket, logger);
-        socket_destroy(client_socket);
-        i++;
-    }
-    // Cierro todos socket
-    socket_destroy(server_socket);
+t_client_connection *connection;
+
+void start_kernel_server(char *listen_port)
+{
+    pthread_create(&thr_server, 0, process_client_entry, (void *)listen_port);
 }
 
-void process_client(int socket, t_log *logger)
+void *start_server_listen(char *listen_port)
+{
+    server_socket = server_start(listen_port, logger_aux);
+    while (accept_connections)
+    {
+        connection = (t_client_connection *)malloc(sizeof(t_client_connection));
+        connection->pid = pid_counter;
+        connection->socket = client_wait(server_socket, logger_aux);
+        if (connection->socket != -1)
+        {
+            pid_counter++;
+            pthread_create(&thr_server_conn, 0, process_client_entry, (void *)connection);
+        }else {
+            free(connection);
+        }
+    }
+    pthread_exit(0);
+}
+
+void end_kernel_server()
+{
+    accept_connections = false;
+    pthread_join(thr_server_conn, NULL); 
+    socket_destroy(server_socket);
+    free(connection);
+    pthread_join(thr_server, NULL);
+}
+
+void *process_client_entry(void *ptr)
+{
+    if (!ptr)
+        pthread_exit(0);
+    t_client_connection *conn = (t_client_connection *)ptr;
+    log_info(logger_aux, "Thread con PID: %d iniciado", conn->pid);
+    if (hs_server_to_module_valid(conn->socket, HSKERNEL, logger_aux))
+        process_client_communication(conn);
+    socket_destroy(conn->socket);
+    free(conn);
+    pthread_exit(0);
+}
+
+// Comunicacion con el cliente
+
+void process_client_communication(t_client_connection *conn)
 {
     bool exit = false;
     while (exit == false)
     {
-        t_package* package = get_package(socket, logger);
+        t_package *package = get_package(conn->socket, logger_aux);
         switch (package->operation_code)
         {
         case INSTRUCCIONES:
+            // t_instruccion **instrucciones = get_instrucciones(package);
+            // t_pcb *pcb = pcb_create(conn->pid, instrucciones);
+            // send_instruccion(modules_client->memory_client_socket, "TABLA SEGMENTOS NUEVA", logger_aux);
+            // t_package *package = get_package(modules_client->memory_client_socket, logger_aux);
+            // t_tabla_segmentos *tabla_segmentos = get_tabla_segmentos(package);
+            // pcb->segments_table = tabla_segmentos;
+            // list_add(queues->NEW, pcb);
+
             t_persona *persona = get_instrucciones(package);
+            printf("Thread con PID: %d\n", conn->pid);
             printf("Se recibio el nombre: %s\n", persona->nombre);
             printf("Se recibio la longitud de nombre: %d\n", persona->nombre_length);
             printf("Se recibio el dni: %d\n", persona->dni);
@@ -40,16 +78,18 @@ void process_client(int socket, t_log *logger)
             printf("Se recibio el pasaporte: %d\n", persona->pasaporte);
             free(persona->nombre);
             free(persona);
+            
             break;
         case END:
-            printf("Conexion Finalizada");
+            printf("Conexion Finalizada\n");
             exit = true;
             break;
         default:
-            printf("Operacion desconocida.");
+            printf("Operacion desconocida\n");
             exit = true;
             break;
         }
         package_destroy(package);
     }
 }
+
