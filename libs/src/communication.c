@@ -10,9 +10,9 @@ t_package* get_package(int socket, t_log *logger)
     return paquete;
 };
 
-t_persona* get_instrucciones(t_package* paquete)
+t_list* get_instrucciones(t_package* paquete)
 {
-    t_persona* persona = t_persona_create_from_buffer(paquete->buffer);
+    t_list* persona = t_lista_instrucciones_create_from_buffer(paquete->buffer);
     return persona;
 };
 
@@ -52,12 +52,11 @@ t_persona* get_instruccion(t_package* paquete)
     return persona;
 };
 
-
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
-bool send_instrucciones(int socket, t_persona persona, t_log *logger)
+bool send_instrucciones(int socket, t_list* lista_instrucciones, t_log *logger)
 {
-    t_buffer *buffer = t_persona_create_buffer(persona);
+    t_buffer *buffer = t_lista_instrucciones_create_buffer(lista_instrucciones);
     t_package *paquete = package_create(buffer, INSTRUCCIONES);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);

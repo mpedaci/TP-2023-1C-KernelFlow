@@ -2,7 +2,8 @@
 #define CLIENT_HANDLE_H
 
 #include "client.h"
+#include "utils.h"
 
-void start_console_client(char* ip_kernel, char* puerto_kernel, t_log* logger_console);
+int start_console_client(char* ip_kernel, char* puerto_kernel, t_log* logger_console);
 
 #endif

@@ -10,6 +10,7 @@
 #include <sys/socket.h> // send
 
 #include <commons/log.h>
+#include <commons/string.h>
 
 #include "types.h"
 
@@ -23,11 +24,23 @@ typedef struct {
 
 /* BUFFERS TIPOS DE DATOS -> SEND */
 
+uint32_t espacio_de_array_parametros(t_instruccion *instruccion);
+
+t_buffer *t_instruccion_create_buffer(t_instruccion *instruccion);
+
+uint32_t espacio_de_array_parametros(t_instruccion* instruccion);
+
+t_buffer* t_lista_instrucciones_create_buffer(t_list* lista_instrucciones);
+
 t_buffer* t_persona_create_buffer(t_persona persona);
 
 t_buffer* null_buffer();
 
 /* BUFFERS TIPOS DE DATOS -> RECV */
+
+t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offset);
+
+t_list* t_lista_instrucciones_create_from_buffer(t_buffer* buffer);
 
 t_persona* t_persona_create_from_buffer(t_buffer* buffer);
 
