@@ -9,15 +9,6 @@
 #include <commons/collections/list.h>
 
 /* TIPO DE DATO */
-typedef struct
-{
-    uint32_t dni;
-    uint8_t edad;
-    uint32_t pasaporte;
-    uint32_t nombre_length;
-    char *nombre;
-} t_persona;
-
 // CONSOLA
 typedef enum
 {
@@ -82,9 +73,8 @@ typedef struct
 {
     uint32_t id;
     uint32_t segment_size;
-    uint32_t base_direction_lenght;
+    uint32_t base_direction_length;
     char *base_direction;
-
 } t_segments_table;
 
 // FILESYSTEM
@@ -93,7 +83,6 @@ typedef struct
 {
     uint32_t block_size;
     uint32_t block_count;
-
 } t_superbloque;
 
 typedef struct

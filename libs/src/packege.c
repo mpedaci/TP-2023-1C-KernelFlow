@@ -66,47 +66,14 @@ t_buffer *t_lista_instrucciones_create_buffer(t_list *lista_instrucciones)
     return buffer;
 }
 
-t_buffer *t_persona_create_buffer(t_persona persona)
+t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto)
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
+    t_buffer *buffer_instrucciones = t_lista_instrucciones_create_buffer(pcontexto->instructions);
 
-    buffer->size = sizeof(uint32_t) * 3          // DNI, Pasaporte y longitud del nombre
-                   + sizeof(uint8_t)             // Edad
-                   + strlen(persona.nombre) + 1; // La longitud del string nombre. Le sumamos 1 para enviar tambien el caracter centinela '\0'. Esto se podría obviar, pero entonces deberíamos agregar el centinela en el receptor.
+    buffer->size = sizeof(uint32_t) * 2 + buffer_instrucciones->size + sizeof(pcontexto->registers->AX) * 4 + sizeof(pcontexto->registers->EAX) * 4 + sizeof(pcontexto->registers->RAX) * 4;
 
-    void *stream = malloc(buffer->size);
-    // Desplazamiento
-    int offset = 0;
-
-    // ACA SE DEFINE EL STRUCT Y SUS CAMPOS A GUARDAR
-    // TENER EN CUENTA LOS TIPOS DE DATOS
-    memcpy(stream + offset, &persona.dni, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-    memcpy(stream + offset, &persona.edad, sizeof(uint8_t));
-    offset += sizeof(uint8_t);
-    memcpy(stream + offset, &persona.pasaporte, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-    // Para el nombre primero mandamos el tamaño y luego el texto en sí:
-    memcpy(stream + offset, &persona.nombre_length, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-    memcpy(stream + offset, persona.nombre, strlen(persona.nombre) + 1);
-
-    // No tiene sentido seguir calculando el desplazamiento, ya ocupamos el buffer completo
-    buffer->stream = stream;
-    return buffer;
-}
-
-t_buffer* t_pcontexto_create_buffer(t_pcontexto* pcontexto) {
-    t_buffer* buffer = malloc(sizeof(t_buffer));
-    t_buffer* buffer_instrucciones = t_lista_instrucciones_create_buffer(pcontexto->instructions);
-
-    buffer->size = sizeof(uint32_t) * 2 
-                 + buffer_instrucciones->size 
-                 + sizeof(pcontexto->registers->AX) * 4
-                 + sizeof(pcontexto->registers->EAX) * 4
-                 + sizeof(pcontexto->registers->RAX) * 4;
-
-    void* stream = malloc(sizeof(buffer->size));
+    void *stream = malloc(sizeof(buffer->size));
 
     int offset = 0;
 
@@ -144,6 +111,28 @@ t_buffer* t_pcontexto_create_buffer(t_pcontexto* pcontexto) {
     memcpy(stream + offset, &(pcontexto->registers->RDX), sizeof(16));
 
     free(buffer_instrucciones);
+    buffer->stream = stream;
+    return buffer;
+}
+
+t_buffer *t_segment_table_create_buffer(t_segments_table *segment_table)
+{
+    t_buffer *buffer = malloc(sizeof(t_buffer));
+
+    buffer->size = sizeof(uint32_t) * 2 + strlen(segment_table->base_direction) + 1;
+
+    void *stream = malloc(buffer->size);
+
+    int offset = 0;
+
+    memcpy(stream + offset, &segment_table->id, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    memcpy(stream + offset, &segment_table->segment_size, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    memcpy(stream + offset, &segment_table->base_direction_length, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    memcpy(stream + offset, segment_table->base_direction, segment_table->base_direction_length + 1);
+
     buffer->stream = stream;
     return buffer;
 }
@@ -233,32 +222,10 @@ t_list *t_lista_instrucciones_create_from_buffer(t_buffer *buffer)
     return lista_instrucciones;
 }
 
-t_persona *t_persona_create_from_buffer(t_buffer *buffer)
+t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
 {
-    t_persona *persona = malloc(sizeof(t_persona));
+    t_pcontexto *pcontexto = malloc(sizeof(t_pcontexto));
     void *stream = buffer->stream;
-
-    // ACA SE DEFINE EL STRUCT Y SUS CAMPOS A GUARDAR
-    // TENER EN CUENTA LOS TIPOS DE DATOS
-    // Deserializamos los campos que tenemos en el buffer
-    memcpy(&(persona->dni), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
-    memcpy(&(persona->edad), stream, sizeof(uint8_t));
-    stream += sizeof(uint8_t);
-    memcpy(&(persona->pasaporte), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
-    // Por último, para obtener el nombre, primero recibimos el tamaño y luego el texto en sí:
-    memcpy(&(persona->nombre_length), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
-    persona->nombre = malloc(persona->nombre_length);
-    memcpy(persona->nombre, stream, persona->nombre_length);
-
-    return persona;
-}
-
-t_pcontexto* t_pcontexto_create_from_buffer(t_buffer* buffer) {
-    t_pcontexto* pcontexto = malloc(sizeof(t_pcontexto));
-    void* stream = buffer->stream;
 
     memcpy(&(pcontexto->pid), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
@@ -268,7 +235,7 @@ t_pcontexto* t_pcontexto_create_from_buffer(t_buffer* buffer) {
 
     memcpy(&(pcontexto->program_counter), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
-    
+
     memcpy(&(pcontexto->registers->AX), stream, sizeof(4));
     stream += sizeof(4);
     memcpy(&(pcontexto->registers->BX), stream, sizeof(4));
@@ -297,6 +264,23 @@ t_pcontexto* t_pcontexto_create_from_buffer(t_buffer* buffer) {
 
     free(buffer);
     return pcontexto;
+}
+
+t_segments_table *t_segment_table_create_from_buffer(t_buffer *buffer)
+{
+    t_segments_table *segment_table = malloc(sizeof(t_segments_table));
+    void *stream = buffer->stream;
+
+    memcpy(&(segment_table->id), stream, sizeof(uint32_t));
+    stream += sizeof(uint32_t);
+    memcpy(&(segment_table->segment_size), stream, sizeof(uint32_t));
+    stream += sizeof(uint32_t);
+    memcpy(&(segment_table->base_direction_length), stream, sizeof(uint32_t));
+    stream += sizeof(uint32_t);
+    segment_table->base_direction = malloc(segment_table->base_direction_length);
+    memcpy(segment_table->base_direction, stream, segment_table->base_direction_length);
+
+    return segment_table;
 }
 
 /* PAQUETES */
