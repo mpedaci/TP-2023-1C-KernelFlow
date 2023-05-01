@@ -16,7 +16,7 @@
 #include "server_handle.h"
 #include "kernel_core.h"
 
-char *config_path = "/home/utnso/Desktop/tp-2023-1c-KernelFlow/kernel/conf/kernel.config";
+char *config_path = "/home/utnso/Desktop/tp-2023-1c-KernelFlow/kernel/config/kernel.config";
 char *logger_main_path = "/home/utnso/Desktop/tp-2023-1c-KernelFlow/kernel/logs/kernel.log";
 char *logger_aux_path = "/home/utnso/Desktop/tp-2023-1c-KernelFlow/kernel/logs/kernel_aux.log";
 
