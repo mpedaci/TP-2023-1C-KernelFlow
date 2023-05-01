@@ -33,7 +33,7 @@ typedef enum
 t_package* get_package(int socket, t_log *logger);
 
 t_list* get_instrucciones(t_package* paquete);
-t_persona* get_pcontexto(t_package* paquete);
+t_pcontexto* get_pcontexto(t_package* paquete);
 t_persona* get_tsegmento(t_package* paquete);
 t_persona* get_ofile(t_package* paquete);
 t_persona* get_file(t_package* paquete);
@@ -43,7 +43,7 @@ t_persona* get_instruccion(t_package* paquete);
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
 bool send_instrucciones(int socket, t_list* lista_instrucciones, t_log *logger);
-bool send_pcontexto(int socket, t_persona persona, t_log *logger);
+bool send_pcontexto(int socket, t_pcontexto* contexto, t_log *logger);
 bool send_tsegmento(int socket, t_persona persona, t_log *logger);
 bool send_ofile(int socket, t_persona persona, t_log *logger);
 bool send_file(int socket, t_persona persona, t_log *logger);

@@ -16,10 +16,10 @@ t_list* get_instrucciones(t_package* paquete)
     return persona;
 };
 
-t_persona* get_pcontexto(t_package* paquete)
+t_pcontexto* get_pcontexto(t_package* paquete)
 {
-    t_persona* persona = t_persona_create_from_buffer(paquete->buffer);
-    return persona;
+    t_pcontexto* contexto = t_pcontexto_create_from_buffer(paquete->buffer);
+    return contexto;
 };
 
 t_persona* get_tsegmento(t_package* paquete)
@@ -63,9 +63,9 @@ bool send_instrucciones(int socket, t_list* lista_instrucciones, t_log *logger)
     return res;
 };
 
-bool send_pcontexto(int socket, t_persona persona, t_log *logger)
+bool send_pcontexto(int socket, t_pcontexto* contexto, t_log *logger)
 {
-    t_buffer *buffer = t_persona_create_buffer(persona);
+    t_buffer *buffer = t_pcontexto_create_buffer(contexto);
     t_package *paquete = package_create(buffer, PCONTEXTO);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);

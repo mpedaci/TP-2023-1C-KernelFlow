@@ -1,16 +1,34 @@
 #include "instructions.h"
 
-
-void SET(char* registro, char* valor) {
-    registro = string_duplicate(valor);
+void stop_exec() {
+    ejecutando = false;
 }
 
 
-void YIELD(t_execution_context* context) { // desaloja voluntariamente el proceso de la CPU
-    send_context_kernel(context); 
+void SET(char* registro, void* valor) { // setea el registro pasado por param a el valor pasado por parametro
+    // registro = valor;
+
+    // switch ((*registro))
+    // {
+    // case "AX":
+        
+    //     break;
+    
+    // default:
+    //     break;
+    // }
+
+    // recibe un registro en forma de string
+    // hay que hacer un switch con los registros y cuando machea buscar ese registro y setearlo al valor
+    // ojo que el valor va a estar en formato string, osea sacarle el \0 y meterlo en el registro
 }
 
 
-void EXIT(t_execution_context* context) { // instruccion de finalizacion de proceso
-    send_context_kernel(context);
+void YIELD() { // desaloja voluntariamente el proceso de la CPU
+    stop_exec();
+} 
+
+
+void EXIT() { // instruccion de finalizacion de proceso
+    stop_exec();
 }
