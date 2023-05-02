@@ -35,11 +35,13 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
 }
 
 
-void execute(t_instruccion* instruccionListaParaEjecutar) { // por ahora no devuelve nada, pero podria devolver un bool
+void execute(t_instruccion* instruccionListaParaEjecutar) {
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
-        //SET();
+        char *registro = instruccionListaParaEjecutar->parametros[0];
+        char *valor = instruccionListaParaEjecutar->parametros[1];
+        SET(registro, valor);
         break;
     case I_MOV_IN:
         

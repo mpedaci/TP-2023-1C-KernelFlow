@@ -7,5 +7,5 @@ t_log* logger_aux = NULL;
 
 t_config_cpu* config = NULL;
 
-t_registers* registers = NULL;
+t_registers* cpu_registers = NULL;
 

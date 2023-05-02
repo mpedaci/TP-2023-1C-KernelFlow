@@ -10,4 +10,10 @@ void start_cpu_server(char *listen_port, t_log *logger);
 
 void process_client(int client_socket, t_log *logger);
 
+void free_pcontexto(t_pcontexto* contexto);
+
+void set_registers_cpu(t_registers *registers);
+
+void set_registers_contexto(t_registers *registers);
+
 #endif

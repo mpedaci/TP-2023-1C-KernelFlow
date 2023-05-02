@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <commons/log.h>
 #include <commons/config.h>
@@ -22,5 +23,7 @@ t_config_cpu* read_config(char* path, t_log* logger);
 void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logger, t_log* logger_aux);
 
 t_registers* init_registers();
+
+void free_pcontexto(t_pcontexto *contexto);
 
 #endif

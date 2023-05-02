@@ -16,6 +16,6 @@ extern t_log* logger_aux;
 
 extern t_config_cpu* config;
 
-extern t_registers* registers;
+extern t_registers* cpu_registers;
 
 #endif

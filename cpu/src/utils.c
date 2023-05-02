@@ -70,7 +70,3 @@ t_registers* init_registers() {
 
     return registers;
 }
-
-void copy_pcontexto(t_pcontexto* contexto) {
-
-}

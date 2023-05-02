@@ -231,6 +231,20 @@ t_list *t_lista_instrucciones_create_from_buffer(t_buffer *buffer)
 t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
 {
     t_pcontexto *pcontexto = malloc(sizeof(t_pcontexto));
+
+    pcontexto->registers->AX = malloc(4);
+    pcontexto->registers->BX = malloc(4);
+    pcontexto->registers->CX = malloc(4);
+    pcontexto->registers->DX = malloc(4);
+    pcontexto->registers->EAX = malloc(8);
+    pcontexto->registers->EBX = malloc(8);
+    pcontexto->registers->ECX = malloc(8);
+    pcontexto->registers->EDX = malloc(8);
+    pcontexto->registers->RAX = malloc(16);
+    pcontexto->registers->RBX = malloc(16);
+    pcontexto->registers->RCX = malloc(16);
+    pcontexto->registers->RDX = malloc(16);
+
     void *stream = buffer->stream;
 
     memcpy(&(pcontexto->pid), stream, sizeof(uint32_t));
