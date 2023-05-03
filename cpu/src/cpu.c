@@ -14,11 +14,11 @@ int main() {
       return EXIT_FAILURE;
    }
 
-   cpu_registers = init_registers();
+   cpu_registers = init_registers();   
    
    // inicializar servidor para kernel
-   log_info(logger_aux, "Iniciando servidor");
-   start_cpu_server(config->puerto_escucha, logger_aux);
+   // log_info(logger_aux, "Iniciando servidor");
+   // start_cpu_server(config->puerto_escucha, logger_aux);
 
    // fin del programa
    close_program_cpu(config, cpu_registers, logger, logger_aux);

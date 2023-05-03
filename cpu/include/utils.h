@@ -24,6 +24,6 @@ void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logg
 
 t_registers* init_registers();
 
-void free_pcontexto(t_pcontexto *contexto);
+void set_registers_zero(t_registers *registers);
 
 #endif

@@ -11,7 +11,7 @@ t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccio
 
 void SET(char* registro_char, char* valor_char) { // setea el registro pasado por param a el valor pasado por parametro
     void *registro = get_register(registro_char);
-    registro = memcpy(registro, valor_char, sizeof(registro));
+    memcpy(registro, valor_char, string_length(valor_char)); // siguen siendo chars, solo que ahora no tienen el '\0' para chequear el fin de cadena
 }
 
 void MOV_IN() {

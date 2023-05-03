@@ -70,5 +70,24 @@ t_registers* init_registers() {
     registers->RCX = malloc(16);
     registers->RDX = malloc(16);
 
+    set_registers_zero(registers);
+
     return registers;
+}
+
+void set_registers_zero(t_registers *registers) {
+    char *zero = "0000000000000000";
+
+    memcpy(registers->AX, zero, 4);
+    memcpy(registers->BX, zero, 4);
+    memcpy(registers->CX, zero, 4);
+    memcpy(registers->DX, zero, 4);
+    memcpy(registers->EAX, zero, 8);
+    memcpy(registers->EBX, zero, 8);
+    memcpy(registers->ECX, zero, 8);
+    memcpy(registers->EDX, zero, 8);
+    memcpy(registers->RAX, zero, 16);
+    memcpy(registers->RBX, zero, 16);
+    memcpy(registers->RCX, zero, 16);
+    memcpy(registers->RDX, zero, 16);
 }

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "global_variables.h"
 #include "utils.h"
+#include "global_variables.h"
 
 #endif
