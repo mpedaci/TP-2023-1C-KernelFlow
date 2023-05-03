@@ -30,7 +30,7 @@ void start_memory_server(char* port, t_log * logger)
 	int server_fd = server_start(port, logger);
 	log_info(logger, "Servidor listo para recibir al cliente");
 	//Descomentar cuando se conecten los modulos que deberian
-	//int client_fd = wait_client(server_fd);
+	//int client_fd = client_wait(server_fd);
 	//Borrar linea siguiente tambien
 	int client_fd = 1;
 
