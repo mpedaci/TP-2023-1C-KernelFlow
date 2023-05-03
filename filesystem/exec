@@ -1,6 +1,8 @@
 #!/bin/bash
-FILE=filesystem
-make $FILE
+FILE=bin/filesystem
+mkdir -p logs
+make clean
+make
 if test -f "./$FILE"; then
     ./$FILE
 fi

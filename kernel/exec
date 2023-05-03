@@ -1,6 +1,8 @@
 #!/bin/bash
-FILE=kernel
-make $FILE
+FILE=bin/kernel
+mkdir -p logs
+make clean
+make
 if test -f "./$FILE"; then
     ./$FILE
 fi

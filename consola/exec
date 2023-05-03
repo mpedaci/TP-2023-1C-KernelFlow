@@ -1,6 +1,8 @@
 #!/bin/bash
-FILE=consola
-make $FILE
+FILE=bin/consola
+mkdir -p logs
+make clean
+make
 if test -f "./$FILE"; then
     ./$FILE
 fi

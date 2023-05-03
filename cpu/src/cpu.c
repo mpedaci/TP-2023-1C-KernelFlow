@@ -1,9 +1,26 @@
 #include "cpu.h"
+
+
 int main() {
-   // printf() displays the string inside quotation
-   puts("Hello, World!\n");
-   a();
-   printf("Hello, World! %i\n", A);
-   b();
-   return 0;
+   
+   // inicializo loggers
+   logger = log_create(logger_path, "CPU", 1, LOG_LEVEL_INFO);
+   logger_aux = log_create(logger_aux_path, "CPU_AUX", 1, LOG_LEVEL_DEBUG);
+
+   // leer configuracion
+   config = read_config(config_path, logger);
+   if(config == NULL) {
+      close_program_cpu(config, registers, logger, logger_aux);
+      return EXIT_FAILURE;
+   }
+
+   init_registers();
+   
+   // inicializar servidor para kernel
+   log_info(logger_aux, "Iniciando servidor");
+   start_cpu_server(config->puerto_escucha, logger_aux);
+
+   // fin del programa
+   close_program_cpu(config, registers, logger, logger_aux);
+   return EXIT_SUCCESS;
 }

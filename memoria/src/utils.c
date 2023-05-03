@@ -80,4 +80,3 @@ void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config
    free(config->compactation_algorithm); 
    free(config);
 }
-
