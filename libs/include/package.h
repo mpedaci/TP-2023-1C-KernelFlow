@@ -34,6 +34,8 @@ t_buffer *t_lista_instrucciones_create_buffer(t_list *lista_instrucciones);
 
 t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto);
 
+t_buffer *t_pcontexto_desalojo_create_buffer(t_pcontexto_desalojo *pcontexto);
+
 t_buffer *t_segment_table_create_buffer(t_segments_table *segment_table);
 
 t_buffer *t_open_files_create_buffer(t_open_files *open_files);
@@ -47,6 +49,8 @@ t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offs
 t_list *t_lista_instrucciones_create_from_buffer(t_buffer *buffer);
 
 t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer);
+
+t_pcontexto_desalojo *t_pcontexto_desalojo_create_from_buffer(t_buffer *buffer);
 
 t_segments_table *t_segment_table_create_from_buffer(t_buffer *buffer);
 

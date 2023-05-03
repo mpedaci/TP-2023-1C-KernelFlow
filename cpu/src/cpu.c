@@ -10,17 +10,17 @@ int main() {
    // leer configuracion
    config = read_config(config_path, logger);
    if(config == NULL) {
-      close_program_cpu(config, registers, logger, logger_aux);
+      close_program_cpu(config, cpu_registers, logger, logger_aux);
       return EXIT_FAILURE;
    }
 
-   init_registers();
+   cpu_registers = init_registers();
    
    // inicializar servidor para kernel
    log_info(logger_aux, "Iniciando servidor");
    start_cpu_server(config->puerto_escucha, logger_aux);
 
    // fin del programa
-   close_program_cpu(config, registers, logger, logger_aux);
+   close_program_cpu(config, cpu_registers, logger, logger_aux);
    return EXIT_SUCCESS;
 }

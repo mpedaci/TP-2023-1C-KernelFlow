@@ -14,10 +14,10 @@ t_instruccion* fetch(t_pcontexto* contexto);
 t_instruccion* decode(t_instruccion* instruccionSiguiente);
 
 // Ejecuta la instruccion
-void execute(t_instruccion* instruccionListaParaEjecutar);
+t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pcontexto *contexto);
 
-t_pcontexto* execute_instruction_cycle(t_pcontexto* contexto);
+t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto);
 
-t_pcontexto* execute_process(t_pcontexto* contexto);
+t_pcontexto_desalojo * execute_process(t_pcontexto* contexto);
 
 #endif

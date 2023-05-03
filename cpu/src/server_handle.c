@@ -12,6 +12,7 @@ void start_cpu_server(char *listen_port, t_log *logger)
     if (hs_server_to_module_valid(client_socket, HSCPU, logger))
         process_client(client_socket, logger);
     
+    log_info(logger, "Cerrando conexion con cliente");
     socket_destroy(client_socket);
     socket_destroy(server_socket);
 }
@@ -25,11 +26,12 @@ void process_client(int client_socket, t_log *logger) {
         {
         case PCONTEXTO:
             t_pcontexto* contexto = get_pcontexto(package);
-            set_registers(contexto->registers);
-            contexto = execute_process(contexto);
-            set_registers_contexto(contexto->registers);
-            send_pcontexto(client_socket, contexto, logger);
+            set_registers_cpu(contexto->registers);
+            t_pcontexto_desalojo *contexto_desalojo = execute_process(contexto);
+            set_registers_contexto(contexto_desalojo->registers);
+            send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
             free_pcontexto(contexto);
+            free_pcontexto_desalojo(contexto_desalojo);
             break;
         case END:
             printf("Conexion Finalizada");
@@ -46,8 +48,7 @@ void process_client(int client_socket, t_log *logger) {
 
 void free_pcontexto(t_pcontexto* contexto) {
     // free t_list* instructions
-    free(contexto->instructions->head);
-    free(contexto->instructions->elements_count);
+    // chequear TODO
 
     // free registers pcontexto
     free(contexto->registers->AX);
@@ -65,6 +66,10 @@ void free_pcontexto(t_pcontexto* contexto) {
 
     // free todo lo demas
     free(contexto);
+}
+
+void free_pcontexto_desalojo(t_pcontexto_desalojo *contexto) {
+
 }
 
 void set_registers_cpu(t_registers *registers) {

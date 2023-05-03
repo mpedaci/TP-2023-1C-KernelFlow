@@ -8,14 +8,13 @@ t_instruccion* fetch(t_pcontexto* contexto) {
 
 
 t_instruccion* decode(t_instruccion* instruccionSiguiente) {
-    t_instruccion* instruccionListaParaEjecutar;
-    instruccionListaParaEjecutar->identificador = instruccionSiguiente->identificador;
-    instruccionListaParaEjecutar->cant_parametros = instruccionSiguiente->cant_parametros;
+    t_instruccion* instruccionListaParaEjecutar = NULL; // TODO HOY
+    instruccionListaParaEjecutar = memcpy(instruccionListaParaEjecutar, instruccionSiguiente, sizeof(t_instruccion)); 
     
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
-        // AGREGAR RETARDO DE INSTRUCCION
+        // AGREGAR RETARDO DE INSTRUCCION TODO
         break;
     case I_MOV_OUT:
         // mmu traduce
@@ -27,7 +26,6 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
         // mmu traduce
         break;
     default:
-        instruccionListaParaEjecutar->parametros = instruccionSiguiente->parametros;
         break;
     }
 
@@ -35,7 +33,7 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
 }
 
 
-void execute(t_instruccion* instruccionListaParaEjecutar) {
+t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pcontexto *contexto) {
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
@@ -50,61 +48,48 @@ void execute(t_instruccion* instruccionListaParaEjecutar) {
         
         break;
     case I_I_O:
-        
-        break;
+        return I_O(contexto, instruccionListaParaEjecutar);
     case I_F_OPEN:
-        
-        break;
+        return F_OPEN(contexto, instruccionListaParaEjecutar);
     case I_F_CLOSE:
-        
-        break;
+        return F_CLOSE(contexto, instruccionListaParaEjecutar);
     case I_F_SEEK:
-        
-        break;
+        return F_SEEK(contexto, instruccionListaParaEjecutar);
     case I_F_READ:
-        
-        break;
+        return F_READ(contexto, instruccionListaParaEjecutar);
     case I_F_WRITE:
-        
-        break;
+        return F_WRITE(contexto, instruccionListaParaEjecutar);
     case I_F_TRUNCATE:
-        
-        break;
+        return F_TRUNCATE(contexto, instruccionListaParaEjecutar);
     case I_WAIT:
-        
-        break;
+        return WAIT(contexto, instruccionListaParaEjecutar);
     case I_SIGNAL:
-        
-        break;
+        return SIGNAL(contexto, instruccionListaParaEjecutar);
     case I_CREATE_SEGMENT:
-        
-        break;
+        return CREATE_SEGMENT(contexto, instruccionListaParaEjecutar);
     case I_DELETE_SEGMENT:
-        
-        break;
+        return DELETE_SEGMENT(contexto, instruccionListaParaEjecutar);
     case I_YIELD:
-        YIELD();
-        break;
+        return YIELD(contexto, instruccionListaParaEjecutar);
     case I_EXIT:
-        EXIT();
-        break;
+        return EXIT(contexto, instruccionListaParaEjecutar);
     default:
-        printf("No se pudo encontrar la instruccion :(");
+        return printf("No se pudo encontrar la instruccion :(");
         break;
     }
+    free(instruccionListaParaEjecutar);
+    return NULL;
 }
 
-t_pcontexto* execute_instruction_cycle(t_pcontexto* contexto) {
+t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto) {
     t_instruccion* instruccionSiguiente = fetch(contexto);
     t_instruccion* instruccionListaParaEjecutar = decode(instruccionSiguiente);
-    execute(instruccionListaParaEjecutar);
-    return contexto;
+    t_pcontexto_desalojo* contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
 }
 
-t_pcontexto* execute_process(t_pcontexto* contexto) {
+t_pcontexto_desalojo *execute_process(t_pcontexto* contexto) {
     ejecutando = true;
     while(!ejecutando) {
         execute_instruction_cycle(contexto);
     }
-    return contexto;
 }

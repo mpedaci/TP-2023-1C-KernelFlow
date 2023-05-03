@@ -50,10 +50,12 @@ void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logg
     free(registers->RBX);
     free(registers->RCX);
     free(registers->RDX);
+
+    free(registers);
 }
 
 t_registers* init_registers() {
-    t_registers* registers;
+    t_registers* registers = malloc(sizeof(t_registers));
 
     registers->AX = malloc(4);
     registers->BX = malloc(4);
