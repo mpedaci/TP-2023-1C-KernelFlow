@@ -2,6 +2,8 @@
 
 
 int main() {
+   // para cierre seguro
+   signal(SIGINT, sigintHandler);
    
    // inicializo loggers
    logger = log_create(logger_path, "CPU", 1, LOG_LEVEL_INFO);
@@ -17,10 +19,16 @@ int main() {
    cpu_registers = init_registers();   
    
    // inicializar servidor para kernel
-   // log_info(logger_aux, "Iniciando servidor");
-   // start_cpu_server(config->puerto_escucha, logger_aux);
+   log_info(logger_aux, "Iniciando servidor");
+   start_cpu_server(config->puerto_escucha, logger_aux);
 
    // fin del programa
    close_program_cpu(config, cpu_registers, logger, logger_aux);
    return EXIT_SUCCESS;
+}
+
+void sigintHandler(int signum) {
+    printf("\nIniciando fin del modulo por signal: %d\n", signum);
+    close_program_cpu(config, cpu_registers, logger, logger_aux);
+    exit(signum);
 }

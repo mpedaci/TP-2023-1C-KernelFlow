@@ -1,5 +1,5 @@
-#ifndef GLOBAL_VARIABLES_H
-#define GLOBAL_VARIABLES_H
+#ifndef CPU_VARS_H
+#define CPU_VARS_H
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-#include "global_variables.h"
+#include "cpu_vars.h"
 
 bool ejecutando = false;
 

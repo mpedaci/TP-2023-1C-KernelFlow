@@ -38,20 +38,7 @@ void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logg
     free(config);
 
     // free registers
-    free(registers->AX);
-    free(registers->BX);
-    free(registers->CX);
-    free(registers->DX);
-    free(registers->EAX);
-    free(registers->EBX);
-    free(registers->ECX);
-    free(registers->EDX);
-    free(registers->RAX);
-    free(registers->RBX);
-    free(registers->RCX);
-    free(registers->RDX);
-
-    free(registers);
+    registers_destroy(registers);
 }
 
 t_registers* init_registers() {
@@ -90,4 +77,21 @@ void set_registers_zero(t_registers *registers) {
     memcpy(registers->RBX, zero, 16);
     memcpy(registers->RCX, zero, 16);
     memcpy(registers->RDX, zero, 16);
+}
+
+void registers_destroy(t_registers *registers) {
+    free(registers->AX);
+    free(registers->BX);
+    free(registers->CX);
+    free(registers->DX);
+    free(registers->EAX);
+    free(registers->EBX);
+    free(registers->ECX);
+    free(registers->EDX);
+    free(registers->RAX);
+    free(registers->RBX);
+    free(registers->RCX);
+    free(registers->RDX);
+
+    free(registers);
 }

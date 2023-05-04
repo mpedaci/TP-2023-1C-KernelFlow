@@ -16,8 +16,10 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente);
 // Ejecuta la instruccion
 t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pcontexto *contexto);
 
+// Ejecuta una instruccion completa (fetch decode y execute) del contexto pasado
 t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto);
 
+// Ejecuta el proceso pasado por contexto
 t_pcontexto_desalojo * execute_process(t_pcontexto* contexto);
 
 #endif

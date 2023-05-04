@@ -26,4 +26,6 @@ t_registers* init_registers();
 
 void set_registers_zero(t_registers *registers);
 
+void registers_destroy(t_registers *registers);
+
 #endif

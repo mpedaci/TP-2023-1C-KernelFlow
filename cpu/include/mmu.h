@@ -6,6 +6,6 @@
 #include <stdbool.h>
 
 #include "utils.h"
-#include "global_variables.h"
+#include "cpu_vars.h"
 
 #endif

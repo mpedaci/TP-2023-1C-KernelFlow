@@ -8,9 +8,14 @@ t_instruccion* fetch(t_pcontexto* contexto) {
 
 
 t_instruccion* decode(t_instruccion* instruccionSiguiente) {
-    t_instruccion* instruccionListaParaEjecutar = NULL; // TODO HOY
-    instruccionListaParaEjecutar = memcpy(instruccionListaParaEjecutar, instruccionSiguiente, sizeof(t_instruccion)); 
-    
+    // creando instruccion lista para ejecutar
+    t_instruccion* instruccionListaParaEjecutar = copy_instruction(instruccionSiguiente);
+
+
+    // CAMBIAR LOS PARAMETROS EN LOS LUGARES QUE SON NECESARIOS (EJ MOV_OUT)
+    // ASI COMO ESTA "instruccionListaParaEjecutar" TIENE LOS MISMOS PARAMETROS QUE LA "instruccionSiguiente"
+    // MMU
+
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
@@ -18,6 +23,7 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
         break;
     case I_MOV_OUT:
         // mmu traduce
+        // params = params traducidos por mmu
         break;
     case I_F_READ:
         // mmu traduce
@@ -39,13 +45,14 @@ t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pco
     case I_SET:
         char *registro = instruccionListaParaEjecutar->parametros[0];
         char *valor = instruccionListaParaEjecutar->parametros[1];
+        instruction_destroyer(instruccionListaParaEjecutar);
         SET(registro, valor);
         break;
     case I_MOV_IN:
-        
+        instruction_destroyer(instruccionListaParaEjecutar);
         break;
     case I_MOV_OUT:
-        
+        instruction_destroyer(instruccionListaParaEjecutar);
         break;
     case I_I_O:
         return I_O(contexto, instruccionListaParaEjecutar);
@@ -74,10 +81,9 @@ t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pco
     case I_EXIT:
         return EXIT(contexto, instruccionListaParaEjecutar);
     default:
-        return printf("No se pudo encontrar la instruccion :(");
+        printf("No se pudo encontrar la instruccion :(");
         break;
     }
-    free(instruccionListaParaEjecutar);
     return NULL;
 }
 

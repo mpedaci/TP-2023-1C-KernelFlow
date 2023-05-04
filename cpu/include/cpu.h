@@ -12,4 +12,7 @@ char* logger_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/cpu/logs/cpu.lo
 char* logger_aux_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/cpu/logs/cpu_aux.log";
 char* config_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/cpu/config/cpu.config";
 
+
+void sigintHandler(int signum);
+
 #endif
