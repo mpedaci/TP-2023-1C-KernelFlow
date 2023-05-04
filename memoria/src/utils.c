@@ -25,45 +25,6 @@ t_config_memoria *read_config(char *config_path, t_log *logger)
    return memoria_config;
 }
 
-void start_memory_server(char* port, t_log * logger)
-{  log_info(logger, "Iniciando servidor");
-	int server_fd = server_start(port, logger);
-	log_info(logger, "Servidor listo para recibir al cliente");
-	//Descomentar cuando se conecten los modulos que deberian
-	//int client_fd = client_wait(server_fd);
-	//Borrar linea siguiente tambien
-	int client_fd = 1;
-
-	/* 
-	while (1) {
-      int handshake = get_operation(cliente_fd);
-		switch (handshake) {
-		case HSKERNEL:
-			log_info(logger_aux,"Se conecto el modulo Kernel");
-			send_message("Conexión establecida Memoria - Kernel", client_fd)
-		case HSCPU:
-			log_info(logger_aux,"Se conecto el modulo CPU");
-			send_message("Conexión establecida Memoria - CPU", client_fd)
-		case HSFS:
-			log_info(logger_aux,"Se conecto el modulo File System");
-			send_message("Conexión establecida Memoria - File System", client_fd)
-		case -1:
-			log_error(logger, "el cliente se desconecto. Terminando servidor");
-			return EXIT_FAILURE;
-		default:
-			log_warning(logger,"Cliente desconocido");
-			break;
-		}
-      free(handshake);
-	}
-	*/
-
-   socket_destroy(client_fd);
-   socket_destroy(server_fd);
-
-}
-
-
 void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config)
 {
    log_debug(logger_aux, "Finalizando programa");

@@ -7,7 +7,9 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>
+#include <pthread.h>
 #include "server.h"
+#include "modulos.h"
 
 typedef struct
 {
@@ -21,7 +23,6 @@ typedef struct
 } t_config_memoria;
 
 t_config_memoria *read_config(char *path, t_log *logger);
-void start_memory_server(char* port, t_log * logger);
 void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config);
 
 #endif /* UTILS_H */
