@@ -1,14 +1,20 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
-#include "cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
+#include "package.h"
+#include "mmu.h"
 
-void SET(char* registro, char* valor);
+void stop_exec();
 
-void YIELD(t_execution_context* context);
+void SET(char* registro, void* valor);
 
-void EXIT(t_execution_context* context);
+void YIELD();
+
+void EXIT();
 
 
 #endif

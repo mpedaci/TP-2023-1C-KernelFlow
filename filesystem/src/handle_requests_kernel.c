@@ -1,3 +1,5 @@
+#include "handle_requests_kernel.h"
+
 /*
 void handle_requests(t_log *logger_aux, op_code opcode){
 

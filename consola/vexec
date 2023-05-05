@@ -1,6 +1,8 @@
 #!/bin/bash
 FILE=bin/consola
+mkdir -p logs
+make clean
 make
 if test -f "./$FILE"; then
-    valgrind --tool=helgrind ./$FILE
+    valgrind --tool=memcheck --leak-check=yes --show-possibly-lost=no --show-reachable=no --num-callers=20 ./$FILE "/home/utnso/Documents/tp-2023-1c-KernelFlow/consola/config/console.config" "/home/utnso/Documents/tp-2023-1c-KernelFlow/consola/pseudocodigo.txt"
 fi

@@ -1,19 +1,19 @@
 #include "client_handle.h"
 
-void start_console_client(char* ip_kernel, char* puerto_kernel, t_log* logger_console){
-  
-    int kernel_socket = create_connection(ip_kernel, puerto_kernel);
+int start_console_client(char* ip_kernel, char* puerto_kernel, t_log* logger_console){
+
+    int kernel_socket = create_connection(ip_kernel, puerto_kernel, logger_console);
 
     if(kernel_socket == -1){
         log_error(logger_console, "No se pudo conectar al servidor Kernel");
-        return;
+        return -1;
     }
-    
-    /*if (!client_pass_handshake(client_socket, logger)){}
-        return;
-    log_info(logger, "Conectado al servidor de memoria");
-    send_message("Hola, soy un cliente", client_socket);
-    log_info(logger, "Mensaje enviado");*/
+    if (!hs_client_to_module_valid(kernel_socket, HSCONSOLA, HSKERNEL, logger_console))
+        return -1;
 
-    destroy_connection(kernel_socket);
+    log_debug(logger_console, "Conexion exitosa con kernel");
+
+    return kernel_socket;
 }
+
+

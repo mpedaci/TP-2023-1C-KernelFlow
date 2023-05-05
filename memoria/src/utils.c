@@ -27,7 +27,7 @@ t_config_memoria *read_config(char *config_path, t_log *logger)
 
 void start_memory_server(char* port, t_log * logger)
 {  log_info(logger, "Iniciando servidor");
-	int server_fd = start_server(port);
+	int server_fd = server_start(port, logger);
 	log_info(logger, "Servidor listo para recibir al cliente");
 	//Descomentar cuando se conecten los modulos que deberian
 	//int client_fd = wait_client(server_fd);
@@ -44,7 +44,7 @@ void start_memory_server(char* port, t_log * logger)
 		case HSCPU:
 			log_info(logger_aux,"Se conecto el modulo CPU");
 			send_message("Conexión establecida Memoria - CPU", client_fd)
-		case HSFILESYSTEM:
+		case HSFS:
 			log_info(logger_aux,"Se conecto el modulo File System");
 			send_message("Conexión establecida Memoria - File System", client_fd)
 		case -1:
@@ -58,8 +58,8 @@ void start_memory_server(char* port, t_log * logger)
 	}
 	*/
 
-   client_destroy(client_fd);
-   server_destroy(server_fd);
+   socket_destroy(client_fd);
+   socket_destroy(server_fd);
 
 }
 
@@ -80,4 +80,3 @@ void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config
    free(config->compactation_algorithm); 
    free(config);
 }
-

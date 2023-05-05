@@ -1,3 +1,6 @@
+#ifndef ARCHIVO_H
+#define ARCHIVO_H
+
 #include <utils.h> 
 #include <commons/bitarray.h> 
 #include <fcntl.h> //para la funcion open 
@@ -25,3 +28,5 @@ void create_superbloque();
 void create_bitmap(); 
 void create_fcb();
 void create_blocks();
+
+#endif /* ARCHIVO_H */

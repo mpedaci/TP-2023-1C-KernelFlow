@@ -1,13 +1,24 @@
 #ifndef SERVER_HANDLE_H
 #define SERVER_HANDLE_H
 
-#include "types.h"
-#include "server.h"
-
+#include <stdbool.h>
 #include <pthread.h>
 
-void start_kernel_server(char *listen_port, t_log *logger);
+#include "types.h"
+#include "kernel_vars.h"
+#include "kernel_structs.h"
 
-void process_client(int client_socket, t_log *logger);
+#include "utils.h"
+#include "server.h"
+#include "communication.h"
+
+
+void start_kernel_server(char *listen_port);
+void *start_server_listen(char *listen_port);
+void end_kernel_server();
+
+void *process_client_entry(void *ptr);
+
+void process_client_communication(t_client_connection *conn);
 
 #endif /* SERVER_HANDLE_H */
