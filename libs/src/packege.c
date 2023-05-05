@@ -91,32 +91,32 @@ t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto)
     memcpy(stream + offset, &(pcontexto->program_counter), sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
-    memcpy(stream + offset, pcontexto->registers->AX, sizeof(4));
-    offset += sizeof(4);
-    memcpy(stream + offset, pcontexto->registers->BX, sizeof(4));
-    offset += sizeof(4);
-    memcpy(stream + offset, pcontexto->registers->CX, sizeof(4));
-    offset += sizeof(4);
-    memcpy(stream + offset, pcontexto->registers->DX, sizeof(4));
-    offset += sizeof(4);
+    memcpy(stream + offset, pcontexto->registers->AX, 4);
+    offset += 4;
+    memcpy(stream + offset, pcontexto->registers->BX, 4);
+    offset += 4;
+    memcpy(stream + offset, pcontexto->registers->CX, 4);
+    offset += 4;
+    memcpy(stream + offset, pcontexto->registers->DX, 4);
+    offset += 4;
 
-    memcpy(stream + offset, pcontexto->registers->EAX, sizeof(8));
-    offset += sizeof(8);
-    memcpy(stream + offset, pcontexto->registers->EBX, sizeof(8));
-    offset += sizeof(8);
-    memcpy(stream + offset, pcontexto->registers->ECX, sizeof(8));
-    offset += sizeof(8);
-    memcpy(stream + offset, pcontexto->registers->EDX, sizeof(8));
-    offset += sizeof(8);
+    memcpy(stream + offset, pcontexto->registers->EAX, 8);
+    offset += 8;
+    memcpy(stream + offset, pcontexto->registers->EBX, 8);
+    offset += 8;
+    memcpy(stream + offset, pcontexto->registers->ECX, 8);
+    offset += 8;
+    memcpy(stream + offset, pcontexto->registers->EDX, 8);
+    offset += 8;
 
-    memcpy(stream + offset, pcontexto->registers->RAX, sizeof(16));
-    offset += sizeof(16);
-    memcpy(stream + offset, pcontexto->registers->RBX, sizeof(16));
-    offset += sizeof(16);
-    memcpy(stream + offset, pcontexto->registers->RCX, sizeof(16));
-    offset += sizeof(16);
-    memcpy(stream + offset, pcontexto->registers->RDX, sizeof(16));
-    offset += sizeof(16);
+    memcpy(stream + offset, pcontexto->registers->RAX, 16);
+    offset += 16;
+    memcpy(stream + offset, pcontexto->registers->RBX, 16);
+    offset += 16;
+    memcpy(stream + offset, pcontexto->registers->RCX, 16);
+    offset += 16;
+    memcpy(stream + offset, pcontexto->registers->RDX, 16);
+    offset += 16;
 
     buffer->stream = stream;
     return buffer;
@@ -148,32 +148,32 @@ t_buffer *t_pcontexto_desalojo_create_buffer(t_pcontexto_desalojo *pcontexto)
     memcpy(stream + offset, &(pcontexto->program_counter), sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
-    memcpy(stream + offset, pcontexto->registers->AX, sizeof(4));
-    offset += sizeof(4);
-    memcpy(stream + offset, pcontexto->registers->BX, sizeof(4));
-    offset += sizeof(4);
-    memcpy(stream + offset, pcontexto->registers->CX, sizeof(4));
-    offset += sizeof(4);
-    memcpy(stream + offset, pcontexto->registers->DX, sizeof(4));
-    offset += sizeof(4);
+    memcpy(stream + offset, pcontexto->registers->AX, 4);
+    offset += 4;
+    memcpy(stream + offset, pcontexto->registers->BX, 4);
+    offset += 4;
+    memcpy(stream + offset, pcontexto->registers->CX, 4);
+    offset += 4;
+    memcpy(stream + offset, pcontexto->registers->DX, 4);
+    offset += 4;
 
-    memcpy(stream + offset, pcontexto->registers->EAX, sizeof(8));
-    offset += sizeof(8);
-    memcpy(stream + offset, pcontexto->registers->EBX, sizeof(8));
-    offset += sizeof(8);
-    memcpy(stream + offset, pcontexto->registers->ECX, sizeof(8));
-    offset += sizeof(8);
-    memcpy(stream + offset, pcontexto->registers->EDX, sizeof(8));
-    offset += sizeof(8);
+    memcpy(stream + offset, pcontexto->registers->EAX, 8);
+    offset += 8;
+    memcpy(stream + offset, pcontexto->registers->EBX, 8);
+    offset += 8;
+    memcpy(stream + offset, pcontexto->registers->ECX, 8);
+    offset += 8;
+    memcpy(stream + offset, pcontexto->registers->EDX, 8);
+    offset += 8;
 
-    memcpy(stream + offset, pcontexto->registers->RAX, sizeof(16));
-    offset += sizeof(16);
-    memcpy(stream + offset, pcontexto->registers->RBX, sizeof(16));
-    offset += sizeof(16);
-    memcpy(stream + offset, pcontexto->registers->RCX, sizeof(16));
-    offset += sizeof(16);
-    memcpy(stream + offset, pcontexto->registers->RDX, sizeof(16));
-    offset += sizeof(16);
+    memcpy(stream + offset, pcontexto->registers->RAX, 16);
+    offset += 16;
+    memcpy(stream + offset, pcontexto->registers->RBX, 16);
+    offset += 16;
+    memcpy(stream + offset, pcontexto->registers->RCX, 16);
+    offset += 16;
+    memcpy(stream + offset, pcontexto->registers->RDX, 16);
+    offset += 16;
 
     memcpy(stream + offset, &buffer_instruccion_desalojo->size, sizeof(uint32_t));
     offset += sizeof(uint32_t);
@@ -304,6 +304,8 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
 {
     t_pcontexto *pcontexto = malloc(sizeof(t_pcontexto));
 
+    pcontexto->registers = malloc(sizeof(t_registers));
+
     pcontexto->registers->AX = malloc(4);
     pcontexto->registers->BX = malloc(4);
     pcontexto->registers->CX = malloc(4);
@@ -321,7 +323,6 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
 
     memcpy(&(pcontexto->pid), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
-
     t_buffer *buffer_instructions = malloc(sizeof(t_buffer));
 
     memcpy(&(buffer_instructions->size), stream, sizeof(uint32_t));
@@ -339,33 +340,33 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
     memcpy(&(pcontexto->program_counter), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
 
-    memcpy(pcontexto->registers->AX, stream, sizeof(4));
-    stream += sizeof(4);
-    memcpy(pcontexto->registers->BX, stream, sizeof(4));
-    stream += sizeof(4);
-    memcpy(pcontexto->registers->CX, stream, sizeof(4));
-    stream += sizeof(4);
-    memcpy(pcontexto->registers->DX, stream, sizeof(4));
-    stream += sizeof(4);
+    memcpy(pcontexto->registers->AX, stream, 4);
+    stream += 4;
+    memcpy(pcontexto->registers->BX, stream, 4);
+    stream += 4;
+    memcpy(pcontexto->registers->CX, stream, 4);
+    stream += 4;
+    memcpy(pcontexto->registers->DX, stream, 4);
+    stream += 4;
 
-    memcpy(pcontexto->registers->EAX, stream, sizeof(8));
-    stream += sizeof(8);
-    memcpy(pcontexto->registers->EBX, stream, sizeof(8));
-    stream += sizeof(8);
-    memcpy(pcontexto->registers->ECX, stream, sizeof(8));
-    stream += sizeof(8);
-    memcpy(pcontexto->registers->EDX, stream, sizeof(8));
-    stream += sizeof(8);
+    memcpy(pcontexto->registers->EAX, stream, 8);
+    stream += 8;
+    memcpy(pcontexto->registers->EBX, stream, 8);
+    stream += 8;
+    memcpy(pcontexto->registers->ECX, stream, 8);
+    stream += 8;
+    memcpy(pcontexto->registers->EDX, stream, 8);
+    stream += 8;
 
-    memcpy(pcontexto->registers->RAX, stream, sizeof(16));
-    stream += sizeof(16);
-    memcpy(pcontexto->registers->RBX, stream, sizeof(16));
-    stream += sizeof(16);
-    memcpy(pcontexto->registers->RCX, stream, sizeof(16));
-    stream += sizeof(16);
-    memcpy(pcontexto->registers->RDX, stream, sizeof(16));
+    memcpy(pcontexto->registers->RAX, stream, 16);
+    stream += 16;
+    memcpy(pcontexto->registers->RBX, stream, 16);
+    stream += 16;
+    memcpy(pcontexto->registers->RCX, stream, 16);
+    stream += 16;
+    memcpy(pcontexto->registers->RDX, stream, 16);
 
-    free(stream);
+    free(buffer->stream);
     free(buffer);
     return pcontexto;
 }
@@ -373,6 +374,8 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
 t_pcontexto_desalojo *t_pcontexto_desalojo_create_from_buffer(t_buffer *buffer) {
     t_pcontexto_desalojo *pcontexto = malloc(sizeof(t_pcontexto));
     uint32_t offset = 0;
+
+    pcontexto->registers = malloc(sizeof(t_registers));
 
     pcontexto->registers->AX = malloc(4);
     pcontexto->registers->BX = malloc(4);

@@ -48,7 +48,7 @@ void process_client(int client_socket, t_log *logger) {
 
 void free_pcontexto(t_pcontexto* contexto) {
     // free t_list* instructions
-    list_destroy_and_destroy_elements(contexto->instructions, instruction_destroyer);
+    list_destroy_and_destroy_elements(contexto->instructions, (void *) instruction_destroyer);
 
     // free registers pcontexto
     registers_destroy(contexto->registers);
@@ -59,7 +59,7 @@ void free_pcontexto(t_pcontexto* contexto) {
 
 void free_pcontexto_desalojo(t_pcontexto_desalojo *contexto) {
     // free t_list* instructions
-    list_destroy_and_destroy_elements(contexto->instructions, instruction_destroyer);
+    list_destroy_and_destroy_elements(contexto->instructions, (void *) instruction_destroyer);
 
     // free registers pcontexto
     registers_destroy(contexto->registers);

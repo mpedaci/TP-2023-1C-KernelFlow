@@ -15,4 +15,16 @@ char* config_path = "/home/utnso/Documents/tp-2023-1c-KernelFlow/cpu/config/cpu.
 
 void sigintHandler(int signum);
 
+void print_config(t_config_cpu *config);
+
+void print_contexto(t_pcontexto *contexto);
+
+void iterator_print_instruction(t_instruccion *instruccion);
+
+void print_registers(t_registers *registers);
+
+t_instruccion *new_instruction(t_identificador identificador, t_list *parametros);
+
+void add_param_to_instruction(t_list *parametros, t_instruccion *instruccion);
+
 #endif

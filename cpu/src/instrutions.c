@@ -108,9 +108,7 @@ void *get_register(char *register_char) {
 }
 
 void instruction_destroyer(t_instruccion *instruccion) {
-    for(int i=0; i<instruccion->cant_parametros; i++) {
-        free(instruccion->parametros[i]);
-    }
+    free(instruccion->parametros);
     free(instruccion);
 }
 
@@ -155,7 +153,6 @@ t_list *copy_instructions_list(t_list *instructions) {
     for(int i=0; i<list_size(instructions); i++) {
         instruction = copy_instruction(list_get(instructions, i));
         list_add(new_list, instruction);
-        instruction_destroyer(instruction);
     }
 
     return new_list;
