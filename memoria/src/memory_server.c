@@ -1,4 +1,4 @@
-#include <utils.h>
+#include "memory_server.h"
 
 void start_memory_server(char* port, t_log * logger)
 {  log_info(logger, "Iniciando servidor");
@@ -26,16 +26,19 @@ void handle_client(int client_fd,t_log* logger){
    switch(handshake){
       case HSKERNEL:
 		   log_info(logger,"Se conecto el modulo Kernel");
-		   kernel_operations(client_fd);
+		   kernel_operations(client_fd, logger);
+         break;
 	   case HSCPU:
 		   log_info(logger,"Se conecto el modulo CPU");
-		   cpu_operations(client_fd);
+		   cpu_operations(client_fd, logger);
+         break;
 	   case HSFS:
 		   log_info(logger,"Se conecto el modulo File System");
-		   fs_operations(client_fd);
+		   fs_operations(client_fd,logger);
+         break;
 	   default:
 		   log_warning(logger,"Cliente desconocido");
-		   return EXIT_FAILURE;
+         return;
 		}
    free(handshake);
 }

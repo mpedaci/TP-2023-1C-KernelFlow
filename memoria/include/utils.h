@@ -9,7 +9,6 @@
 #include <commons/string.h>
 #include <pthread.h>
 #include "server.h"
-#include "modulos.h"
 
 typedef struct
 {

@@ -69,13 +69,20 @@ typedef struct
 
 // MEMORIA
 
+typedef struct 
+{
+	uint32_t id;
+	uint32_t segment_size;
+	uint32_t base_adress;
+} t_segments_table;
+
 typedef struct
 {
-    uint32_t id;
-    uint32_t segment_size;
-    uint32_t base_direction_length;
-    char *base_direction;
-} t_segments_table;
+    uint32_t value_length;
+    char* value;
+} t_data;
+
+typedef uint32_t t_adress;
 
 // FILESYSTEM
 
