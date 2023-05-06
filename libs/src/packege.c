@@ -2,34 +2,6 @@
 
 /* BUFFERS TIPOS DE DATOS -> SEND */
 
-<<<<<<< HEAD
-t_buffer* t_persona_create_buffer(t_persona persona)
-{
-    t_buffer* buffer = malloc(sizeof(t_buffer));
-
-    buffer->size = sizeof(uint32_t) * 3         // DNI, Pasaporte y longitud del nombre
-                 + sizeof(uint8_t)              // Edad
-                 + strlen(persona.nombre) + 1;  // La longitud del string nombre. Le sumamos 1 para enviar tambien el caracter centinela '\0'. Esto se podría obviar, pero entonces deberíamos agregar el centinela en el receptor.
-
-    void* stream = malloc(buffer->size);
-    // Desplazamiento
-    int offset = 0;
-
-    // ACA SE DEFINE EL STRUCT Y SUS CAMPOS A GUARDAR
-    // TENER EN CUENTA LOS TIPOS DE DATOS
-    memcpy(stream + offset, &persona.dni, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-    memcpy(stream + offset, &persona.edad, sizeof(uint8_t));
-    offset += sizeof(uint8_t);
-    memcpy(stream + offset, &persona.pasaporte, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-    // Para el nombre primero mandamos el tamaño y luego el texto en sí:
-    memcpy(stream + offset, &persona.nombre_length, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-    memcpy(stream + offset, persona.nombre, strlen(persona.nombre) + 1);
-
-    // No tiene sentido seguir calculando el desplazamiento, ya ocupamos el buffer completo
-=======
 uint32_t espacio_de_array_parametros(t_instruccion *instruccion)
 {
     uint32_t espacio = 0;
@@ -64,15 +36,10 @@ t_buffer *t_instruccion_create_buffer(t_instruccion *instruccion)
         memcpy(stream + offset, instruccion->parametros[i], strlen(instruccion->parametros[i]) + 1);
         offset += strlen(instruccion->parametros[i]) + 1;
     }
->>>>>>> origin/Develop
     buffer->stream = stream;
     return buffer;
 }
 
-<<<<<<< HEAD
-t_buffer* null_buffer(){
-    t_buffer* buffer = malloc(sizeof(t_buffer));
-=======
 t_buffer *t_lista_instrucciones_create_buffer(t_list *lista_instrucciones)
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
@@ -179,7 +146,6 @@ t_buffer *t_open_files_create_buffer(t_open_files *open_files){
 t_buffer *null_buffer()
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
->>>>>>> origin/Develop
     buffer->size = 0;
     buffer->stream = NULL;
     return buffer;
@@ -187,29 +153,6 @@ t_buffer *null_buffer()
 
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
-<<<<<<< HEAD
-t_persona* t_persona_create_from_buffer(t_buffer* buffer)
-{
-    t_persona* persona = malloc(sizeof(t_persona));
-    void* stream = buffer->stream;
-
-    // ACA SE DEFINE EL STRUCT Y SUS CAMPOS A GUARDAR
-    // TENER EN CUENTA LOS TIPOS DE DATOS
-    // Deserializamos los campos que tenemos en el buffer
-    memcpy(&(persona->dni), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
-    memcpy(&(persona->edad), stream, sizeof(uint8_t));
-    stream += sizeof(uint8_t);
-    memcpy(&(persona->pasaporte), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
-    // Por último, para obtener el nombre, primero recibimos el tamaño y luego el texto en sí:
-    memcpy(&(persona->nombre_length), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
-    persona->nombre = malloc(persona->nombre_length);
-    memcpy(persona->nombre, stream, persona->nombre_length);
-
-    return persona;
-=======
 t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offset)
 {
     t_instruccion *instruccion = malloc(sizeof(t_instruccion));
@@ -350,20 +293,13 @@ t_open_files *t_open_files_create_from_buffer(t_buffer *buffer){
     t_open_files *open_files = malloc(sizeof(t_open_files));
     // POR IMPLEMENTAR
     return open_files;
->>>>>>> origin/Develop
 }
 
 /* PAQUETES */
 
-<<<<<<< HEAD
-t_package* package_create(t_buffer *buffer, int operation_code)
-{
-    t_package* paquete = malloc(sizeof(t_package));
-=======
 t_package *package_create(t_buffer *buffer, int operation_code)
 {
     t_package *paquete = malloc(sizeof(t_package));
->>>>>>> origin/Develop
     paquete->operation_code = operation_code;
     if (buffer == NULL)
         paquete->buffer = null_buffer();
@@ -372,60 +308,35 @@ t_package *package_create(t_buffer *buffer, int operation_code)
     return paquete;
 }
 
-<<<<<<< HEAD
-uint32_t package_get_size(t_package* paquete)
-=======
 uint32_t package_get_size(t_package *paquete)
->>>>>>> origin/Develop
 {
     return paquete->buffer->size + sizeof(uint8_t) + sizeof(uint32_t);
 }
 
-<<<<<<< HEAD
-bool package_send(int socket, t_package* paquete, t_log* logger)
-{
-    // Armamos el stream a enviar
-    // Buffer Size + Size of Operation Code Var + Size of Buffer Size Var
-    void* a_enviar = malloc(paquete->buffer->size + sizeof(uint8_t) + sizeof(uint32_t));
-=======
 bool package_send(int socket, t_package *paquete, t_log *logger)
 {
     // Armamos el stream a enviar
     // Buffer Size + Size of Operation Code Var + Size of Buffer Size Var
     void *a_enviar = malloc(paquete->buffer->size + sizeof(uint8_t) + sizeof(uint32_t));
->>>>>>> origin/Develop
     int offset = 0;
     memcpy(a_enviar + offset, &(paquete->operation_code), sizeof(uint8_t));
     offset += sizeof(uint8_t);
     memcpy(a_enviar + offset, &(paquete->buffer->size), sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(a_enviar + offset, paquete->buffer->stream, paquete->buffer->size);
-<<<<<<< HEAD
-    if (send(socket, a_enviar, paquete->buffer->size + sizeof(uint8_t) + sizeof(uint32_t), 0) == -1){
-=======
     if (send(socket, a_enviar, paquete->buffer->size + sizeof(uint8_t) + sizeof(uint32_t), 0) == -1)
     {
->>>>>>> origin/Develop
         log_error(logger, "Error al enviar el paquete");
         free(a_enviar);
         return false;
     }
-<<<<<<< HEAD
-    printf("Enviado paquete con codigo de operacion: %d\n", paquete->operation_code);
-=======
->>>>>>> origin/Develop
     free(a_enviar);
     return true;
 }
 
-<<<<<<< HEAD
-t_package* package_recv(int socket, t_log* logger){
-    t_package* paquete = malloc(sizeof(t_package));
-=======
 t_package *package_recv(int socket, t_log *logger)
 {
     t_package *paquete = malloc(sizeof(t_package));
->>>>>>> origin/Develop
     paquete->buffer = malloc(sizeof(t_buffer));
 
     // Primero recibimos el codigo de operacion
@@ -435,25 +346,13 @@ t_package *package_recv(int socket, t_log *logger)
     recv(socket, &(paquete->buffer->size), sizeof(uint32_t), 0);
     paquete->buffer->stream = malloc(paquete->buffer->size);
     recv(socket, paquete->buffer->stream, paquete->buffer->size, 0);
-<<<<<<< HEAD
-    
-    return paquete;
-}
-
-void package_destroy(t_package* paquete)
-=======
 
     return paquete;
 }
 
 void package_destroy(t_package *paquete)
->>>>>>> origin/Develop
 {
     free(paquete->buffer->stream);
     free(paquete->buffer);
     free(paquete);
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/Develop

@@ -2,14 +2,16 @@
 //#include <fcntl.h> //para la funcion open 
 //#include <sys/mman.h> //para el mmap
 //#include <math.h> // para el ceil 
-
-
+t_superbloque *pSuperbloque;
+void* copy_blocks;
 void initialize_filesystem( t_config_filesystem *config ){
 
 create_fcb(config->path_fcb);
 create_superbloque(config->path_superbloque);
 create_bitmap(config);
-create_blocks(config);
+pthread_t crear_y_manejar_blocks;
+pthread_create(&crear_y_manejar_blocks,NULL,(void*)create_blocks,(void*)config);
+pthread_detach(crear_y_manejar_blocks);
 }
 
 void create_fcb(char *path_fcb){
@@ -19,7 +21,7 @@ void create_fcb(char *path_fcb){
 
 void create_superbloque(char *path_superblock){
 
-    t_superbloque *pSuperbloque= malloc(sizeof(t_superbloque));
+    pSuperbloque= malloc(sizeof(t_superbloque));
     //hardcodeado
     pSuperbloque ->block_size = 64;
     pSuperbloque ->block_count = 20;
@@ -31,7 +33,7 @@ void create_superbloque(char *path_superblock){
     //fwrite(&(pSuperbloque->block_size), sizeof(uint32_t), 1, file_superblock);
     
     close(file_superblock);
-    free(pSuperbloque); 
+   // free(pSuperbloque); 
 }
 
    /*
@@ -44,18 +46,13 @@ void create_superbloque(char *path_superblock){
 
 void create_bitmap(t_config_filesystem *config ){
 
-    t_superbloque *pSuperbloque= malloc(sizeof(t_superbloque));
-
-    pSuperbloque ->block_size = 64;
-    pSuperbloque ->block_count = 20;
-
     int bitmap_size= ceil(pSuperbloque->block_count / 8 );   //NO PONER 8.0 ROMPE EL CEIL 
 
     int file_bitmap = open(config->path_bitmap, O_CREAT | O_RDWR, 0644);
 
     ftruncate(file_bitmap,sizeof(t_superbloque) + bitmap_size);
 
-    void *mmapBitmap = mmap(NULL, sizeof(t_superbloque) + bitmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, file_bitmap, 0);
+     void *mmapBitmap = mmap(NULL, sizeof(t_superbloque) + bitmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, file_bitmap, 0);
     //en vez de void puede ser char y eso x ahi tmb lo puedo poner como variable global 
 
     t_bitarray *bitmap = bitarray_create_with_mode(mmapBitmap + sizeof(t_superbloque), bitmap_size, LSB_FIRST);
@@ -67,7 +64,7 @@ void create_bitmap(t_config_filesystem *config ){
 
     munmap(mmapBitmap, sizeof(t_superbloque) + bitmap_size); //libero memoria mapeada de mmap
     
-    free(pSuperbloque);
+    //free(pSuperbloque);
     close(file_bitmap);
 
 }
@@ -75,7 +72,7 @@ void create_bitmap(t_config_filesystem *config ){
 
 void create_blocks(t_config_filesystem *config){
 
-    t_superbloque *pSuperbloque= malloc(sizeof(t_superbloque));
+    //t_superbloque *pSuperbloque= malloc(sizeof(t_superbloque));
 
     int file_blocks= open(config->path_bloques,O_CREAT | O_RDWR, 0644);
 
@@ -85,14 +82,18 @@ void create_blocks(t_config_filesystem *config){
 
     void* mmapBlocks = mmap(NULL, file_block_size, PROT_READ | PROT_WRITE, MAP_SHARED, file_blocks, 0);
 
-    void* copy_blocks = malloc(file_block_size);
-    
+    copy_blocks = malloc(file_block_size);
+    //semaforos
     memcpy(copy_blocks,mmapBlocks,file_block_size);
-
+    while(1){
     // Sincronizas los cambios en el archivo de bloques en disco
+    sleep(config->retardo_acceso_bloque);
+    memcpy(mmapBlocks,copy_blocks,file_block_size);
     sync_blocks(mmapBlocks, file_block_size);
-
-    free(copy_blocks);
+    
+    }
+    
+    //free(copy_blocks);
     munmap(mmapBlocks, file_block_size);
     close(file_blocks);
 }

@@ -1,8 +1,7 @@
 #include "filesystem.h"
 #include "archivo.h"
 
-int main()
-{
+
 
 int main() {
    
@@ -18,9 +17,6 @@ int main() {
         end_program(logger_main, logger_aux, config);
         return EXIT_FAILURE;
     }
-
-    initialize_filesystem(config);
-
 
     initialize_filesystem(config);
 
