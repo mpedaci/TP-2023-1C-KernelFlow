@@ -23,10 +23,12 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
         break;
     case I_MOV_IN:
         // traduce mmu
+        // agregarle un parametro a los parametros de la instruccion que sea el numero de segmento
         break;
     case I_MOV_OUT:
         // mmu traduce
         // params = params traducidos por mmu
+        // agregarle un parametro a los parametros de la instruccion que sea el numero de segmento
         break;
     case I_F_READ:
         // mmu traduce
@@ -47,15 +49,15 @@ t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pco
     {
     case I_SET:
         SET(instruccionListaParaEjecutar->parametros[0], instruccionListaParaEjecutar->parametros[1]);
-        instruction_destroyer(instruccionListaParaEjecutar);
         break;
     case I_MOV_IN:
         MOV_IN(instruccionListaParaEjecutar->parametros[0], atoi(instruccionListaParaEjecutar->parametros[1]));
-        instruction_destroyer(instruccionListaParaEjecutar);
+        // instruccionListaParaEjecutar va a tener un parametro mas que se le agrego en el decode
+        // ese parametro va a servir para loggear el segundo log obligatorio. Una vez utilizado ELIMINARLO. lo mismo para MOV_OUT
+        // TODO
         break;
     case I_MOV_OUT:
         MOV_OUT(atoi(instruccionListaParaEjecutar->parametros[0]), instruccionListaParaEjecutar->parametros[1]);
-        instruction_destroyer(instruccionListaParaEjecutar);
         break;
     case I_I_O:
         return I_O(contexto, instruccionListaParaEjecutar);
@@ -99,6 +101,8 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto) {
     char *params_string = get_params_string(instruccionListaParaEjecutar);
     char *instruction_string = get_instruction_string(instruccionListaParaEjecutar->identificador);
     log_info(logger, "PID: %d - Ejecutando: %s - %s", contexto->pid, instruction_string, params_string);
+
+    instruction_destroyer(instruccionListaParaEjecutar);
 
     return contexto_desalojo;
 }

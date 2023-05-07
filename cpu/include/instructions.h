@@ -14,9 +14,9 @@ t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccio
 
 void SET(char *registro, char *valor);
 
-void MOV_IN();
+char *MOV_IN();
 
-void MOV_OUT();
+char *MOV_OUT();
 
 t_pcontexto_desalojo *I_O(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar);
 
