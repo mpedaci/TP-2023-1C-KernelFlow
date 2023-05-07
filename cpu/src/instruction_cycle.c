@@ -46,15 +46,15 @@ t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pco
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
-        char *registro = instruccionListaParaEjecutar->parametros[0];
-        char *valor = instruccionListaParaEjecutar->parametros[1];
+        SET(instruccionListaParaEjecutar->parametros[0], instruccionListaParaEjecutar->parametros[1]);
         instruction_destroyer(instruccionListaParaEjecutar);
-        SET(registro, valor);
         break;
     case I_MOV_IN:
+        MOV_IN(instruccionListaParaEjecutar->parametros[0], atoi(instruccionListaParaEjecutar->parametros[1]));
         instruction_destroyer(instruccionListaParaEjecutar);
         break;
     case I_MOV_OUT:
+        MOV_OUT(atoi(instruccionListaParaEjecutar->parametros[0]), instruccionListaParaEjecutar->parametros[1]);
         instruction_destroyer(instruccionListaParaEjecutar);
         break;
     case I_I_O:
@@ -94,12 +94,78 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto) {
     t_instruccion* instruccionSiguiente = fetch(contexto);
     t_instruccion* instruccionListaParaEjecutar = decode(instruccionSiguiente);
     t_pcontexto_desalojo* contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
+
+    // loggeo la instruccion ejecutada
+    char *params_string = get_params_string(instruccionListaParaEjecutar);
+    char *instruction_string = get_instruction_string(instruccionListaParaEjecutar->identificador);
+    log_info(logger, "PID: %d - Ejecutando: %s - %s", contexto->pid, instruction_string, params_string);
+
     return contexto_desalojo;
 }
 
 t_pcontexto_desalojo *execute_process(t_pcontexto* contexto) {
     ejecutando = true;
-    while(!ejecutando) {
-        execute_instruction_cycle(contexto);
+    t_pcontexto_desalojo *contexto_desalojo;
+    while(ejecutando) {
+        contexto_desalojo = execute_instruction_cycle(contexto);
     }
+    return contexto_desalojo;
+}
+
+
+// aux
+char *get_instruction_string(t_identificador id) {
+    switch (id)
+    {
+    case I_SET:
+        return "SET";
+    case I_MOV_IN:
+        return "MOV_IN";
+    case I_MOV_OUT:
+        return "MOV_OUT";
+    case I_I_O:
+        return "I/O";
+    case I_F_OPEN:
+        return "F_OPEN";
+    case I_F_CLOSE:
+        return "F_CLOSE";
+    case I_F_SEEK:
+        return "F_SEEK";
+    case I_F_READ:
+        return "F_READ";
+    case I_F_WRITE:
+        return "F_WRITE";
+    case I_F_TRUNCATE:
+        return "F_TRUNCATE";
+    case I_WAIT:
+        return "WAIT";
+    case I_SIGNAL:
+        return "SIGNAL";
+    case I_CREATE_SEGMENT:
+        return "CREATE_SEGMENT";
+    case I_DELETE_SEGMENT:
+        return "DELETE_SEGMENT";
+    case I_YIELD:
+        return "YIELD";
+    case I_EXIT:
+        return "EXIT";
+    default:
+        return "Instruccion Desconocida :(";
+    }
+}
+
+char *get_params_string(t_instruccion *instruction) {
+    uint32_t size = instruction->cant_parametros - 1;
+    for(int i=0; i<instruction->cant_parametros; i++) {
+        size += string_length(instruction->parametros[i]);
+    }
+    char params_string[size+1];
+    int i = 0;
+    for(i; i<instruction->cant_parametros-1; i++) {
+        strcat(params_string, instruction->parametros[i]);
+        strcat(params_string, " ");
+    }
+    strcat(params_string, instruction->parametros[i]);
+
+    return params_string;
 }

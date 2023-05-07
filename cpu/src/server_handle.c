@@ -29,9 +29,19 @@ void process_client(int client_socket, t_log *logger) {
             copy_registers(cpu_registers, contexto->registers);
             t_pcontexto_desalojo *contexto_desalojo = execute_process(contexto);
             copy_registers(contexto_desalojo->registers, cpu_registers);
-            send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
+            int i = 0;
+            bool res = send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
+            while(i<3 && !res) {
+                res = send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
+                i++;
+                }
             free_pcontexto(contexto);
             free_pcontexto_desalojo(contexto_desalojo);
+            if(!res) {
+                log_error(logger, "El contexto no se pudo enviar al kernel");
+                package_destroy(package);
+                return;
+            }
             break;
         case END:
             printf("Conexion Finalizada");

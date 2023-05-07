@@ -22,4 +22,10 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto);
 // Ejecuta el proceso pasado por contexto
 t_pcontexto_desalojo * execute_process(t_pcontexto* contexto);
 
+
+// aux
+char *get_instruction_string(t_identificador id);
+
+char *get_params_string(t_instruccion *instruction);
+
 #endif

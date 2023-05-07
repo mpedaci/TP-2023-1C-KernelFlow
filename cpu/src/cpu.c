@@ -59,11 +59,11 @@ void print_contexto(t_pcontexto *contexto) {
 }
 
 void iterator_print_instruction(t_instruccion *instruccion) {
-   printf("%d\n", instruccion->identificador);
-   printf("%d\n", instruccion->cant_parametros);
-   printf("%d\n", instruccion->p1_length);
-   printf("%d\n", instruccion->p2_length);
-   printf("%d\n", instruccion->p3_length);
+   printf("%d - ", instruccion->identificador);
+   printf("%d - ", instruccion->cant_parametros);
+   printf("%d - ", instruccion->p1_length);
+   printf("%d - ", instruccion->p2_length);
+   printf("%d - ", instruccion->p3_length);
    printf("%d\n", instruccion->p4_length);
 
    for(int i=0; i<instruccion->cant_parametros; i++) {
