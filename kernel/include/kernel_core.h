@@ -15,6 +15,8 @@
 #include "planner.h"
 #include "communication.h"
 
+#include "semaphore.h"
+
 
 // CORE
 

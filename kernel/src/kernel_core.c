@@ -133,3 +133,124 @@ void execute_process()
 }
 
 
+void execute(){
+
+    t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
+    t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
+  
+    t_instruccion* instruccion_desalojo = pcontexto_response->motivo_desalojo;
+    char* recurso_solicitado = instruccion_desalojo->parametros[1];
+
+    if(instruccion_desalojo->identificador == I_WAIT){
+        solicitar_recurso_wait(recurso_solicitado);
+    }
+
+    else if(instruccion_desalojo->identificador == I_SIGNAL){
+        solicitar_recurso_signal(recurso_solicitado);
+    }
+}
+
+void solicitar_recurso_wait(char* recurso_solicitado){
+    int cantidad_recursos = list_size(config_kernel->recursos);
+
+    // creo un semaforo por cada recurso y cola de bloqueados
+    sem_t sem_recursos[cantidad_recursos];
+    sem_t sem_colas_bloqueados[cantidad_recursos];
+
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_recursos[i], 0, list_get(config_kernel->instancias_recursos, i));
+    }
+
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_colas_bloqueados[i], 0, list_get(config_kernel->instancias_recursos, i));
+    }
+
+    int posicion_aux = -1;
+
+    // busco la posicion del recurso
+    for(int i=0; i< cantidad_recursos; i++){
+        if(string_equals_ignore_case(recurso_solicitado, list_get(config_kernel->recursos, i))){
+            posicion_aux = i;
+        }
+    }
+
+    if(posicion_aux = -1){
+        log_info(logger_main, "el recurso no existe");
+        // ENVIAR PROCESO A EXIT (falta)
+        // queue_push(queues->EXIT, pcb);
+    }
+
+    sem_wait(&sem_recursos[posicion_aux]);
+    // resto una instancia del recurso
+    int instancia_recurso = list_get(config_kernel->instancias_recursos, posicion_aux);
+    instancia_recurso--;
+
+    if(instancia_recurso < 0){
+        sem_post(&sem_recursos[posicion_aux]);
+        sem_wait(&sem_colas_bloqueados[posicion_aux]);
+        // AGREGAR PROCESO A LA COLA DE BLOQUEADOS (falta)
+        sem_post(&sem_colas_bloqueados[posicion_aux]);
+    } else
+        sem_post(&sem_recursos[posicion_aux]);
+
+    // destruir semaforos
+    for (int i = 0; i < cantidad_recursos; i++) {
+        sem_destroy(&sem_recursos[i]);
+    }
+    for (int i = 0; i < cantidad_recursos; i++) {
+        sem_destroy(&sem_colas_bloqueados[i]);
+    }
+}
+
+void solicitar_recurso_signal(char* recurso_solicitado){
+
+    int cantidad_recursos = list_size(config_kernel->recursos);
+
+    // creo un semaforo por cada recurso
+    sem_t sem_recursos[cantidad_recursos];
+    sem_t sem_colas_bloqueados[cantidad_recursos];
+
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_recursos[i], 0, list_get(config_kernel->instancias_recursos, i));
+    }
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_colas_bloqueados[i], 0, list_get(config_kernel->instancias_recursos, i));
+    }
+
+    int posicion_aux = -1;
+
+    // busco la posicion del recurso
+    for(int i=0; i< cantidad_recursos; i++){
+        if(string_equals_ignore_case(recurso_solicitado, list_get(config_kernel->recursos, i))){
+            posicion_aux = i;
+        }
+    }
+
+    if(posicion_aux = -1){
+        log_info(logger_main, "el recurso no existe");
+        // ENVIAR PROCESO A EXIT (falta)
+        // queue_push(queues->EXIT, pcb);
+    }
+
+    sem_wait(&sem_recursos[posicion_aux]);
+    // sumo una instancia del recurso
+    int instancia_recurso = list_get(config_kernel->instancias_recursos, posicion_aux);
+    instancia_recurso++;
+    sem_wait(&sem_colas_bloqueados[posicion_aux]);
+    // DESBLOQUEAR PRIMER PROCESO D LA COLA DE BLOQUEADOS (falta)
+    sem_post(&sem_colas_bloqueados[posicion_aux]);
+    sem_post(&sem_recursos[posicion_aux]);
+
+
+    // destruir semaforos
+    for (int i = 0; i < cantidad_recursos; i++) {
+        sem_destroy(&sem_recursos[i]);
+    }
+    for (int i = 0; i < cantidad_recursos; i++) {
+        sem_destroy(&sem_colas_bloqueados[i]);
+    }
+    
+}
+
+void inicializar_semaforos(){}
+void finalizar_semaforos(){}

@@ -115,6 +115,71 @@ t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto)
     return buffer;
 }
 
+t_buffer *t_pcontexto_desalojo_create_buffer(t_pcontexto_desalojo *pcontexto)
+{
+    t_buffer *buffer = malloc(sizeof(t_buffer));
+    t_buffer *buffer_instrucciones = t_lista_instrucciones_create_buffer(pcontexto->instructions);
+    t_buffer *buffer_instruccion_desalojo = t_instruccion_create_buffer(pcontexto->motivo_desalojo);
+
+    buffer->size = sizeof(uint32_t) * 4 + buffer_instrucciones->size + sizeof(pcontexto->registers->AX) * 4 + sizeof(pcontexto->registers->EAX) * 4 + sizeof(pcontexto->registers->RAX) * 4;
+
+    void *stream = malloc(sizeof(buffer->size));
+
+    int offset = 0;
+
+    memcpy(stream, &pcontexto->pid, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    memcpy(stream + offset, &buffer_instrucciones->size, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    memcpy(stream + offset, buffer_instrucciones->stream, buffer_instrucciones->size);
+    offset += buffer_instrucciones->size;
+    free(buffer_instrucciones->stream);
+    free(buffer_instrucciones);
+    
+    memcpy(stream + offset, &(pcontexto->program_counter), sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    memcpy(stream + offset, pcontexto->registers->AX, sizeof(4));
+    offset += sizeof(4);
+    memcpy(stream + offset, pcontexto->registers->BX, sizeof(4));
+    offset += sizeof(4);
+    memcpy(stream + offset, pcontexto->registers->CX, sizeof(4));
+    offset += sizeof(4);
+    memcpy(stream + offset, pcontexto->registers->DX, sizeof(4));
+    offset += sizeof(4);
+
+    memcpy(stream + offset, pcontexto->registers->EAX, sizeof(8));
+    offset += sizeof(8);
+    memcpy(stream + offset, pcontexto->registers->EBX, sizeof(8));
+    offset += sizeof(8);
+    memcpy(stream + offset, pcontexto->registers->ECX, sizeof(8));
+    offset += sizeof(8);
+    memcpy(stream + offset, pcontexto->registers->EDX, sizeof(8));
+    offset += sizeof(8);
+
+    memcpy(stream + offset, pcontexto->registers->RAX, sizeof(16));
+    offset += sizeof(16);
+    memcpy(stream + offset, pcontexto->registers->RBX, sizeof(16));
+    offset += sizeof(16);
+    memcpy(stream + offset, pcontexto->registers->RCX, sizeof(16));
+    offset += sizeof(16);
+    memcpy(stream + offset, pcontexto->registers->RDX, sizeof(16));
+    offset += sizeof(16);
+
+    memcpy(stream + offset, &buffer_instruccion_desalojo->size, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    memcpy(stream + offset, buffer_instruccion_desalojo->stream, buffer_instruccion_desalojo->size);
+    offset += buffer_instruccion_desalojo->size;
+    free(buffer_instruccion_desalojo->stream);
+    free(buffer_instruccion_desalojo);
+
+    buffer->stream = stream;
+    return buffer;
+}
+
 t_buffer *t_segment_table_create_buffer(t_segments_table *segment_table)
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
@@ -271,6 +336,110 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
     free(buffer);
     return pcontexto;
 }
+
+t_pcontexto_desalojo *t_pcontexto_desalojo_create_from_buffer(t_buffer *buffer) {
+    t_pcontexto_desalojo *pcontexto = malloc(sizeof(t_pcontexto));
+    uint32_t offset = 0;
+
+    pcontexto->registers->AX = malloc(4);
+    pcontexto->registers->BX = malloc(4);
+    pcontexto->registers->CX = malloc(4);
+    pcontexto->registers->DX = malloc(4);
+    pcontexto->registers->EAX = malloc(8);
+    pcontexto->registers->EBX = malloc(8);
+    pcontexto->registers->ECX = malloc(8);
+    pcontexto->registers->EDX = malloc(8);
+    pcontexto->registers->RAX = malloc(16);
+    pcontexto->registers->RBX = malloc(16);
+    pcontexto->registers->RCX = malloc(16);
+    pcontexto->registers->RDX = malloc(16);
+
+    void *stream = buffer->stream;
+
+    memcpy(&(pcontexto->pid), stream, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    stream += offset;
+
+    t_buffer *buffer_instructions = malloc(sizeof(t_buffer));
+
+    memcpy(&(buffer_instructions->size), stream, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    stream += offset;
+    
+    buffer_instructions->stream = malloc(buffer_instructions->size);
+    memcpy(buffer_instructions->stream, stream, buffer_instructions->size);
+    offset += buffer_instructions->size;
+    stream += offset;
+
+    pcontexto->instructions = t_lista_instrucciones_create_from_buffer(buffer_instructions);
+
+    free(buffer_instructions->stream);
+    free(buffer_instructions);
+
+    memcpy(&(pcontexto->program_counter), stream, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    stream += offset;
+
+    memcpy(pcontexto->registers->AX, stream, sizeof(4));
+    offset += sizeof(4);
+    stream += offset;
+    memcpy(pcontexto->registers->BX, stream, sizeof(4));
+    offset += sizeof(4);
+    stream += offset;
+    memcpy(pcontexto->registers->CX, stream, sizeof(4));
+    offset += sizeof(4);
+    stream += offset;
+    memcpy(pcontexto->registers->DX, stream, sizeof(4));
+    offset += sizeof(4);
+    stream += offset;
+
+    memcpy(pcontexto->registers->EAX, stream, sizeof(8));
+    offset += sizeof(8);
+    stream += offset;
+    memcpy(pcontexto->registers->EBX, stream, sizeof(8));
+    offset += sizeof(8);
+    stream += offset;
+    memcpy(pcontexto->registers->ECX, stream, sizeof(8));
+    offset += sizeof(8);
+    stream += offset;
+    memcpy(pcontexto->registers->EDX, stream, sizeof(8));
+    offset += sizeof(8);
+    stream += offset;
+
+    memcpy(pcontexto->registers->RAX, stream, sizeof(16));
+    offset += sizeof(16);
+    stream += offset;
+    memcpy(pcontexto->registers->RBX, stream, sizeof(16));
+    offset += sizeof(16);
+    stream += offset;
+    memcpy(pcontexto->registers->RCX, stream, sizeof(16));
+    offset += sizeof(16);
+    stream += offset;
+    memcpy(pcontexto->registers->RDX, stream, sizeof(16));
+    offset += sizeof(16);
+    stream += offset;
+
+    t_buffer *buffer_instruction = malloc(sizeof(t_buffer));
+
+    memcpy(&(buffer_instruction->size), stream, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    stream += offset;
+
+    buffer_instruction->stream = malloc(buffer_instruction->size);
+    memcpy(buffer_instruction->stream, stream, buffer_instruction->size);
+    offset += buffer_instruction->size;
+    stream += offset;
+
+    pcontexto->motivo_desalojo = t_instruccion_create_from_buffer(buffer_instruction, &offset);
+
+    free(buffer_instruction->stream);
+    free(buffer_instruction);
+
+    free(stream);
+    free(buffer);
+    return pcontexto;
+}
+
 
 t_segments_table *t_segment_table_create_from_buffer(t_buffer *buffer)
 {

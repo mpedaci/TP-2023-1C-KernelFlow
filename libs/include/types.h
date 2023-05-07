@@ -65,6 +65,14 @@ typedef struct
     t_list *instructions;
     uint32_t program_counter;
     t_registers *registers;
+    t_instruccion *motivo_desalojo;
+} t_pcontexto_desalojo;
+typedef struct
+{
+    uint32_t pid;
+    t_list *instructions;
+    uint32_t program_counter;
+    t_registers *registers;
 } t_pcontexto;
 
 // MEMORIA
