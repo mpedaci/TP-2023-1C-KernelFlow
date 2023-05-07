@@ -1,5 +1,7 @@
 #include "cpu_vars.h"
 
+int socket_client_memoria = -1;
+
 bool ejecutando = false;
 
 t_log* logger = NULL;

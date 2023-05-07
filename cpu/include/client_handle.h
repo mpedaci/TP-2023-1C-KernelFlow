@@ -3,7 +3,6 @@
 
 #include "client.h"
 
-
-void start_memory_client(char *ip, char *port, t_log *logger);
+int start_memory_client(char *ip, char *port, t_log *logger);
 
 #endif

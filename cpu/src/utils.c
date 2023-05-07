@@ -1,6 +1,5 @@
 #include "utils.h"
 
-
 t_config_cpu* read_config(char* path, t_log* logger) {
 
     t_config_cpu* config_cpu = malloc(sizeof(t_config_cpu));
@@ -24,7 +23,7 @@ t_config_cpu* read_config(char* path, t_log* logger) {
 }
 
 
-void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logger, t_log* logger_aux) {
+void close_program_cpu(t_config_cpu* config, t_registers* registers, int socket_client_memoria, t_log* logger, t_log* logger_aux) {
     // destruyo loggers
     log_destroy(logger);
     log_destroy(logger_aux);
@@ -39,6 +38,9 @@ void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logg
 
     // free registers
     registers_destroy(registers);
+
+    // destruyo socket memoria
+    socket_destroy(socket_client_memoria);
 }
 
 t_registers* init_registers() {

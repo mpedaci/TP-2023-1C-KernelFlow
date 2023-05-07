@@ -12,7 +12,7 @@ int main() {
    // leer configuracion
    config = read_config(config_path, logger);
    if(config == NULL) {
-      close_program_cpu(config, cpu_registers, logger, logger_aux);
+      close_program_cpu(config, cpu_registers, socket_client_memoria, logger, logger_aux);
       return EXIT_FAILURE;
    }
 
@@ -20,18 +20,24 @@ int main() {
 
    cpu_registers = init_registers();
 
+   // iniciar cliente memoria
+   socket_client_memoria = start_memory_client(config->ip_memoria, config->puerto_memoria, logger_aux);
+   if(socket_client_memoria == -1) {
+      close_program_cpu(config, cpu_registers, socket_client_memoria, logger, logger_aux);
+   }
+
    // inicializar servidor para kernel
    log_info(logger_aux, "Iniciando servidor");
    start_cpu_server(config->puerto_escucha, logger_aux);
 
    // fin del programa
-   close_program_cpu(config, cpu_registers, logger, logger_aux);
+   close_program_cpu(config, cpu_registers, socket_client_memoria, logger, logger_aux);
    return EXIT_SUCCESS;
 }
 
 void sigintHandler(int signum) {
     printf("\nIniciando fin del modulo por signal: %d\n", signum);
-    close_program_cpu(config, cpu_registers, logger, logger_aux);
+    close_program_cpu(config, cpu_registers, socket_client_memoria, logger, logger_aux);
     exit(signum);
 }
 

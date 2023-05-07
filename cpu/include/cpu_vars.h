@@ -7,8 +7,12 @@
 
 #include "utils.h"
 
+extern int socket_client_memoria;
 
-extern bool ejecutando;
+extern bool ejecutando;typedef struct {
+    int socket_memoria;
+    int socket_kernel;
+} t_cpu_sockets;
 
 extern t_log* logger;
 extern t_log* logger_aux;

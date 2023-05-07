@@ -91,6 +91,7 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto) {
     t_instruccion* instruccionSiguiente = fetch(contexto);
     t_instruccion* instruccionListaParaEjecutar = decode(instruccionSiguiente);
     t_pcontexto_desalojo* contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
+    return contexto_desalojo;
 }
 
 t_pcontexto_desalojo *execute_process(t_pcontexto* contexto) {

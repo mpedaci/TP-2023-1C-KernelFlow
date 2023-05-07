@@ -7,6 +7,8 @@
 
 #include "package.h"
 #include "mmu.h"
+#include "client_handle.h"
+
 
 t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar);
 
