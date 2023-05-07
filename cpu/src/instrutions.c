@@ -17,12 +17,18 @@ void SET(char* registro_char, char* valor_char) { // setea el registro pasado po
     memcpy(registro, valor_char, string_length(valor_char)); // siguen siendo chars, solo que ahora no tienen el '\0' para chequear el fin de cadena
 }
 
-void MOV_IN() {
-    // TODO (char *registro, uint32_t direccion_logica)
+// mem -> reg
+// Lee el valor de memoria correspondiente a la Dirección Lógica y lo almacena en el Registro
+void MOV_IN(char *registro, uint32_t direccion_logica) {
+    void *reg = get_register(registro);
+    // TODO
 }
 
-void MOV_OUT() {
-    // TODO (uint32_t direccion_logica, char *registro)
+// reg -> mem
+// Lee el valor del Registro y lo escribe en la dirección física de memoria obtenida a partir de la Dirección Lógica
+void MOV_OUT(uint32_t direccion_logica, char *registro) {
+    void * reg = get_register(registro);
+    // TODO 
 }
 
 t_pcontexto_desalojo *I_O(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar) {

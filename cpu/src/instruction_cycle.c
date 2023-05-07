@@ -21,6 +21,9 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
     case I_SET:
         // AGREGAR RETARDO DE INSTRUCCION TODO
         break;
+    case I_MOV_IN:
+        // traduce mmu
+        break;
     case I_MOV_OUT:
         // mmu traduce
         // params = params traducidos por mmu
