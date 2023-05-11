@@ -1,5 +1,4 @@
 #include "filesystem.h"
-#include "archivo.h"
 
 
 
@@ -14,10 +13,9 @@ int main() {
     config = read_config(config_path, logger_main);
     if (config == NULL)
     {
-        end_program(logger_main, logger_aux, config);
+        end_program(logger_main,config,logger_aux);
         return EXIT_FAILURE;
     }
-
     initialize_filesystem(config);
 
 
@@ -28,11 +26,12 @@ int main() {
 
     // filesystem en MODO servidor de kernel
     log_info(logger_aux, "Iniciando servidor");
-    server_start(config->puerto_escucha, logger_aux);
-    // start_filesystem_server(config->puerto_escucha,logger_aux);
+    int client_socket=server_start(config->puerto_escucha, logger_aux);
+
 
     // terminar programa
-    end_program(logger_main, logger_aux, config);
+    end_program(logger_main, config,logger_aux);
 
     return EXIT_SUCCESS;
 }
+

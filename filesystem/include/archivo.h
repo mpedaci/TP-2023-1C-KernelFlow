@@ -13,5 +13,6 @@ void create_superbloque();
 void create_bitmap(); 
 void create_fcb();
 void create_blocks();
+int create_file(t_config_filesystem *config ,char *nombre);
 
 #endif /* ARCHIVO_H */

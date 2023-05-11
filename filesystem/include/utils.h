@@ -25,7 +25,7 @@ typedef struct
 } t_config_filesystem;
 
 t_config_filesystem *read_config(char *path, t_log *logger);
-void end_program(t_log *logger_main, t_log *logger_aux, t_config_filesystem *config);
+void end_program(t_log *logger_main, t_config_filesystem *config,t_log*logger_aux);
 void start_memory_client(char *ip, char *port, t_log *logger);
 void start_filesystem_server(char *listen_port, t_log *logger);
 //void handle_requests();
