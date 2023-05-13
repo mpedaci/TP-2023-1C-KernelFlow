@@ -7,6 +7,8 @@
 t_superbloque *pSuperbloque;
 void* copy_blocks;
 t_fcb *fcb;
+t_bitarray *bitmap;
+int bitmap_size;
 
 
 void initialize_filesystem( t_config_filesystem *config ){
@@ -19,6 +21,14 @@ create_bitmap(config);
 pthread_t crear_y_manejar_blocks;
 pthread_create(&crear_y_manejar_blocks,NULL,(void*)create_blocks,(void*)config);
 pthread_detach(crear_y_manejar_blocks);
+
+
+//PARA PROBAR SI FUNCIONA DESCOMENTAR ESTAS FUNCIONES DE ACA !!!
+//son ejemplos:
+//create_file(config,"pepe"); 
+//truncate_file(config,200,"pepe");
+
+
 
 }
 
@@ -63,7 +73,7 @@ void create_bitmap(t_config_filesystem *config ){
      void *mmapBitmap = mmap(NULL, sizeof(t_superbloque) + bitmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, file_bitmap, 0);
     //en vez de void puede ser char y eso x ahi tmb lo puedo poner como variable global 
 
-    t_bitarray *bitmap = bitarray_create_with_mode(mmapBitmap + sizeof(t_superbloque), bitmap_size, LSB_FIRST);
+    bitmap = bitarray_create_with_mode(mmapBitmap + sizeof(t_superbloque), bitmap_size, LSB_FIRST);
     bitarray_set_bit(bitmap, false);//pone en 0 c/ bit 
 
     bitarray_destroy(bitmap);
@@ -127,7 +137,7 @@ fcb = malloc(sizeof(t_fcb));
 fcb->nombre_archivo=malloc(strlen(nombre)+1);
 
 strcpy(fcb->nombre_archivo, nombre);
-fcb->tamanio_archivo = 0;
+fcb->tamanio_archivo = 700;
 fcb->puntero_directo = 0;
 fcb->puntero_indirecto = 0;
 char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
@@ -137,15 +147,156 @@ strcat(ruta_Fcb,nombre);
 int file_fcb = open(ruta_Fcb, O_CREAT | O_RDWR, 0644);
 //int file_fcb = open(config->path_fcb, O_WRONLY |O_CREAT| O_APPEND );
 write(file_fcb,&fcb->nombre_archivo, strlen(nombre)+1);
-write(file_fcb,&fcb->tamanio_archivo,sizeof(int));
+write(file_fcb,&(fcb->tamanio_archivo),sizeof(int));
 write(file_fcb,&fcb->puntero_directo,sizeof(uint32_t));
 write(file_fcb,&fcb->puntero_indirecto,sizeof(uint32_t));
 close(file_fcb);
 free(ruta_Fcb);
 free(fcb->nombre_archivo);
-free(fcb); 
+
+//free(fcb); 
 return 0; //devuelvo 0 siempre porque es exitoso, siempre se puede crear el archivo
+//return OK   podria llegar a implementar el OK en vez del 0 , preguntar!!!
 
 }
 
 
+void truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre){
+
+
+    fcb = malloc(sizeof(t_fcb));
+    //fcb->nombre_archivo=malloc(strlen(nombre)+1);  //  a ver si agregando esto se soluciona
+
+    char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
+    strcpy(ruta_Fcb,config->path_fcb);
+    strcat(ruta_Fcb,"/");
+    strcat(ruta_Fcb,nombre);
+    int file_fcb = open(ruta_Fcb, O_RDWR);
+   // strcpy(fcb->nombre_archivo,nombre);
+
+
+    //read(file_fcb, &fcb, sizeof(t_fcb));  probar si esto es igual a leer cada uno por separado
+
+   read(file_fcb,&(fcb->tamanio_archivo),sizeof(int));
+    printf("tamanio actual archivo %d  \n", fcb->tamanio_archivo);
+   read(file_fcb,&fcb->puntero_directo,sizeof(uint32_t));
+   read(file_fcb,&fcb->puntero_indirecto,sizeof(uint32_t));
+   read(file_fcb,&fcb->nombre_archivo,sizeof(strlen(nombre)+1));
+
+
+    if(nuevo_tamanio > fcb->tamanio_archivo){ //CASO EXPANDIR TAMAÑO
+
+        int bloques_Adicionales= calculate_additionalBlocks(nuevo_tamanio,fcb);
+        printf("Se requieren %d bloques adicionales \n", bloques_Adicionales);
+        
+        if(bloques_Adicionales > 0){
+
+            int i; 
+
+            int bloque_libre;
+            for(i=0; i < bloques_Adicionales; i++ ){
+                bloque_libre= get_freeBlock(bitmap,bitmap_size);
+            }
+
+            if(i==0){
+                fcb->puntero_directo= bloque_libre;
+            }
+        }
+
+        fcb->tamanio_archivo= nuevo_tamanio;
+        write(file_fcb,&fcb,sizeof(int)); //escribo todo ya fue, asi se actualiza todo x las dudas
+        //write(file_fcb,&fcb->tamanio_archivo,sizeof(int));
+
+    } else if (nuevo_tamanio < fcb->tamanio_archivo) { //CASO ACHICHAR TAMAÑO 
+
+        int bloques_a_liberar= calculate_freeBlocks(nuevo_tamanio,fcb);
+        if (bloques_a_liberar > 0) {
+
+            int i=0; 
+            int bloque_a_liberar;
+            for (i = 0; i < bloques_a_liberar; i++) {
+
+                bloque_a_liberar = fcb->puntero_directo; 
+                set_freeBlock_bitmap(bitmap, bloque_a_liberar);
+            }   
+        }
+        fcb->tamanio_archivo= nuevo_tamanio;
+        write(file_fcb,&fcb,sizeof(int)); //escribo todo ya fue, asi se actualiza todo x las dudas
+    }
+
+        free(ruta_Fcb);
+        free(fcb);
+        close(file_fcb);
+
+}
+
+
+//funciones aux para expandir el tamaño
+
+int calculate_additionalBlocks(int nuevo_tamanio, t_fcb *fcb){
+
+//VER EL TEMA DEL CEIL XQ ROMPE, ES MAS EFICIENTE ESTA MANERA Q LA OTRA
+//int bloques_actuales = ceil((double)fcb->tamanio_archivo/ pSuperbloque->block_size);
+//int bloques_nuevos = ceil((double)nuevo_tamanio / pSuperbloque->block_size);
+
+printf("tamaño archivo: %d \n", fcb->tamanio_archivo);
+printf("tamaño block size del superbloque :  %d \n", pSuperbloque->block_size);
+
+int bloques_actuales = fcb->tamanio_archivo / pSuperbloque->block_size;
+if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+    bloques_actuales++;
+}
+
+int bloques_nuevos = nuevo_tamanio/ pSuperbloque->block_size;
+if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+    bloques_nuevos++;
+}
+
+int bloquesAdicionales= bloques_nuevos - bloques_actuales;
+return bloquesAdicionales;
+
+}
+
+
+int get_freeBlock(t_bitarray *bitmap, int bitmap_size) {
+    int bloque_libre = -1;
+
+    bitmap_size= bitarray_get_max_bit(bitmap);
+    for (int i = 0; i < pSuperbloque->block_count; i++) {
+
+        if(!bitarray_test_bit(bitmap,i)){ //el bit en la pos i del bitmap es 0 osea esta libre => 
+            bitarray_set_bit(bitmap, i); //lo seteo como ocupado (1)
+            bloque_libre = i;
+        }
+    }
+    return bloque_libre;
+}
+
+
+//funciones aux para reducir tamaño 
+
+int calculate_freeBlocks(int nuevo_tamanio, t_fcb *fcb){
+
+//VER EL TEMA DEL CEIL XQ ROMPE, ES MAS EFICIENTE ESTA MANERA Q LA OTRA
+//int bloques_actuales = ceil((double)fcb->tamanio_archivo/ pSuperbloque->block_size);
+//int bloques_nuevos = ceil((double)nuevo_tamanio / pSuperbloque->block_size);
+
+//mientras tanto se calcula de esta manera
+int bloques_actuales = fcb->tamanio_archivo / pSuperbloque->block_size;
+if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+    bloques_actuales++;
+}
+
+int bloques_nuevos = nuevo_tamanio/ pSuperbloque->block_size;
+if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+    bloques_nuevos++;
+}
+
+int bloques_libres= bloques_actuales - bloques_nuevos;
+return bloques_libres;
+}
+
+
+int set_freeBlock_bitmap(t_bitarray *bitmap, int bloque){
+bitarray_clean_bit(bitmap, bloque);
+}

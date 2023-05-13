@@ -14,5 +14,8 @@ void create_bitmap();
 void create_fcb();
 void create_blocks();
 int create_file(t_config_filesystem *config ,char *nombre);
+void truncate_file();
+int calculate_additionalBlocks();
+
 
 #endif /* ARCHIVO_H */
