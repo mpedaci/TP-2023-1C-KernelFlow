@@ -132,125 +132,146 @@ void execute_process()
     free(pcontexto_response); */
 }
 
+typedef struct{
+    char* recurso;
+    int instancias;
+    t_list* lista_bloqueados;
+}t_recurso;
+
+void cargar_recursos(t_recurso** recursos){
+    for(int i = 0; i < list_size(config_kernel->recursos); i++){
+        recursos[i]->recurso = (char*)list_get(config_kernel->recursos, i);
+        recursos[i]->instancias = list_get(config_kernel->instancias_recursos, i);
+        recursos[i]->lista_bloqueados = list_create();
+    }
+}
 
 void execute(){
-
+    t_pcb *pcb = queue_pop(queues->EXEC);
+    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
+    //send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
     t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
     t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
-  
+
     t_instruccion* instruccion_desalojo = pcontexto_response->motivo_desalojo;
     char* recurso_solicitado = instruccion_desalojo->parametros[1];
 
-    if(instruccion_desalojo->identificador == I_WAIT){
-        solicitar_recurso_wait(recurso_solicitado);
-    }
+    t_recurso** recursos;
+    cargar_recursos(recursos);
 
-    else if(instruccion_desalojo->identificador == I_SIGNAL){
-        solicitar_recurso_signal(recurso_solicitado);
-    }
+        switch (instruccion_desalojo->identificador){
+
+            case I_WAIT:
+                execute_wait(recurso_solicitado, recursos, pcb);
+                break;
+            case I_SIGNAL:
+                execute_signal(recurso_solicitado, recursos, pcb);
+                break;
+            default:
+            break;
+        }
 }
 
-void solicitar_recurso_wait(char* recurso_solicitado){
-    int cantidad_recursos = list_size(config_kernel->recursos);
-
-    // creo un semaforo por cada recurso y cola de bloqueados
-    sem_t sem_recursos[cantidad_recursos];
-    sem_t sem_colas_bloqueados[cantidad_recursos];
-
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_recursos[i], 0, list_get(config_kernel->instancias_recursos, i));
-    }
-
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_colas_bloqueados[i], 0, list_get(config_kernel->instancias_recursos, i));
-    }
+void execute_wait(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
 
     int posicion_aux = -1;
+    int cantidad_recursos = list_size(config_kernel->recursos);
+
+    // creo un semaforo por cada recurso y un mutex para la cola de bloqueados
+    sem_t sem_recursos[cantidad_recursos];
+    sem_t sem_mutex_colas_bloqueados[cantidad_recursos];
+
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_recursos[i], 0, recursos[i]->instancias);
+    }
+
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_mutex_colas_bloqueados[i], 0, 1);
+    }
 
     // busco la posicion del recurso
     for(int i=0; i< cantidad_recursos; i++){
-        if(string_equals_ignore_case(recurso_solicitado, list_get(config_kernel->recursos, i))){
+        if(string_equals_ignore_case(recurso_solicitado, recursos[i]->recurso)){
             posicion_aux = i;
         }
     }
 
     if(posicion_aux = -1){
         log_info(logger_main, "el recurso no existe");
-        // ENVIAR PROCESO A EXIT (falta)
-        // queue_push(queues->EXIT, pcb);
+        queue_push(queues->EXIT, pcb);
     }
 
     sem_wait(&sem_recursos[posicion_aux]);
-    // resto una instancia del recurso
-    int instancia_recurso = list_get(config_kernel->instancias_recursos, posicion_aux);
-    instancia_recurso--;
 
-    if(instancia_recurso < 0){
+    recursos[posicion_aux]->instancias--;
+
+    if(recursos[posicion_aux]->instancias < 0){
         sem_post(&sem_recursos[posicion_aux]);
-        sem_wait(&sem_colas_bloqueados[posicion_aux]);
-        // AGREGAR PROCESO A LA COLA DE BLOQUEADOS (falta)
-        sem_post(&sem_colas_bloqueados[posicion_aux]);
+        sem_wait(&sem_mutex_colas_bloqueados[posicion_aux]);
+        
+        list_add(recursos[posicion_aux]->lista_bloqueados, pcb);
+ 
+        sem_post(&sem_mutex_colas_bloqueados[posicion_aux]);
     } else
         sem_post(&sem_recursos[posicion_aux]);
 
-    // destruir semaforos
+        // destruir semaforos
     for (int i = 0; i < cantidad_recursos; i++) {
         sem_destroy(&sem_recursos[i]);
     }
     for (int i = 0; i < cantidad_recursos; i++) {
-        sem_destroy(&sem_colas_bloqueados[i]);
+        sem_destroy(&sem_mutex_colas_bloqueados[i]);
     }
 }
 
-void solicitar_recurso_signal(char* recurso_solicitado){
-
-    int cantidad_recursos = list_size(config_kernel->recursos);
-
-    // creo un semaforo por cada recurso
-    sem_t sem_recursos[cantidad_recursos];
-    sem_t sem_colas_bloqueados[cantidad_recursos];
-
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_recursos[i], 0, list_get(config_kernel->instancias_recursos, i));
-    }
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_colas_bloqueados[i], 0, list_get(config_kernel->instancias_recursos, i));
-    }
+void execute_signal(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
 
     int posicion_aux = -1;
+    int cantidad_recursos = list_size(config_kernel->recursos);
+
+    sem_t sem_recursos[cantidad_recursos];
+    sem_t sem_mutex_colas_bloqueados[cantidad_recursos];
+
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_recursos[i], 0, recursos[i]->instancias);
+    }
+
+    for(int i = 0; i < cantidad_recursos; i++){
+        sem_init(&sem_mutex_colas_bloqueados[i], 0, 1);
+    }
 
     // busco la posicion del recurso
     for(int i=0; i< cantidad_recursos; i++){
-        if(string_equals_ignore_case(recurso_solicitado, list_get(config_kernel->recursos, i))){
+        if(string_equals_ignore_case(recurso_solicitado, recursos[i]->recurso)){
             posicion_aux = i;
         }
     }
 
     if(posicion_aux = -1){
         log_info(logger_main, "el recurso no existe");
-        // ENVIAR PROCESO A EXIT (falta)
-        // queue_push(queues->EXIT, pcb);
+        queue_push(queues->EXIT, pcb);
     }
 
     sem_wait(&sem_recursos[posicion_aux]);
-    // sumo una instancia del recurso
-    int instancia_recurso = list_get(config_kernel->instancias_recursos, posicion_aux);
-    instancia_recurso++;
-    sem_wait(&sem_colas_bloqueados[posicion_aux]);
-    // DESBLOQUEAR PRIMER PROCESO D LA COLA DE BLOQUEADOS (falta)
-    sem_post(&sem_colas_bloqueados[posicion_aux]);
+
+    recursos[posicion_aux]->instancias++;
+
+    sem_wait(&sem_mutex_colas_bloqueados[posicion_aux]);
+    //??
+    t_pcb* proceso = list_get(recursos[posicion_aux]->lista_bloqueados, 1);
+
+    sem_post(&sem_mutex_colas_bloqueados[posicion_aux]);
     sem_post(&sem_recursos[posicion_aux]);
 
-
-    // destruir semaforos
     for (int i = 0; i < cantidad_recursos; i++) {
         sem_destroy(&sem_recursos[i]);
     }
     for (int i = 0; i < cantidad_recursos; i++) {
-        sem_destroy(&sem_colas_bloqueados[i]);
+        sem_destroy(&sem_mutex_colas_bloqueados[i]);
     }
-    
 }
+
+
 
 void inicializar_semaforos(){}
 void finalizar_semaforos(){}
