@@ -155,6 +155,11 @@ void execute(){
             case I_SIGNAL:
                 execute_signal(recurso_solicitado, recursos, pcb);
                 break;
+            /*case I_CREATE_SEGMENT:
+                execute_create_segment(pcb->segments_table->segment_size, pcb);
+                break;
+            case I_DELETE_SEGMENT:
+                execute_delete_segment(pcb->segments_table->id, pcb);*/
             default:
             break;
         }
@@ -162,6 +167,67 @@ void execute(){
       free(pcontexto);
       free(pcontexto_response);
 }
+
+/*void execute_create_segment(uint32_t segment_size, t_pcb* pcb){
+    // Enviar a memoria tamanio para crear segmento
+    send_uint32_t(modules_client->memory_client_socket, segment_size, logger_main);
+
+
+    // Devolver contexto a cpu
+    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
+    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
+}
+
+void execute_delete_segment(uint32_t id_segment, t_pcb* pcb){
+    // Enviar a memoria id del segmento a eliminar
+    send_uint32_t(modules_client->memory_client_socket, id_segment, logger_main);
+
+    t_package* p = get_package(modules_client->memory_client_socket, logger_aux);
+    t_segments_table *tabla_actualizada = get_tsegmento(p);
+
+    //Devolver contexto a cpu
+    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
+    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
+}*/
+
+/*bool send_uint32_t(int socket, uint32_t uint32, t_log* logger){
+    t_buffer* buffer = uint32_t_create_buffer(uint32);
+    t_package* paquete = package_create(buffer, SEGMENT_SIZE);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+
+    return res;
+}
+
+// Usar en memoria
+uint32_t* get_uint32_t(t_package* paquete){ 
+    uint32_t* uint32 = uint32_t_create_from_buffer(paquete->buffer);
+    return uint32;
+}
+
+t_buffer* uint32_t_create_buffer(uint32_t uint32){
+
+    t_buffer* buffer = malloc(sizeof(t_buffer));
+    buffer->size = sizeof(uint32_t);
+    void* stream = malloc(buffer->size);
+  
+    memcpy(stream, &uint32, sizeof(uint32_t));
+    buffer->stream = stream;
+
+    return buffer;
+}
+
+uint32_t* uint32_t_create_from_buffer(t_buffer* buffer){
+
+    uint32_t uint32;
+    void* stream = buffer->stream;
+
+    memcpy(&(uint32), stream, sizeof(uint32_t));
+
+    return uint32;
+}
+*/
+
 
 void execute_wait(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
 
