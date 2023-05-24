@@ -201,6 +201,8 @@ void execute_wait(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
         sem_wait(&sem_mutex_colas_bloqueados[posicion_aux]);
         
         queue_add(recursos[posicion_aux]->lista_bloqueados, pcb);
+        
+        log_info(logger_main,“PID: %d - Bloqueado por: %s”, pcb->pid, recursos[posicion_aux]->recurso);
  
         sem_post(&sem_mutex_colas_bloqueados[posicion_aux]);
     } else
