@@ -118,19 +118,6 @@ void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto *pcontexto)
     pcb->registers = pcontexto->registers;
 }
 
-// ALGORITMOS
-void execute_process()
-{
-    /* t_pcb *pcb = queue_pop(queues->EXEC);
-    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
-    t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
-    t_pcontexto *pcontexto_response = get_pcontexto(p);
-    update_pcb_from_pcontexto(pcb, pcontexto_response);
-    // CHEQUEAR ULTIMA INST
-    free(pcontexto);
-    free(pcontexto_response); */
-}
 
 typedef struct{
     char* recurso;
@@ -149,9 +136,10 @@ void cargar_recursos(t_recurso** recursos){
 void execute(){
     t_pcb *pcb = queue_pop(queues->EXEC);
     t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    //send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
+    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
     t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
     t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
+    update_pcb_from_pcontexto(pcb, pcontexto_response);
 
     t_instruccion* instruccion_desalojo = pcontexto_response->motivo_desalojo;
     char* recurso_solicitado = instruccion_desalojo->parametros[1];
@@ -170,6 +158,9 @@ void execute(){
             default:
             break;
         }
+    
+      free(pcontexto);
+      free(pcontexto_response);
 }
 
 void execute_wait(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
@@ -197,7 +188,7 @@ void execute_wait(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
     }
 
     if(posicion_aux = -1){
-        log_info(logger_main, "el recurso no existe");
+        log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
         queue_push(queues->EXIT, pcb);
     }
 
@@ -209,11 +200,13 @@ void execute_wait(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
         sem_post(&sem_recursos[posicion_aux]);
         sem_wait(&sem_mutex_colas_bloqueados[posicion_aux]);
         
-        list_add(recursos[posicion_aux]->lista_bloqueados, pcb);
+        queue_add(recursos[posicion_aux]->lista_bloqueados, pcb);
  
         sem_post(&sem_mutex_colas_bloqueados[posicion_aux]);
     } else
         sem_post(&sem_recursos[posicion_aux]);
+    
+    log_info(logger_main,"PID: %d - Wait: %s - Instancias: %d", pcb->pid, recursos[posicion_aux]->recurso, recursos[posicion_aux]->instancias);
 
         // destruir semaforos
     for (int i = 0; i < cantidad_recursos; i++) {
@@ -248,7 +241,7 @@ void execute_signal(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
     }
 
     if(posicion_aux = -1){
-        log_info(logger_main, "el recurso no existe");
+        log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
         queue_push(queues->EXIT, pcb);
     }
 
@@ -257,11 +250,14 @@ void execute_signal(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
     recursos[posicion_aux]->instancias++;
 
     sem_wait(&sem_mutex_colas_bloqueados[posicion_aux]);
-    //??
-    t_pcb* proceso = list_get(recursos[posicion_aux]->lista_bloqueados, 1);
+ 
+    t_pcb* proceso = queue_pop(recursos[posicion_aux]->lista_bloqueados);
+    queue_push(queues->EXEC, proceso);
 
     sem_post(&sem_mutex_colas_bloqueados[posicion_aux]);
     sem_post(&sem_recursos[posicion_aux]);
+    
+    log_info(logger_main,"PID: %d - Signal: %s - Instancias: %d", pcb->pid, recursos[posicion_aux]->recurso, recursos[posicion_aux]->instancias);
 
     for (int i = 0; i < cantidad_recursos; i++) {
         sem_destroy(&sem_recursos[i]);
