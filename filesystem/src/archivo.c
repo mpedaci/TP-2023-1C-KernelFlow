@@ -127,8 +127,6 @@ void sync_blocks(void *mmapBlocks, int file_block_size) {
 }
 
 
-
-
 //como me dice q devuelve siempre OK entonces es una funcion q devuelve algo, es decir no puede ser void 
 
 int create_file(t_config_filesystem *config ,char *nombre){
@@ -137,7 +135,7 @@ fcb = malloc(sizeof(t_fcb));
 fcb->nombre_archivo=malloc(strlen(nombre)+1);
 
 strcpy(fcb->nombre_archivo, nombre);
-fcb->tamanio_archivo = 700;
+fcb->tamanio_archivo = 0;
 fcb->puntero_directo = 0;
 fcb->puntero_indirecto = 0;
 char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
@@ -183,38 +181,38 @@ void truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre)
    read(file_fcb,&fcb->puntero_indirecto,sizeof(uint32_t));
    read(file_fcb,&fcb->nombre_archivo,sizeof(strlen(nombre)+1));
 
-
     if(nuevo_tamanio > fcb->tamanio_archivo){ //CASO EXPANDIR TAMAÑO
 
         int bloques_Adicionales= calculate_additionalBlocks(nuevo_tamanio,fcb);
-        printf("Se requieren %d bloques adicionales \n", bloques_Adicionales);
+        //printf("Se requieren %d bloques adicionales \n", bloques_Adicionales);
         
         if(bloques_Adicionales > 0){
-
             int i; 
-
             int bloque_libre;
             for(i=0; i < bloques_Adicionales; i++ ){
                 bloque_libre= get_freeBlock(bitmap,bitmap_size);
-            }
 
-            if(i==0){
-                fcb->puntero_directo= bloque_libre;
+                if(i==0){
+                    bloque_libre = get_freeBlock(bitmap, bitmap_size);
+                    fcb->puntero_directo = bloque_libre;
+                    bloques_Adicionales--;
+                }
+
+                asignar_bloque_indirecto(config,fcb->puntero_indirecto,bloque_libre);
             }
+            
         }
-
         fcb->tamanio_archivo= nuevo_tamanio;
         write(file_fcb,&fcb,sizeof(int)); //escribo todo ya fue, asi se actualiza todo x las dudas
-        //write(file_fcb,&fcb->tamanio_archivo,sizeof(int));
+        //write(file_fcb,&fcb->tamanio_archivo,sizeof(int));  sino esta esta opcion escribiri solo el tam, vemoss
 
     } else if (nuevo_tamanio < fcb->tamanio_archivo) { //CASO ACHICHAR TAMAÑO 
 
         int bloques_a_liberar= calculate_freeBlocks(nuevo_tamanio,fcb);
         if (bloques_a_liberar > 0) {
-
             int i=0; 
             int bloque_a_liberar;
-            for (i = 0; i < bloques_a_liberar; i++) {
+            for (int i = bloques_a_liberar - 1; i >= 0; i--){ //voy decrementando los bloques q libero
 
                 bloque_a_liberar = fcb->puntero_directo; 
                 set_freeBlock_bitmap(bitmap, bloque_a_liberar);
@@ -231,29 +229,30 @@ void truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre)
 }
 
 
-//funciones aux para expandir el tamaño
+//---------------------funciones aux para expandir el tamaño----------------------------------------//
 
 int calculate_additionalBlocks(int nuevo_tamanio, t_fcb *fcb){
 
-//VER EL TEMA DEL CEIL XQ ROMPE, ES MAS EFICIENTE ESTA MANERA Q LA OTRA
+//VER EL TEMA DEL CEIL XQ ROMPE(es mejor esta forma)
 //int bloques_actuales = ceil((double)fcb->tamanio_archivo/ pSuperbloque->block_size);
 //int bloques_nuevos = ceil((double)nuevo_tamanio / pSuperbloque->block_size);
 
-printf("tamaño archivo: %d \n", fcb->tamanio_archivo);
-printf("tamaño block size del superbloque :  %d \n", pSuperbloque->block_size);
+    //mientras tanto se calcula de esta manera
+    printf("tamaño archivo: %d \n", fcb->tamanio_archivo);
+    printf("tamaño block size del superbloque :  %d \n", pSuperbloque->block_size);
 
-int bloques_actuales = fcb->tamanio_archivo / pSuperbloque->block_size;
-if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
-    bloques_actuales++;
-}
+    int bloques_actuales = fcb->tamanio_archivo / pSuperbloque->block_size;
+    if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+        bloques_actuales++;
+    }
 
-int bloques_nuevos = nuevo_tamanio/ pSuperbloque->block_size;
-if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
-    bloques_nuevos++;
-}
+    int bloques_nuevos = nuevo_tamanio/ pSuperbloque->block_size;
+    if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+        bloques_nuevos++;
+    }
 
-int bloquesAdicionales= bloques_nuevos - bloques_actuales;
-return bloquesAdicionales;
+    int bloquesAdicionales= bloques_nuevos - bloques_actuales;
+    return bloquesAdicionales;
 
 }
 
@@ -272,31 +271,42 @@ int get_freeBlock(t_bitarray *bitmap, int bitmap_size) {
     return bloque_libre;
 }
 
+void asignar_bloque_indirecto(t_config_filesystem *config, uint32_t bloque_puntero_indirecto, int bloque) {
 
-//funciones aux para reducir tamaño 
+    int file_blocks= open(config->path_bloques, O_RDWR, 0644);
+    //me muevo a la posicion donde esta en el fileblocks
+    lseek(file_blocks, bloque_puntero_indirecto * pSuperbloque->block_size, SEEK_SET);
+    write(file_blocks, &bloque, sizeof(uint32_t));
+    close(file_blocks);
+
+}
+
+
+//-------------------------funciones aux para reducir tamaño ----------------------------------//
 
 int calculate_freeBlocks(int nuevo_tamanio, t_fcb *fcb){
-
-//VER EL TEMA DEL CEIL XQ ROMPE, ES MAS EFICIENTE ESTA MANERA Q LA OTRA
+//VER EL TEMA DEL CEIL XQ ROMPE(es mejor esta forma)
 //int bloques_actuales = ceil((double)fcb->tamanio_archivo/ pSuperbloque->block_size);
 //int bloques_nuevos = ceil((double)nuevo_tamanio / pSuperbloque->block_size);
 
-//mientras tanto se calcula de esta manera
-int bloques_actuales = fcb->tamanio_archivo / pSuperbloque->block_size;
-if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
-    bloques_actuales++;
-}
+    //mientras tanto se calcula de esta manera
+    int bloques_actuales = fcb->tamanio_archivo / pSuperbloque->block_size;
+    if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+        bloques_actuales++;
+    }
 
-int bloques_nuevos = nuevo_tamanio/ pSuperbloque->block_size;
-if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
-    bloques_nuevos++;
-}
+    int bloques_nuevos = nuevo_tamanio/ pSuperbloque->block_size;
+    if (fcb->tamanio_archivo % pSuperbloque->block_size > 0) {
+        bloques_nuevos++;
+    }
 
-int bloques_libres= bloques_actuales - bloques_nuevos;
-return bloques_libres;
+    int bloques_libres= bloques_actuales - bloques_nuevos;
+    return bloques_libres;
 }
 
 
 int set_freeBlock_bitmap(t_bitarray *bitmap, int bloque){
-bitarray_clean_bit(bitmap, bloque);
+    bitarray_clean_bit(bitmap, bloque);
 }
+
+
