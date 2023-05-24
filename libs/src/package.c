@@ -139,7 +139,7 @@ t_buffer* t_data_create_buffer(t_data* data){
     t_buffer* buffer = malloc(sizeof(t_buffer));
 
     buffer->size = sizeof(uint32_t) * 1
-                 + strlen(data->value_length) + 1;
+                 + strlen(data->value) + 1;
 
     void* stream = malloc(buffer->size);
     
@@ -332,7 +332,7 @@ t_data* t_data_create_from_buffer(t_buffer* buffer)
 
 t_adress t_adress_create_from_buffer(t_buffer* buffer)
 {
-    t_adress* adress = malloc(sizeof(t_adress));
+    t_adress adress;
     void* stream = buffer->stream;
 
     memcpy(&adress, stream, sizeof(uint32_t));

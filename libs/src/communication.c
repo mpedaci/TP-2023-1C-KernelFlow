@@ -42,7 +42,7 @@ t_data* get_data(t_package* paquete)
 
 t_adress get_adress(t_package* paquete)
 {
-    t_data* adress = t_adress_create_from_buffer(paquete->buffer);
+    t_adress adress = t_adress_create_from_buffer(paquete->buffer);
     return adress;
 };
 
@@ -99,7 +99,7 @@ bool send_data(int socket, t_data* data, t_log *logger)
     return res;
 };
 
-bool send_adress(int sockect,t_adress adress, t_log* logger)
+bool send_adress(int socket,t_adress adress, t_log* logger)
 {
     t_buffer *buffer = t_adress_create_buffer(adress);
     t_package *paquete = package_create(buffer, FILEADRESS);
