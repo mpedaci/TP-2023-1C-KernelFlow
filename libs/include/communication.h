@@ -33,7 +33,7 @@ t_package *get_package(int socket, t_log *logger);
 
 t_list *get_instrucciones(t_package *paquete);
 t_pcontexto *get_pcontexto(t_package *paquete);
-t_segments_table *get_tsegmento(t_package *paquete);
+t_list *get_segments_table(t_package *paquete);
 t_open_files *get_ofile(t_package *paquete);
 t_data *get_data(t_package *paquete);
 t_adress get_adress(t_package *paquete);
@@ -43,7 +43,7 @@ t_instruccion *get_instruccion(t_package *paquete);
 
 bool send_instrucciones(int socket, t_list *lista_instrucciones, t_log *logger);
 bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger);
-bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger);
+bool send_tsegmento(int socket, t_list *tabla_segmento, t_log *logger);
 bool send_ofile(int socket, t_open_files *t_ofiles, t_log *logger);
 bool send_data(int socket, t_data *data, t_log *logger);
 bool send_adress(int socket, t_adress adress, t_log *logger);

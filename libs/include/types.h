@@ -72,9 +72,16 @@ typedef struct
 typedef struct 
 {
 	uint32_t id;
-	uint32_t segment_size;
+	uint32_t size;
 	uint32_t base_adress;
+} t_segment;
+
+typedef struct
+{
+    uint32_t pid;
+    t_list* segment_list;
 } t_segments_table;
+
 
 typedef struct
 {
@@ -113,7 +120,7 @@ typedef struct
     t_list *instrucciones;
     uint32_t program_counter;
     t_registers *registers;
-    t_segments_table *segments_table;
+    t_list *segments_table;
     double est_sig_rafaga;
     t_temporal *tiempo_llegada_ready;
     t_open_files *open_files_table;

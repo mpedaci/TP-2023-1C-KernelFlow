@@ -22,11 +22,13 @@ t_pcontexto *get_pcontexto(t_package *paquete)
     return contexto;
 };
 
-t_segments_table *get_tsegmento(t_package *paquete)
+t_list *get_segments_table(t_package *paquete)
 {
-    t_segments_table *tsegmento = t_segment_table_create_from_buffer(paquete->buffer);
-    return tsegmento;
+    t_list *segments_table = t_segments_table_create_from_buffer(paquete->buffer);
+    return segments_table;
 };
+
+
 
 t_open_files *get_ofile(t_package *paquete)
 {
@@ -72,9 +74,9 @@ bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger)
     return res;
 };
 
-bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger)
+bool send_tsegmento(int socket, t_list *tabla_segmento, t_log *logger)
 {
-    t_buffer *buffer = t_segment_table_create_buffer(t_segmento);
+    t_buffer *buffer = t_segment_table_create_buffer(tabla_segmento);
     t_package *paquete = package_create(buffer, TSEGMENTOS);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
