@@ -5,7 +5,10 @@ void kernel_operations(int client_socket){
     while(1){
         t_package* package = get_package(client_socket,logger_aux);
         t_instruccion* instruccion = get_instruccion(package);
-        t_segments_table* s_table = create_segments_table(0,NULL);
+        //Esto es una ensalada de frutas
+        t_segment* segment = create_segment(0,0,0);
+        t_list* s_table= list_create();
+        list_add(s_table,segment);
         switch (instruccion->identificador){
         case I_CREATE_SEGMENT:
         case I_DELETE_SEGMENT:

@@ -12,7 +12,7 @@
 
 typedef struct
 {
-    int port;
+    char* port;
 	size_t memory_size;
 	size_t segment_zero_size;
 	int segment_quantity;

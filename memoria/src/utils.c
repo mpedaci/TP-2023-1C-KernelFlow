@@ -11,7 +11,7 @@ t_config_memoria *read_config(char *config_path)
       return NULL;
    }
 
-   memoria_config->port = config_get_int_value(config,"PUERTO_ESCUCHA");
+   memoria_config->port = string_duplicate(config_get_string_value(config,"PUERTO_ESCUCHA"));
    memoria_config->memory_size = config_get_int_value(config,"TAM_MEMORIA");
    memoria_config->segment_zero_size = config_get_int_value(config,"TAM_SEGMENTO_0");
    memoria_config->segment_quantity = config_get_int_value(config,"CANT_SEGMENTOS");

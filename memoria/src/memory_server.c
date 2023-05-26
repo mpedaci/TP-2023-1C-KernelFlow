@@ -10,15 +10,17 @@ void start_memory_server(char* port)
 
 void wait_clients(int server_fd){
    while(server_fd != -1){ //No estoy muy seguro de esta condicion
-      int socket_client = client_wait(server_fd,logger_aux);
+      char* socket_client = malloc(sizeof(char*));
+      sprintf(socket_client, "%d",client_wait(server_fd,logger_aux));
       pthread_t conection;
       pthread_create(&conection,0,handle_client,(void*)socket_client);
       pthread_detach(conection);
    }
 }
 
-void* handle_client(void* client_fd){
+void* handle_client(void* socket_client){
    int handshake;
+   int client_fd = atoi((char*) socket_client);
    recv(client_fd,&handshake,sizeof(int),MSG_WAITALL);
    //Deberia mandarle un send diciendo que se conecto correctamente?
    switch(handshake){

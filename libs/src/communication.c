@@ -76,7 +76,7 @@ bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger)
 
 bool send_tsegmento(int socket, t_list *tabla_segmento, t_log *logger)
 {
-    t_buffer *buffer = t_segment_table_create_buffer(tabla_segmento);
+    t_buffer *buffer = t_segments_table_create_buffer(tabla_segmento);
     t_package *paquete = package_create(buffer, TSEGMENTOS);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);

@@ -36,6 +36,8 @@ t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto);
 
 t_buffer *t_segment_create_buffer(t_segment *segment);
 
+t_buffer *t_segments_table_create_buffer(t_list *segments_table);
+
 t_buffer *t_data_create_buffer(t_data *data);
 
 t_buffer *t_adress_create_buffer(t_adress adress);

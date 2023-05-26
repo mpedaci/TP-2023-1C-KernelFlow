@@ -126,7 +126,7 @@ t_buffer *t_segment_create_buffer(t_segment *segment)
 
     memcpy(stream + offset, &segment->id, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(stream + offset, &segment->segment_size, sizeof(uint32_t));
+    memcpy(stream + offset, &segment->size, sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(stream + offset, &segment->base_adress, sizeof(uint32_t));
 
@@ -151,7 +151,7 @@ t_buffer *t_segments_table_create_buffer(t_list *segments_table)
     for (int i = 0; i < list_size(segments_table); i++)
     {
         t_buffer *buffer_segment = t_segment_create_buffer(list_get(segments_table, i));
-        uint32_t size = buffer_segment>size;
+        uint32_t size = buffer_segment->size;
         void *stream_segment = buffer_segment->stream;
         memcpy(stream + offset, stream_segment, size);
         offset += size;
@@ -338,7 +338,7 @@ t_segment *t_segment_create_from_buffer(t_buffer *buffer, uint32_t *offset)
 
     memcpy(&(segment->id), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
-    memcpy(&(segment->segment_size), stream, sizeof(uint32_t));
+    memcpy(&(segment->size), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
     memcpy(&(segment->base_adress), stream, sizeof(uint32_t));
 

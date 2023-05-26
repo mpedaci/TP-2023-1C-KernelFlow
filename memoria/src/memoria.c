@@ -12,7 +12,9 @@ int main(void) {
        {end_program(logger_main,logger_aux,config);
       	return EXIT_FAILURE;
    	   }
-	
+
+	start_memory(config);
+
 	//INICIALIZO SERVIDOR
 	start_memory_server(config->port);
 
