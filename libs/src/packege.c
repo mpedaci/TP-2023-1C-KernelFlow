@@ -216,6 +216,17 @@ t_buffer *null_buffer()
     return buffer;
 }
 
+t_buffer* uint32_t_create_buffer(uint32_t t){
+    t_buffer* buffer = malloc(sizeof(t_buffer));
+    buffer->size = sizeof(uint32_t);
+    void* stream = malloc(buffer->size);
+
+    memcpy(stream, &t, sizeof(uint32_t));
+    buffer->stream = stream;
+
+    return buffer;
+}
+
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
 t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offset)
@@ -462,6 +473,15 @@ t_open_files *t_open_files_create_from_buffer(t_buffer *buffer){
     t_open_files *open_files = malloc(sizeof(t_open_files));
     // POR IMPLEMENTAR
     return open_files;
+}
+
+uint32_t* uint32_t_create_from_buffer(t_buffer* buffer){
+    uint32_t t;
+    void* stream = buffer->stream;
+
+    memcpy(&t, stream, sizeof(uint32_t));
+
+    return t;
 }
 
 /* PAQUETES */

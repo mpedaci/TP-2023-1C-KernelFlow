@@ -99,6 +99,44 @@ bool can_execute_process()
     return !queue_is_empty(queues->READY) && queue_is_empty(queues->EXEC);
 }
 
+// Sincronizacion de colas y listas (VER)
+
+void agregar_pcb_a_cola(t_pcb* pcb, pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    queue_push(cola, pcb);
+    pthread_mutex_unlock(&mutex);
+}
+
+t_pcb* quitar_pcb_de_cola(pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    t_pcb* pcb = queue_pop(cola);
+    pthread_mutex_unlock(&mutex);
+    return pcb;
+}
+
+void agregar_pcb_a_lista(t_pcb* pcb,pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    list_add(cola,pcb);
+    pthread_mutex_unlock(&mutex);
+}
+
+t_pcb* quitar_primer_pcb_de_lista(pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    t_pcb* pcb = list_remove(cola,0);
+    pthread_mutex_unlock(&mutex);
+    return pcb;
+}
+
+void inicializar_mutex(){
+    pthread_mutex_init(&mutex_new,NULL);
+    pthread_mutex_init(&mutex_ready,NULL);
+    pthread_mutex_init(&mutex_running,NULL);
+    pthread_mutex_init(&mutex_blocked,NULL);
+    pthread_mutex_init(&mutex_exit,NULL);
+    pthread_mutex_init(&mutex_pid,NULL);
+}
+
+
 // PCB
 
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
@@ -119,12 +157,6 @@ void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto *pcontexto)
 }
 
 
-typedef struct{
-    char* recurso;
-    int instancias;
-    t_list* lista_bloqueados;
-}t_recurso;
-
 void cargar_recursos(t_recurso** recursos){
     for(int i = 0; i < list_size(config_kernel->recursos); i++){
         recursos[i]->recurso = (char*)list_get(config_kernel->recursos, i);
@@ -134,208 +166,90 @@ void cargar_recursos(t_recurso** recursos){
 }
 
 void execute(){
+
     t_pcb *pcb = queue_pop(queues->EXEC);
     t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
     send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
+
     t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
     t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
     update_pcb_from_pcontexto(pcb, pcontexto_response);
 
     t_instruccion* instruccion_desalojo = pcontexto_response->motivo_desalojo;
-    char* recurso_solicitado = instruccion_desalojo->parametros[1];
 
     t_recurso** recursos;
     cargar_recursos(recursos);
 
+    inicializar_mutex();
+
         switch (instruccion_desalojo->identificador){
 
             case I_WAIT:
+                char* recurso_solicitado = instruccion_desalojo->parametros[1];
                 execute_wait(recurso_solicitado, recursos, pcb);
+                free(recurso_solicitado);
                 break;
+
             case I_SIGNAL:
+                char* recurso_solicitado = instruccion_desalojo->parametros[1];
                 execute_signal(recurso_solicitado, recursos, pcb);
+                free(recurso_solicitado);
                 break;
-            /*case I_CREATE_SEGMENT:
-                execute_create_segment(pcb->segments_table->segment_size, pcb);
+
+            case I_CREATE_SEGMENT:
+                uint32_t tamanio_solicitado = atoi(instruccion_desalojo->parametros[2]); 
+                uint32_t id_solicitado = atoi(instruccion_desalojo->parametros[3]);
+                execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
                 break;
+
             case I_DELETE_SEGMENT:
-                execute_delete_segment(pcb->segments_table->id, pcb);*/
+                uint32_t id = atoi(instruccion_desalojo->parametros[1]);      
+                execute_delete_segment(id, pcb);
+                break;
+
+            case I_I_O:
+                int tiempo = atoi(instruccion_desalojo->parametros[1]);   
+                execute_io(tiempo, pcb);
+                break;
+
+            case I_YIELD:
+                execute_exit();
+                break;
+
+            case I_F_WRITE:
+                execute_exit();
+                break;
+
+            case I_F_CLOSE:
+                execute_exit();
+                break;
+
+            case I_F_OPEN:
+                execute_exit();
+                break;
+
+            case I_F_READ:
+                execute_exit();
+                break;
+
+            case I_F_SEEK:
+                execute_exit();
+                break;
+
+            case I_F_TRUNCATE:
+                execute_exit();
+                break;
+
+            case I_EXIT:
+                execute_exit();
+                break;
             default:
             break;
         }
     
       free(pcontexto);
       free(pcontexto_response);
+      free(instruccion_desalojo);
+      free_arr(recursos);
 }
 
-/*void execute_create_segment(uint32_t segment_size, t_pcb* pcb){
-    // Enviar a memoria tamanio para crear segmento
-    send_uint32_t(modules_client->memory_client_socket, segment_size, logger_main);
-
-
-    // Devolver contexto a cpu
-    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
-}
-
-void execute_delete_segment(uint32_t id_segment, t_pcb* pcb){
-    // Enviar a memoria id del segmento a eliminar
-    send_uint32_t(modules_client->memory_client_socket, id_segment, logger_main);
-
-    t_package* p = get_package(modules_client->memory_client_socket, logger_aux);
-    t_segments_table *tabla_actualizada = get_tsegmento(p);
-
-    //Devolver contexto a cpu
-    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
-}*/
-
-/*bool send_uint32_t(int socket, uint32_t uint32, t_log* logger){
-    t_buffer* buffer = uint32_t_create_buffer(uint32);
-    t_package* paquete = package_create(buffer, SEGMENT_SIZE);
-    bool res = package_send(socket, paquete, logger);
-    package_destroy(paquete);
-
-    return res;
-}
-
-// Usar en memoria
-uint32_t* get_uint32_t(t_package* paquete){ 
-    uint32_t* uint32 = uint32_t_create_from_buffer(paquete->buffer);
-    return uint32;
-}
-
-t_buffer* uint32_t_create_buffer(uint32_t uint32){
-
-    t_buffer* buffer = malloc(sizeof(t_buffer));
-    buffer->size = sizeof(uint32_t);
-    void* stream = malloc(buffer->size);
-  
-    memcpy(stream, &uint32, sizeof(uint32_t));
-    buffer->stream = stream;
-
-    return buffer;
-}
-
-uint32_t* uint32_t_create_from_buffer(t_buffer* buffer){
-
-    uint32_t uint32;
-    void* stream = buffer->stream;
-
-    memcpy(&(uint32), stream, sizeof(uint32_t));
-
-    return uint32;
-}
-*/
-
-
-void execute_wait(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
-
-    int posicion_aux = -1;
-    int cantidad_recursos = list_size(config_kernel->recursos);
-
-    // creo un semaforo por cada recurso y un mutex para la cola de bloqueados
-    sem_t sem_recursos[cantidad_recursos];
-    sem_t sem_mutex_colas_bloqueados[cantidad_recursos];
-
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_recursos[i], 0, recursos[i]->instancias);
-    }
-
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_mutex_colas_bloqueados[i], 0, 1);
-    }
-
-    // busco la posicion del recurso
-    for(int i=0; i< cantidad_recursos; i++){
-        if(string_equals_ignore_case(recurso_solicitado, recursos[i]->recurso)){
-            posicion_aux = i;
-        }
-    }
-
-    if(posicion_aux = -1){
-        log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
-        queue_push(queues->EXIT, pcb);
-    }
-
-    sem_wait(&sem_recursos[posicion_aux]);
-
-    recursos[posicion_aux]->instancias--;
-
-    if(recursos[posicion_aux]->instancias < 0){
-        sem_post(&sem_recursos[posicion_aux]);
-        sem_wait(&sem_mutex_colas_bloqueados[posicion_aux]);
-        
-        queue_add(recursos[posicion_aux]->lista_bloqueados, pcb);
-        
-        log_info(logger_main,“PID: %d - Bloqueado por: %s”, pcb->pid, recursos[posicion_aux]->recurso);
- 
-        sem_post(&sem_mutex_colas_bloqueados[posicion_aux]);
-    } else
-        sem_post(&sem_recursos[posicion_aux]);
-    
-    log_info(logger_main,"PID: %d - Wait: %s - Instancias: %d", pcb->pid, recursos[posicion_aux]->recurso, recursos[posicion_aux]->instancias);
-
-        // destruir semaforos
-    for (int i = 0; i < cantidad_recursos; i++) {
-        sem_destroy(&sem_recursos[i]);
-    }
-    for (int i = 0; i < cantidad_recursos; i++) {
-        sem_destroy(&sem_mutex_colas_bloqueados[i]);
-    }
-}
-
-void execute_signal(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
-
-    int posicion_aux = -1;
-    int cantidad_recursos = list_size(config_kernel->recursos);
-
-    sem_t sem_recursos[cantidad_recursos];
-    sem_t sem_mutex_colas_bloqueados[cantidad_recursos];
-
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_recursos[i], 0, recursos[i]->instancias);
-    }
-
-    for(int i = 0; i < cantidad_recursos; i++){
-        sem_init(&sem_mutex_colas_bloqueados[i], 0, 1);
-    }
-
-    // busco la posicion del recurso
-    for(int i=0; i< cantidad_recursos; i++){
-        if(string_equals_ignore_case(recurso_solicitado, recursos[i]->recurso)){
-            posicion_aux = i;
-        }
-    }
-
-    if(posicion_aux = -1){
-        log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
-        queue_push(queues->EXIT, pcb);
-    }
-
-    sem_wait(&sem_recursos[posicion_aux]);
-
-    recursos[posicion_aux]->instancias++;
-
-    sem_wait(&sem_mutex_colas_bloqueados[posicion_aux]);
- 
-    t_pcb* proceso = queue_pop(recursos[posicion_aux]->lista_bloqueados);
-    queue_push(queues->EXEC, proceso);
-
-    sem_post(&sem_mutex_colas_bloqueados[posicion_aux]);
-    sem_post(&sem_recursos[posicion_aux]);
-    
-    log_info(logger_main,"PID: %d - Signal: %s - Instancias: %d", pcb->pid, recursos[posicion_aux]->recurso, recursos[posicion_aux]->instancias);
-
-    for (int i = 0; i < cantidad_recursos; i++) {
-        sem_destroy(&sem_recursos[i]);
-    }
-    for (int i = 0; i < cantidad_recursos; i++) {
-        sem_destroy(&sem_mutex_colas_bloqueados[i]);
-    }
-}
-
-
-
-void inicializar_semaforos(){}
-void finalizar_semaforos(){}
