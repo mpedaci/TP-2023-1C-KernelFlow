@@ -102,6 +102,7 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto) {
     char *instruction_string = get_instruction_string(instruccionListaParaEjecutar->identificador);
     log_info(logger, "PID: %d - Ejecutando: %s - %s", contexto->pid, instruction_string, params_string);
 
+    free(params_string);
     instruction_destroyer(instruccionListaParaEjecutar);
 
     return contexto_desalojo;
@@ -159,17 +160,21 @@ char *get_instruction_string(t_identificador id) {
 }
 
 char *get_params_string(t_instruccion *instruction) {
-    uint32_t size = instruction->cant_parametros - 1;
+    if(instruction->cant_parametros == 0) {
+        return "Sin parametros";
+    }
+
+    uint32_t size = instruction->cant_parametros+1;
     for(int i=0; i<instruction->cant_parametros; i++) {
         size += string_length(instruction->parametros[i]);
     }
-    char params_string[size+1];
-    int i = 0;
-    for(i; i<instruction->cant_parametros-1; i++) {
-        strcat(params_string, instruction->parametros[i]);
+
+    char *params_string = malloc(size);
+    memcpy(params_string, instruction->parametros[0], instruction->p1_length);
+    for(int i=1; i<instruction->cant_parametros; i++) {
         strcat(params_string, " ");
+        strcat(params_string, instruction->parametros[i]);
     }
-    strcat(params_string, instruction->parametros[i]);
 
     return params_string;
 }

@@ -57,6 +57,8 @@ t_list *copy_instructions_list(t_list *instructions);
 
 t_instruccion *copy_instruction(t_instruccion *instruction);
 
-void add_params_instruction(t_instruccion *instruction, char** params);
+t_instruccion *new_instruction(t_identificador identificador, t_list *parametros);
+
+void add_param_to_instruction(t_list *parametros, t_instruccion *instruccion);
 
 #endif
