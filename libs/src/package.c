@@ -128,7 +128,7 @@ t_buffer *t_segment_create_buffer(t_segment *segment)
     offset += sizeof(uint32_t);
     memcpy(stream + offset, &segment->size, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(stream + offset, &segment->base_adress, sizeof(uint32_t));
+    memcpy(stream + offset, &segment->base_address, sizeof(uint32_t));
 
     buffer->stream = stream;
     return buffer;
@@ -340,7 +340,7 @@ t_segment *t_segment_create_from_buffer(t_buffer *buffer, uint32_t *offset)
     stream += sizeof(uint32_t);
     memcpy(&(segment->size), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
-    memcpy(&(segment->base_adress), stream, sizeof(uint32_t));
+    memcpy(&(segment->base_address), stream, sizeof(uint32_t));
 
     *offset += sizeof(uint32_t) * 3;
     return segment;
