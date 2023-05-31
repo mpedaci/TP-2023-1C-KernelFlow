@@ -213,35 +213,35 @@ void execute(){
                 break;
 
             case I_YIELD:
-                execute_exit();
+                execute_exit(pcb);
                 break;
 
             case I_F_WRITE:
-                execute_exit();
+                execute_exit(pcb);
                 break;
 
             case I_F_CLOSE:
-                execute_exit();
+                execute_exit(pcb);
                 break;
 
             case I_F_OPEN:
-                execute_exit();
+                execute_exit(pcb);
                 break;
 
             case I_F_READ:
-                execute_exit();
+                execute_exit(pcb);
                 break;
 
             case I_F_SEEK:
-                execute_exit();
+                execute_exit(pcb);
                 break;
 
             case I_F_TRUNCATE:
-                execute_exit();
+                execute_exit(pcb);
                 break;
 
             case I_EXIT:
-                execute_exit();
+                execute_exit(pcb);
                 break;
             default:
             break;
