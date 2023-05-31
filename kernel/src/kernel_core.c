@@ -99,6 +99,44 @@ bool can_execute_process()
     return !queue_is_empty(queues->READY) && queue_is_empty(queues->EXEC);
 }
 
+// Sincronizacion de colas y listas (VER)
+
+void agregar_pcb_a_cola(t_pcb* pcb, pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    queue_push(cola, pcb);
+    pthread_mutex_unlock(&mutex);
+}
+
+t_pcb* quitar_pcb_de_cola(pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    t_pcb* pcb = queue_pop(cola);
+    pthread_mutex_unlock(&mutex);
+    return pcb;
+}
+
+void agregar_pcb_a_lista(t_pcb* pcb,pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    list_add(cola,pcb);
+    pthread_mutex_unlock(&mutex);
+}
+
+t_pcb* quitar_primer_pcb_de_lista(pthread_mutex_t mutex, t_list* cola){
+    pthread_mutex_lock(&mutex);
+    t_pcb* pcb = list_remove(cola,0);
+    pthread_mutex_unlock(&mutex);
+    return pcb;
+}
+
+void inicializar_mutex(){
+    pthread_mutex_init(&mutex_new,NULL);
+    pthread_mutex_init(&mutex_ready,NULL);
+    pthread_mutex_init(&mutex_running,NULL);
+    pthread_mutex_init(&mutex_blocked,NULL);
+    pthread_mutex_init(&mutex_exit,NULL);
+    pthread_mutex_init(&mutex_pid,NULL);
+}
+
+
 // PCB
 
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
@@ -118,18 +156,100 @@ void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto *pcontexto)
     pcb->registers = pcontexto->registers;
 }
 
-// ALGORITMOS
-void execute_process()
-{
-    /* t_pcb *pcb = queue_pop(queues->EXEC);
-    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
-    t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
-    t_pcontexto *pcontexto_response = get_pcontexto(p);
-    update_pcb_from_pcontexto(pcb, pcontexto_response);
-    // CHEQUEAR ULTIMA INST
-    free(pcontexto);
-    free(pcontexto_response); */
+
+void cargar_recursos(t_recurso** recursos){
+    for(int i = 0; i < list_size(config_kernel->recursos); i++){
+        recursos[i]->recurso = (char*)list_get(config_kernel->recursos, i);
+        recursos[i]->instancias = list_get(config_kernel->instancias_recursos, i);
+        recursos[i]->lista_bloqueados = list_create();
+    }
 }
 
+void execute(){
+
+    t_pcb *pcb = queue_pop(queues->EXEC);
+    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
+    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
+
+    t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
+    t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
+    update_pcb_from_pcontexto(pcb, pcontexto_response);
+
+    t_instruccion* instruccion_desalojo = pcontexto_response->motivo_desalojo;
+
+    t_recurso** recursos;
+    cargar_recursos(recursos);
+
+    inicializar_mutex();
+
+        switch (instruccion_desalojo->identificador){
+
+            case I_WAIT:
+                char* recurso_solicitado = instruccion_desalojo->parametros[1];
+                execute_wait(recurso_solicitado, recursos, pcb);
+                free(recurso_solicitado);
+                break;
+
+            case I_SIGNAL:
+                char* recurso_solicitado = instruccion_desalojo->parametros[1];
+                execute_signal(recurso_solicitado, recursos, pcb);
+                free(recurso_solicitado);
+                break;
+
+            case I_CREATE_SEGMENT:
+                uint32_t tamanio_solicitado = atoi(instruccion_desalojo->parametros[2]); 
+                uint32_t id_solicitado = atoi(instruccion_desalojo->parametros[3]);
+                execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
+                break;
+
+            case I_DELETE_SEGMENT:
+                uint32_t id = atoi(instruccion_desalojo->parametros[1]);      
+                execute_delete_segment(id, pcb);
+                break;
+
+            case I_I_O:
+                int tiempo = atoi(instruccion_desalojo->parametros[1]);   
+                execute_io(tiempo, pcb);
+                break;
+
+            case I_YIELD:
+                execute_exit(pcb);
+                break;
+
+            case I_F_WRITE:
+                execute_exit(pcb);
+                break;
+
+            case I_F_CLOSE:
+                execute_exit(pcb);
+                break;
+
+            case I_F_OPEN:
+                execute_exit(pcb);
+                break;
+
+            case I_F_READ:
+                execute_exit(pcb);
+                break;
+
+            case I_F_SEEK:
+                execute_exit(pcb);
+                break;
+
+            case I_F_TRUNCATE:
+                execute_exit(pcb);
+                break;
+
+            case I_EXIT:
+                execute_exit(pcb);
+                break;
+            default:
+            break;
+        }
+    
+      free(pcontexto);
+      free(pcontexto_response);
+      free(instruccion_desalojo);
+      free_arr(recursos);
+}
 

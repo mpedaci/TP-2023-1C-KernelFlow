@@ -24,7 +24,11 @@ typedef enum
     DFILE,         // Datos Archivo
     DATA,          // Datos
     INSTRUCCION,   // Instruccion
-    END
+    END,
+    SEGMENT_SIZE,
+    EXITOSO,
+    SIN_ESPACIO,
+    COMPACTAR
 } op_code;
 
 /* CLIENTE -> SERVIDOR -> PROGRAMA */

@@ -141,7 +141,7 @@ t_list *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola)
 
         // Agrego a la lista el identificador
         list_add(lines, (void *)tokens[0]);
-        log_debug(logger_consola, "Se agregó el operador %s", tokens[0]);
+        //log_debug(logger_consola, "Se agregó el operador %s", tokens[0]);
 
         // Agrego a la lista los parametros de la instruccion
         int i = 1;
@@ -149,7 +149,7 @@ t_list *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola)
         while (tokens[i] != NULL)
         {
             list_add(lines, (void *)tokens[i]);
-            log_debug(logger_consola, "Se agregó el parametro %s", tokens[i]);
+            //log_debug(logger_consola, "Se agregó el parametro %s", tokens[i]);
 
             i++;
         }
