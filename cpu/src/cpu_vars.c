@@ -1,4 +1,6 @@
-#include "global_variables.h"
+#include "cpu_vars.h"
+
+int socket_client_memoria = -1;
 
 bool ejecutando = false;
 
@@ -7,5 +9,5 @@ t_log* logger_aux = NULL;
 
 t_config_cpu* config = NULL;
 
-t_registers* registers = NULL;
+t_registers* cpu_registers = NULL;
 

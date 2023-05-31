@@ -33,6 +33,7 @@ t_package *get_package(int socket, t_log *logger);
 
 t_list *get_instrucciones(t_package *paquete);
 t_pcontexto *get_pcontexto(t_package *paquete);
+t_pcontexto_desalojo *get_pcontexto_desalojo(t_package *paquete);
 t_segments_table *get_tsegmento(t_package *paquete);
 t_open_files *get_ofile(t_package *paquete);
 // t_persona* get_file(t_package* paquete);
@@ -43,6 +44,7 @@ t_instruccion *get_instruccion(t_package *paquete);
 
 bool send_instrucciones(int socket, t_list *lista_instrucciones, t_log *logger);
 bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger);
+bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *logger);
 bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger);
 bool send_ofile(int socket, t_open_files *t_ofiles, t_log *logger);
 // bool send_file(int socket, t_persona persona, t_log *logger);

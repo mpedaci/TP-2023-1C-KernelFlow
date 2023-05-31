@@ -1,6 +1,5 @@
 #include "utils.h"
 
-
 t_config_cpu* read_config(char* path, t_log* logger) {
 
     t_config_cpu* config_cpu = malloc(sizeof(t_config_cpu));
@@ -24,7 +23,7 @@ t_config_cpu* read_config(char* path, t_log* logger) {
 }
 
 
-void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logger, t_log* logger_aux) {
+void close_program_cpu(t_config_cpu* config, t_registers* registers, int socket_client_memoria, t_log* logger, t_log* logger_aux) {
     // destruyo loggers
     log_destroy(logger);
     log_destroy(logger_aux);
@@ -38,22 +37,14 @@ void close_program_cpu(t_config_cpu* config, t_registers* registers, t_log* logg
     free(config);
 
     // free registers
-    free(registers->AX);
-    free(registers->BX);
-    free(registers->CX);
-    free(registers->DX);
-    free(registers->EAX);
-    free(registers->EBX);
-    free(registers->ECX);
-    free(registers->EDX);
-    free(registers->RAX);
-    free(registers->RBX);
-    free(registers->RCX);
-    free(registers->RDX);
+    registers_destroy(registers);
+
+    // destruyo socket memoria
+    socket_destroy(socket_client_memoria);
 }
 
 t_registers* init_registers() {
-    t_registers* registers;
+    t_registers* registers = malloc(sizeof(t_registers));
 
     registers->AX = malloc(4);
     registers->BX = malloc(4);
@@ -68,9 +59,41 @@ t_registers* init_registers() {
     registers->RCX = malloc(16);
     registers->RDX = malloc(16);
 
+    set_registers_zero(registers);
+
     return registers;
 }
 
-void copy_pcontexto(t_pcontexto* contexto) {
+void set_registers_zero(t_registers *registers) {
+    char *zero = "0000000000000000";
 
+    memcpy(registers->AX, zero, 4);
+    memcpy(registers->BX, zero, 4);
+    memcpy(registers->CX, zero, 4);
+    memcpy(registers->DX, zero, 4);
+    memcpy(registers->EAX, zero, 8);
+    memcpy(registers->EBX, zero, 8);
+    memcpy(registers->ECX, zero, 8);
+    memcpy(registers->EDX, zero, 8);
+    memcpy(registers->RAX, zero, 16);
+    memcpy(registers->RBX, zero, 16);
+    memcpy(registers->RCX, zero, 16);
+    memcpy(registers->RDX, zero, 16);
+}
+
+void registers_destroy(t_registers *registers) {
+    free(registers->AX);
+    free(registers->BX);
+    free(registers->CX);
+    free(registers->DX);
+    free(registers->EAX);
+    free(registers->EBX);
+    free(registers->ECX);
+    free(registers->EDX);
+    free(registers->RAX);
+    free(registers->RBX);
+    free(registers->RCX);
+    free(registers->RDX);
+
+    free(registers);
 }
