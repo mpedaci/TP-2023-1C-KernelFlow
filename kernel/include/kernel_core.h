@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <semaphore.h>
 
 #include <commons/string.h>
 #include <commons/collections/list.h>
@@ -15,9 +16,7 @@
 #include "planner.h"
 #include "communication.h"
 
-#include "semaphore.h"
 #include "instrucciones.h"
-
 
 // CORE
 
@@ -46,16 +45,8 @@ bool can_execute_process();
 // PCB
 
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb);
-void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto *pcontexto);
-void execute_process();
-
-//Mutex para proteger las colas
-pthread_mutex_t mutex_new;
-pthread_mutex_t mutex_ready;
-pthread_mutex_t mutex_running;
-pthread_mutex_t mutex_blocked;
-pthread_mutex_t mutex_exit;
-pthread_mutex_t mutex_pid;
+void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto);
+void execute();
 
 void inicializar_mutex();
 

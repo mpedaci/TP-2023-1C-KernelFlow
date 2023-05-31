@@ -33,6 +33,8 @@ int main()
     // 4.4. Crear PCB - OK
     // 4.5. Solicitar Tabla de Segmentos - OK
     // 4.6. Alojar PCB en cola de ready - OK
+    // 4.7. Inicializar mutex - OK
+    inicializar_mutex();
     // 5. Levantar hilo de kernel
     start_kernel_core();
     // 5.1. Verificar contenido de colas - OK

@@ -18,7 +18,7 @@ void SET(char* registro_char, char* valor_char) { // setea el registro pasado po
 // mem -> reg
 // Lee el valor de memoria correspondiente a la Dirección Lógica y lo almacena en el Registro
 char *MOV_IN(char *registro, uint32_t direccion_fisica) {
-    void *reg = get_register(registro);
+    // void *reg = get_register(registro);
     // TODO
     return ""; // return valor leido de memoria
 }
@@ -26,7 +26,7 @@ char *MOV_IN(char *registro, uint32_t direccion_fisica) {
 // reg -> mem
 // Lee el valor del Registro y lo escribe en la dirección física de memoria obtenida a partir de la Dirección Lógica
 char *MOV_OUT(uint32_t direccion_fisica, char *registro) {
-    void * reg = get_register(registro);
+    // void * reg = get_register(registro);
     // TODO 
     return "";// return valor leido de memoria
 }
@@ -110,6 +110,8 @@ void *get_register(char *register_char) {
         return cpu_registers->RCX;
     } else if(strcmp(register_char, "RDX") == 0) {
         return cpu_registers->RDX;
+    } else {
+        return NULL;
     }
 }
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-FILE=bin/kernel
+FILE=bin/consola
 mkdir -p logs
 make clean
 make

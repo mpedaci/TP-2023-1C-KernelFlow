@@ -33,7 +33,7 @@ void *process_queues()
         {
             queue_push(queues->EXEC, to_execute);
             to_execute = NULL;
-            execute_process();
+            execute();
         }
         // EXEC -> BLOCK
 
@@ -101,41 +101,45 @@ bool can_execute_process()
 
 // Sincronizacion de colas y listas (VER)
 
-void agregar_pcb_a_cola(t_pcb* pcb, pthread_mutex_t mutex, t_list* cola){
+void agregar_pcb_a_cola(t_pcb *pcb, pthread_mutex_t mutex, t_list *cola)
+{
     pthread_mutex_lock(&mutex);
     queue_push(cola, pcb);
     pthread_mutex_unlock(&mutex);
 }
 
-t_pcb* quitar_pcb_de_cola(pthread_mutex_t mutex, t_list* cola){
+t_pcb *quitar_pcb_de_cola(pthread_mutex_t mutex, t_list *cola)
+{
     pthread_mutex_lock(&mutex);
-    t_pcb* pcb = queue_pop(cola);
+    t_pcb *pcb = queue_pop(cola);
     pthread_mutex_unlock(&mutex);
     return pcb;
 }
 
-void agregar_pcb_a_lista(t_pcb* pcb,pthread_mutex_t mutex, t_list* cola){
+void agregar_pcb_a_lista(t_pcb *pcb, pthread_mutex_t mutex, t_list *cola)
+{
     pthread_mutex_lock(&mutex);
-    list_add(cola,pcb);
+    list_add(cola, pcb);
     pthread_mutex_unlock(&mutex);
 }
 
-t_pcb* quitar_primer_pcb_de_lista(pthread_mutex_t mutex, t_list* cola){
+t_pcb *quitar_primer_pcb_de_lista(pthread_mutex_t mutex, t_list *cola)
+{
     pthread_mutex_lock(&mutex);
-    t_pcb* pcb = list_remove(cola,0);
+    t_pcb *pcb = list_remove(cola, 0);
     pthread_mutex_unlock(&mutex);
     return pcb;
 }
 
-void inicializar_mutex(){
-    pthread_mutex_init(&mutex_new,NULL);
-    pthread_mutex_init(&mutex_ready,NULL);
-    pthread_mutex_init(&mutex_running,NULL);
-    pthread_mutex_init(&mutex_blocked,NULL);
-    pthread_mutex_init(&mutex_exit,NULL);
-    pthread_mutex_init(&mutex_pid,NULL);
+void inicializar_mutex()
+{
+    pthread_mutex_init(&mutex_new, NULL);
+    pthread_mutex_init(&mutex_ready, NULL);
+    pthread_mutex_init(&mutex_running, NULL);
+    pthread_mutex_init(&mutex_blocked, NULL);
+    pthread_mutex_init(&mutex_exit, NULL);
+    pthread_mutex_init(&mutex_pid, NULL);
 }
-
 
 // PCB
 
@@ -150,22 +154,24 @@ t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
     return pcontexto;
 }
 
-void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto *pcontexto)
+void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto)
 {
     pcb->program_counter = pcontexto->program_counter;
     pcb->registers = pcontexto->registers;
 }
 
-
-void cargar_recursos(t_recurso** recursos){
-    for(int i = 0; i < list_size(config_kernel->recursos); i++){
-        recursos[i]->recurso = (char*)list_get(config_kernel->recursos, i);
-        recursos[i]->instancias = list_get(config_kernel->instancias_recursos, i);
+void cargar_recursos(t_recurso **recursos)
+{
+    for (int i = 0; i < list_size(config_kernel->recursos); i++)
+    {
+        recursos[i]->recurso = (char *)list_get(config_kernel->recursos, i);
+        recursos[i]->instancias = *(int *)list_get(config_kernel->instancias_recursos, i);
         recursos[i]->lista_bloqueados = list_create();
     }
 }
 
-void execute(){
+void execute()
+{
 
     t_pcb *pcb = queue_pop(queues->EXEC);
     t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
@@ -175,81 +181,87 @@ void execute(){
     t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
     update_pcb_from_pcontexto(pcb, pcontexto_response);
 
-    t_instruccion* instruccion_desalojo = pcontexto_response->motivo_desalojo;
+    t_instruccion *instruccion_desalojo = pcontexto_response->motivo_desalojo;
 
-    t_recurso** recursos;
+    t_recurso **recursos = malloc(sizeof(t_recurso *) * list_size(config_kernel->recursos));
     cargar_recursos(recursos);
 
-    inicializar_mutex();
+    /* inicializar_mutex(); */
+    char *recurso_solicitado;
+    switch (instruccion_desalojo->identificador)
+    {
 
-        switch (instruccion_desalojo->identificador){
+    case I_WAIT:
+        recurso_solicitado = instruccion_desalojo->parametros[1];
+        execute_wait(recurso_solicitado, recursos, pcb);
+        free(recurso_solicitado);
+        break;
 
-            case I_WAIT:
-                char* recurso_solicitado = instruccion_desalojo->parametros[1];
-                execute_wait(recurso_solicitado, recursos, pcb);
-                free(recurso_solicitado);
-                break;
+    case I_SIGNAL:
+        recurso_solicitado = instruccion_desalojo->parametros[1];
+        execute_signal(recurso_solicitado, recursos, pcb);
+        free(recurso_solicitado);
+        break;
 
-            case I_SIGNAL:
-                char* recurso_solicitado = instruccion_desalojo->parametros[1];
-                execute_signal(recurso_solicitado, recursos, pcb);
-                free(recurso_solicitado);
-                break;
+    case I_CREATE_SEGMENT:
+        uint32_t tamanio_solicitado = atoi(instruccion_desalojo->parametros[2]);
+        uint32_t id_solicitado = atoi(instruccion_desalojo->parametros[3]);
+        execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
+        break;
 
-            case I_CREATE_SEGMENT:
-                uint32_t tamanio_solicitado = atoi(instruccion_desalojo->parametros[2]); 
-                uint32_t id_solicitado = atoi(instruccion_desalojo->parametros[3]);
-                execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
-                break;
+    case I_DELETE_SEGMENT:
+        uint32_t id = atoi(instruccion_desalojo->parametros[1]);
+        execute_delete_segment(id, pcb);
+        break;
 
-            case I_DELETE_SEGMENT:
-                uint32_t id = atoi(instruccion_desalojo->parametros[1]);      
-                execute_delete_segment(id, pcb);
-                break;
+    case I_I_O:
+        int tiempo = atoi(instruccion_desalojo->parametros[1]);
+        execute_io(tiempo, pcb);
+        break;
 
-            case I_I_O:
-                int tiempo = atoi(instruccion_desalojo->parametros[1]);   
-                execute_io(tiempo, pcb);
-                break;
+    case I_YIELD:
+        execute_exit(pcb);
+        break;
 
-            case I_YIELD:
-                execute_exit(pcb);
-                break;
+    case I_F_WRITE:
+        execute_exit(pcb);
+        break;
 
-            case I_F_WRITE:
-                execute_exit(pcb);
-                break;
+    case I_F_CLOSE:
+        execute_exit(pcb);
+        break;
 
-            case I_F_CLOSE:
-                execute_exit(pcb);
-                break;
+    case I_F_OPEN:
+        execute_exit(pcb);
+        break;
 
-            case I_F_OPEN:
-                execute_exit(pcb);
-                break;
+    case I_F_READ:
+        execute_exit(pcb);
+        break;
 
-            case I_F_READ:
-                execute_exit(pcb);
-                break;
+    case I_F_SEEK:
+        execute_exit(pcb);
+        break;
 
-            case I_F_SEEK:
-                execute_exit(pcb);
-                break;
+    case I_F_TRUNCATE:
+        execute_exit(pcb);
+        break;
 
-            case I_F_TRUNCATE:
-                execute_exit(pcb);
-                break;
+    case I_EXIT:
+        execute_exit(pcb);
+        break;
+    default:
+        break;
+    }
 
-            case I_EXIT:
-                execute_exit(pcb);
-                break;
-            default:
-            break;
-        }
+    free(pcontexto);
+    free(pcontexto_response);
+    free(instruccion_desalojo);
+    for (size_t i = 0; i < list_size(config_kernel->recursos); i++)
+    {
+        free(recursos[i]->recurso);
+        list_destroy(recursos[i]->lista_bloqueados);
+        free(recursos[i]);
+    }
     
-      free(pcontexto);
-      free(pcontexto_response);
-      free(instruccion_desalojo);
-      free_arr(recursos);
 }
-

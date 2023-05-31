@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 #include <commons/log.h>
 
@@ -29,5 +30,14 @@ extern pthread_t thr_server_conn;
 extern pthread_t thr_core;
 
 extern bool core_running;
+
+//Mutex para proteger las colas
+extern pthread_mutex_t mutex_new;
+extern pthread_mutex_t mutex_ready;
+extern pthread_mutex_t mutex_running;
+extern pthread_mutex_t mutex_blocked;
+extern pthread_mutex_t mutex_exit;
+extern pthread_mutex_t mutex_pid;
+
 
 #endif /* KERNEL_VARS_H */
