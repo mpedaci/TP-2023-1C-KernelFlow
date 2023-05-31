@@ -1,9 +1,8 @@
 #include "handle_requests_kernel.h"
 
-/*
-void handle_requests(t_log *logger_aux, op_code opcode){
 
-switch (opcode)
+void handle_requests(int socket_kernel,t_log* logger_aux){
+/*switch ()
 {
 case ABRIR_ARCHIVO:
    open_file();
@@ -34,7 +33,5 @@ case ESCRIBIR_ARCHIVO:
 default:
    log_info(logger_aux,"error codigo operacion");
    break;
+}*/
 }
-}
-
-*/
