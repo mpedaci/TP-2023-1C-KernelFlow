@@ -30,11 +30,9 @@ t_pcontexto_desalojo *get_pcontexto_desalojo(t_package *paquete)
 
 t_segments_table *get_tsegmento(t_package *paquete)
 {
-    t_list *segments_table = t_segments_table_create_from_buffer(paquete->buffer);
+    t_segments_table *segments_table = t_segments_table_create_from_buffer(paquete->buffer);
     return segments_table;
 };
-
-
 
 t_open_files *get_ofile(t_package *paquete)
 {
@@ -48,10 +46,10 @@ t_data* get_data(t_package* paquete)
     return data;
 };
 
-t_adress get_adress(t_package* paquete)
+t_address get_address(t_package* paquete)
 {
-    t_adress adress = t_adress_create_from_buffer(paquete->buffer);
-    return adress;
+    t_address address = t_address_create_from_buffer(paquete->buffer);
+    return address;
 };
 
 t_instruccion *get_instruccion(t_package *paquete)
@@ -91,7 +89,7 @@ bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *
 
 bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger)
 {
-    t_buffer *buffer = t_segments_table_create_buffer(tabla_segmento);
+    t_buffer *buffer = t_segments_table_create_buffer(t_segmento);
     t_package *paquete = package_create(buffer, TSEGMENTOS);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
@@ -116,10 +114,10 @@ bool send_data(int socket, t_data* data, t_log *logger)
     return res;
 };
 
-bool send_adress(int socket,t_adress adress, t_log* logger)
+bool send_address(int socket,t_address address, t_log* logger)
 {
-    t_buffer *buffer = t_adress_create_buffer(adress);
-    t_package *paquete = package_create(buffer, FILEADRESS);
+    t_buffer *buffer = t_address_create_buffer(address);
+    t_package *paquete = package_create(buffer, FILEADDRESS);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;

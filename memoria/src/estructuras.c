@@ -30,14 +30,14 @@ t_bitarray* create_free_space_table(size_t memory_size){
     return free_gaps_table;
 }
 
-t_segment* create_segment(int id, int size,int base_adress){
+t_segment* create_segment(int id, int size,int base_address){
     t_segment* segment = malloc(sizeof(t_segment));
 
     segment->id = id;
     segment->size = size;
-    segment->base_adress = base_adress;
+    segment->base_address = base_address;
 
-    for(int i=base_adress;i<(base_adress+size);i++){
+    for(int i=base_address;i<(base_address+size);i++){
         bitarray_set_bit(free_space_table,i);
     }
 
@@ -71,9 +71,9 @@ void delete_segments_table(t_segments_table* segments_table){
     free(segments_table);
 }
 
-t_data *create_data(char* base_adress,int data_length){
+t_data *create_data(char* base_address,int data_length){
     t_data* data = malloc(sizeof(t_data));
-    data->value=string_duplicate(base_adress);
+    data->value=string_duplicate(base_address);
     data->value_length=data_length;    
     return data;
 }

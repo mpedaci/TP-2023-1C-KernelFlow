@@ -2,7 +2,8 @@
 
 void kernel_operations(int client_socket){
     //ASUMO QUE EL HANDSHAKE YA LO CONTESTE
-    while(1){
+    // CHEQUEAR
+    /* while(1){
         t_package* package = get_package(client_socket,logger_aux);
         t_instruccion* instruccion = get_instruccion(package);
         //Esto es una ensalada de frutas
@@ -21,7 +22,7 @@ void kernel_operations(int client_socket){
             log_warning(logger_aux,"Operacion desconocida");
             break;
         }
-    }
+    } */
 }
 
 void cpu_operations(int client_socket){
@@ -29,15 +30,15 @@ void cpu_operations(int client_socket){
     while(1){
         t_package* package = get_package(client_socket,logger_aux);
         t_instruccion* instruccion = get_instruccion(package);
-        t_adress adress;
+        t_address address;
         switch (instruccion->identificador){
         case I_MOV_IN:
-            adress= 1;
-            send_adress(client_socket,adress,logger_aux);
+            address= 1;
+            send_address(client_socket,address,logger_aux);
             break;
         case I_MOV_OUT:
-            adress= 1;
-            send_adress(client_socket,adress,logger_aux);
+            address= 1;
+            send_address(client_socket,address,logger_aux);
             break;
         case I_EXIT:
             log_debug(logger_aux,"Conexion CPU-Memoria finalizada");
