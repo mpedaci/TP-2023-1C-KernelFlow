@@ -30,9 +30,11 @@ t_pcontexto_desalojo *get_pcontexto_desalojo(t_package *paquete)
 
 t_segments_table *get_tsegmento(t_package *paquete)
 {
-    t_segments_table *tsegmento = t_segment_table_create_from_buffer(paquete->buffer);
-    return tsegmento;
+    t_list *segments_table = t_segments_table_create_from_buffer(paquete->buffer);
+    return segments_table;
 };
+
+
 
 t_open_files *get_ofile(t_package *paquete)
 {
@@ -40,17 +42,17 @@ t_open_files *get_ofile(t_package *paquete)
     return ofiles;
 };
 
-// t_persona* get_file(t_package* paquete)
-// {
-//     t_persona* persona = t_persona_create_from_buffer(paquete->buffer);
-//     return persona;
-// };
+t_data* get_data(t_package* paquete)
+{
+    t_data* data = t_data_create_from_buffer(paquete->buffer);
+    return data;
+};
 
-// t_persona* get_data(t_package* paquete)
-// {
-//     t_persona* persona = t_persona_create_from_buffer(paquete->buffer);
-//     return persona;
-// };
+t_adress get_adress(t_package* paquete)
+{
+    t_adress adress = t_adress_create_from_buffer(paquete->buffer);
+    return adress;
+};
 
 t_instruccion *get_instruccion(t_package *paquete)
 {
@@ -89,7 +91,7 @@ bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *
 
 bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger)
 {
-    t_buffer *buffer = t_segment_table_create_buffer(t_segmento);
+    t_buffer *buffer = t_segments_table_create_buffer(tabla_segmento);
     t_package *paquete = package_create(buffer, TSEGMENTOS);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
@@ -105,23 +107,23 @@ bool send_ofile(int socket, t_open_files *t_ofiles, t_log *logger)
     return res;
 };
 
-// bool send_file(int socket, t_persona persona, t_log *logger)
-// {
-//     t_buffer *buffer = t_persona_create_buffer(persona);
-//     t_package *paquete = package_create(buffer, DFILE);
-//     bool res = package_send(socket, paquete, logger);
-//     package_destroy(paquete);
-//     return res;
-// };
+bool send_data(int socket, t_data* data, t_log *logger)
+{
+    t_buffer *buffer = t_data_create_buffer(data);
+    t_package *paquete = package_create(buffer, DATA);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
 
-// bool send_data(int socket, t_persona persona, t_log *logger)
-// {
-//     t_buffer *buffer = t_persona_create_buffer(persona);
-//     t_package *paquete = package_create(buffer, DATA);
-//     bool res = package_send(socket, paquete, logger);
-//     package_destroy(paquete);
-//     return res;
-// };
+bool send_adress(int socket,t_adress adress, t_log* logger)
+{
+    t_buffer *buffer = t_adress_create_buffer(adress);
+    t_package *paquete = package_create(buffer, FILEADRESS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+}
 
 bool send_instruccion(int socket, t_instruccion *instruccion, t_log *logger)
 {

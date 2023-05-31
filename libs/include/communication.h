@@ -21,7 +21,7 @@ typedef enum
     PCONTEXTO,     // Contexto de proceso
     TSEGMENTOS,    // Tabla de Segmentos
     OFILE,         // Archivo abierto
-    DFILE,         // Datos Archivo
+    FILEADRESS,    // Datos Archivo
     DATA,          // Datos
     INSTRUCCION,   // Instruccion
     END,
@@ -40,8 +40,8 @@ t_pcontexto *get_pcontexto(t_package *paquete);
 t_pcontexto_desalojo *get_pcontexto_desalojo(t_package *paquete);
 t_segments_table *get_tsegmento(t_package *paquete);
 t_open_files *get_ofile(t_package *paquete);
-// t_persona* get_file(t_package* paquete);
-// t_persona* get_data(t_package* paquete);
+t_data *get_data(t_package *paquete);
+t_adress get_adress(t_package *paquete);
 t_instruccion *get_instruccion(t_package *paquete);
 
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
@@ -51,8 +51,8 @@ bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger);
 bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *logger);
 bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger);
 bool send_ofile(int socket, t_open_files *t_ofiles, t_log *logger);
-// bool send_file(int socket, t_persona persona, t_log *logger);
-// bool send_data(int socket, t_persona persona, t_log *logger);
+bool send_data(int socket, t_data *data, t_log *logger);
+bool send_adress(int socket, t_adress adress, t_log *logger);
 bool send_instruccion(int socket, t_instruccion *instruccion, t_log *logger);
 bool send_end(int socket, t_log *logger);
 

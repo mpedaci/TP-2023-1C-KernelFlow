@@ -86,7 +86,7 @@ typedef struct
 
 // MEMORIA
 
-typedef struct
+typedef struct 
 {
     uint32_t id;
     uint32_t size;
@@ -98,6 +98,15 @@ typedef struct
     uint32_t pid;
     t_list* segment_list;
 } t_segments_table;
+
+
+typedef struct
+{
+    uint32_t value_length;
+    char* value;
+} t_data;
+
+typedef uint32_t t_adress;
 
 // FILESYSTEM
 
