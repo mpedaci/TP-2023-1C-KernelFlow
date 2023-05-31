@@ -159,9 +159,22 @@ void execute_signal(char* recurso_solicitado, t_recurso** recursos, t_pcb *pcb){
 
 void execute_io(int tiempo, t_pcb* pcb){
     agregar_pcb_a_cola(pcb, mutex_blocked, queues->BLOCK);
+    log_info(logger_main, "PID: %d - Ejecuta IO: %d", pcb->pid, tiempo);
+
+    pthread_t hilo_IO;
+
+    pthread_create(&hilo_IO, NULL, (void*) io, (void*)(int)tiempo);
+    pthread_detach(hilo_IO);
+}
+
+void io(int tiempo){
+    t_pcb* pcb = quitar_pcb_de_cola(mutex_blocked, queues->BLOCK);
     sleep(tiempo);
     agregar_pcb_a_cola(pcb, mutex_ready, queues->READY);
-    return;
+}
+
+void execute_exit(t_pcb* pcb){
+    agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
 }
 
 void inicializar_semaforos(){}
