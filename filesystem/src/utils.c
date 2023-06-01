@@ -29,27 +29,18 @@ t_config_filesystem *read_config(char *config_path, t_log *logger)
    return filesystem_config;
 }
 
-void start_filesystem_server(char *listen_port, t_log *logger)
+int start_memory_client(char *ip, char *port, t_log *logger)
 {
-   int server_socket = server_start(listen_port, logger);
-   log_info(logger, "servidor listo para escuchar a mi cliente");
-   int client_socket = client_wait(server_socket, logger);
-   log_info(logger, "se conecto el cliente correctamente");
-
-   // Cierro todos sockets
-   socket_destroy(client_socket);
-   socket_destroy(server_socket);
+   int client_socket = create_connection(ip, port, logger);
+   if (!hs_client_to_module_valid(client_socket, HSFS, HSMEMORIA, logger))
+   {
+      log_error(logger, "Conexion no paso el handshake");
+      return -1;
+   }
+   return client_socket;
 }
 
-void start_memory_client(char *ip, char *port, t_log *logger)
-{
-   int memory_connection = create_connection(ip, port, logger);
-
-   close(memory_connection); // la cierro pa q no queda abierta al pedo
-   socket_destroy(memory_connection);
-}
-
-void end_program(t_log *logger_main,t_config_filesystem *config,t_log *logger_aux)
+void end_program(t_log *logger_main, t_config_filesystem *config, t_log *logger_aux)
 {
    log_info(logger_aux, "Finalizando programa");
    // Logs destroy

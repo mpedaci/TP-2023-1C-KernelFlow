@@ -33,7 +33,7 @@ void *process_queues()
         {
             queue_push(queues->EXEC, to_execute);
             to_execute = NULL;
-            execute();
+            /* execute(); */
         }
         // EXEC -> BLOCK
 

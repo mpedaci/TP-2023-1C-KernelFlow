@@ -161,8 +161,35 @@ bool hs_server_to_module_valid(int socket_client, hs_code hs_module_origin, t_lo
     }
     else
     {
+        printf("HS_Recv_A: %d\n", HS_Recv_A);
+        printf("HS_Recv_B: %d\n", HS_Recv_B);
+        printf("HS_Origin: %d\n", HS_Origin);
         log_warning(logger, "Handshake invalido - Conexion rechazada");
         return false;
+    }
+}
+
+int hs_server_to_module_get_type(int socket_client, hs_code hs_module_origin, t_log *logger)
+{
+    int HS_Recv_A = -1;
+    int HS_Recv_B = -1;
+    int HS_Origin = hs_module_origin;
+    // Recibo conexion
+    recv(socket_client, &HS_Recv_A, sizeof(int), MSG_WAITALL);
+    // Mando quien soy
+    send(socket_client, &HS_Origin, sizeof(int), 0);
+    // Espero confirmacion
+    recv(socket_client, &HS_Recv_B, sizeof(int), MSG_WAITALL);
+    // Chequeo si es el modulo se desconecta
+    if (HS_Recv_B == HSOK)
+    {
+        log_info(logger, "Handshake valido - Conexion aceptada");
+        return HS_Recv_A;
+    }
+    else
+    {
+        log_warning(logger, "Handshake invalido - Conexion rechazada");
+        return -1;
     }
 }
 

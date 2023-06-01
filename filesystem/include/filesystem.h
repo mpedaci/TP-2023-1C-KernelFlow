@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <archivo.h>
 #include <handle_requests_kernel.h>
+#include "filesystem_server.h"
 
 //cambiar las rutas si uso la vm utnso
 

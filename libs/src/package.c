@@ -346,10 +346,13 @@ t_list *t_lista_instrucciones_create_from_buffer(t_buffer *buffer)
 {
     t_list *lista_instrucciones = list_create();
     uint32_t offset = 0;
+    printf("Buffer size: %d", buffer->size);
     while (offset <= buffer->size)
     {
         t_instruccion *instruccion = t_instruccion_create_from_buffer(buffer, &offset);
         list_add(lista_instrucciones, instruccion);
+        printf("Instruccion %d", instruccion->identificador);
+        printf("Offset %d", offset);
     }
     return lista_instrucciones;
 }

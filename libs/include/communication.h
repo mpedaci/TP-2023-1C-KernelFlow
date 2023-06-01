@@ -85,6 +85,8 @@ typedef enum
     */
 bool hs_server_to_module_valid(int socket_client, hs_code hs_module_origin, t_log *logger);
 
+int hs_server_to_module_get_type(int socket_client, hs_code hs_module_origin, t_log *logger);
+
 /**
  * @NAME: hs_client_to_module_valid
  * @DESC: Funcion para enviar un handshake a un servidor y validar la conexion esperada a un modulo

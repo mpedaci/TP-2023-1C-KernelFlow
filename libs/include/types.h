@@ -122,16 +122,6 @@ typedef struct
 } t_open_files;
 
 // KERNEL
-
-/* typedef struct
-{
-    t_temporal *tiempo_ejecucion;
-    t_temporal *tiempo_finalizacion;
-    t_temporal *tiempo_retorno;
-    t_temporal *tiempo_espera;
-    t_temporal *tiempo_respuesta;
-} t_hrrn_tiempos;
- */
 typedef struct
 {
     uint32_t pid;

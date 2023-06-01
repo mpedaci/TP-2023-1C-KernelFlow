@@ -23,11 +23,28 @@ void kernel_operations(int client_socket){
             break;
         }
     } */
+    bool exit = false;
+    while (exit == false)
+    {
+        t_package *package = get_package(client_socket, logger_aux);
+        switch (package->operation_code)
+        {
+        case END:
+            printf("Conexion Finalizada\n");
+            exit = true;
+            break;
+        default:
+            printf("Operacion desconocida\n");
+            exit = true;
+            break;
+        }
+        package_destroy(package);
+    }
 }
 
 void cpu_operations(int client_socket){
     //ASUMO QUE EL HANDSHAKE YA LO CONTESTE
-    while(1){
+    /* while(1){
         t_package* package = get_package(client_socket,logger_aux);
         t_instruccion* instruccion = get_instruccion(package);
         t_address address;
@@ -47,12 +64,29 @@ void cpu_operations(int client_socket){
             log_warning(logger_aux,"Operacion desconocida");
             break;
         }
+    } */
+    bool exit = false;
+    while (exit == false)
+    {
+        t_package *package = get_package(client_socket, logger_aux);
+        switch (package->operation_code)
+        {
+        case END:
+            printf("Conexion Finalizada\n");
+            exit = true;
+            break;
+        default:
+            printf("Operacion desconocida\n");
+            exit = true;
+            break;
+        }
+        package_destroy(package);
     }
 }
 
 void fs_operations(int client_socket){
     //ASUMO QUE EL HANDSHAKE YA LO CONTESTE
-    while(1){
+    /* while(1){
         t_package* package = get_package(client_socket,logger_aux);
         t_instruccion* instruccion = get_instruccion(package);
         t_data* data;
@@ -73,5 +107,22 @@ void fs_operations(int client_socket){
             log_warning(logger_aux,"Operacion desconocida");
             break;
         }
+    } */
+    bool exit = false;
+    while (exit == false)
+    {
+        t_package *package = get_package(client_socket, logger_aux);
+        switch (package->operation_code)
+        {
+        case END:
+            printf("Conexion Finalizada\n");
+            exit = true;
+            break;
+        default:
+            printf("Operacion desconocida\n");
+            exit = true;
+            break;
+        }
+        package_destroy(package);
     }
 }
