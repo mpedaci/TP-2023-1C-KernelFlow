@@ -198,6 +198,8 @@ void execute()
 
     t_instruccion *instruccion_desalojo = pcontexto_response->motivo_desalojo;
 
+    log_info(logger_aux, "Motivo de desalojo: %d", instruccion_desalojo->identificador);
+
     log_info(logger_aux, "Proceso %d desalojado", pcb->pid);
 
     t_pcb *pcb_aux = quitar_primer_pcb_de_lista(mutex_running, queues->EXEC);

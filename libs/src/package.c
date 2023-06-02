@@ -416,9 +416,6 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
 
     free(buffer_instructions->stream);
     free(buffer_instructions);
-
-    free(buffer->stream);
-    free(buffer);
     return pcontexto;
 }
 
@@ -512,9 +509,6 @@ t_pcontexto_desalojo *t_pcontexto_desalojo_create_from_buffer(t_buffer *buffer)
 
     free(buffer_instructions->stream);
     free(buffer_instructions);
-
-    free(buffer->stream);
-    free(buffer);
 
     return pcontexto;
 }

@@ -2,11 +2,9 @@
 
 t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar) {
     ejecutando = false;
-
     t_pcontexto_desalojo *contexto_desalojo = copy_pcontexto(contexto);
     // contexto_desalojo->motivo_desalojo = new_instruction(instruccionListaParaEjecutar->identificador, instruccionListaParaEjecutar->parametros);
     contexto_desalojo->motivo_desalojo = instruccionListaParaEjecutar;
-
     return contexto_desalojo;
 }
 
@@ -21,7 +19,7 @@ void SET(char* registro_char, char* valor_char) { // setea el registro pasado po
 char *MOV_IN(char *registro, uint32_t direccion_fisica) {
     // void *reg = get_register(registro);
     // TODO
-    return ""; // return valor leido de memoria
+    return ""; // return valor leido de memoriaf
 }
 
 // reg -> mem
@@ -117,7 +115,7 @@ void *get_register(char *register_char) {
 }
 
 void instruction_destroyer(t_instruccion *instruccion) {
-    free(instruccion->parametros);
+    list_destroy_and_destroy_elements(instruccion->parametros, free);
     free(instruccion);
 }
 
@@ -132,7 +130,7 @@ t_pcontexto_desalojo *copy_pcontexto(t_pcontexto *contexto) {
     contexto_desalojo->program_counter = contexto->program_counter;
 
     contexto_desalojo->registers = init_registers();
-    copy_registers(contexto_desalojo->registers, contexto->registers); // ???
+    copy_registers(contexto_desalojo->registers, contexto->registers);
 
     // contexto_desalojo->instructions = copy_instructions_list(contexto->instructions);
     contexto_desalojo->instructions = contexto->instructions;
@@ -164,7 +162,7 @@ t_list *copy_instructions_list(t_list *instructions) {
     t_instruccion *instruction;
 
     for(int i=0; i<list_size(instructions); i++) {
-        instruction = new_instruction(((t_instruccion *)list_get(instructions, i))->identificador, ((t_instruccion *)list_get(instructions, i))->parametros);
+        instruction = new_instruction(((t_instruccion *)list_get(instructions, i)));
         list_add(new_list, instruction);
     }
 
@@ -172,25 +170,16 @@ t_list *copy_instructions_list(t_list *instructions) {
 }
 
 // devuelve mallockeado
-t_instruccion *new_instruction(t_identificador identificador, t_list *parametros)
-{
-    t_instruccion *tmp = malloc(sizeof(t_instruccion));
-    tmp->identificador = identificador;
-    tmp->cant_parametros = list_size(parametros);
-    tmp->parametros = parametros;
-    for (size_t i = 0; i < 4; i++)
-        tmp->p_length[i] = 0;
-    add_param_size_to_instruction(parametros, tmp);
-    return tmp;
-}
-
-void add_param_size_to_instruction(t_list *parametros, t_instruccion *instruccion)
-{
-    int i = 0;
-    while (i < instruccion->cant_parametros)
-    {
-        char *param = list_get(parametros, i);
-        instruccion->p_length[i] = strlen(param) + 1;
-        i++;
+t_instruccion *new_instruction(t_instruccion *instruccion) {
+    t_instruccion *new_instruction = malloc(sizeof(t_instruccion));
+    new_instruction->identificador = instruccion->identificador;
+    new_instruction->cant_parametros = instruccion->cant_parametros;
+    new_instruction->parametros = list_create();
+    for(int i=0; i<instruccion->cant_parametros; i++) {
+        list_add(new_instruction->parametros, string_duplicate(list_get(instruccion->parametros, i)));
     }
+    for(int i=0; i<4; i++) {
+        new_instruction->p_length[i] = instruccion->p_length[i];
+    }
+    return new_instruction;
 }

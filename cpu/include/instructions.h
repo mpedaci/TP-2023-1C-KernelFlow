@@ -56,7 +56,7 @@ void copy_registers(t_registers *dest, t_registers *src);
 t_list *copy_instructions_list(t_list *instructions);
 
 
-t_instruccion *new_instruction(t_identificador identificador, t_list *parametros);
+t_instruccion *new_instruction(t_instruccion *instruccion);
 
 void add_param_size_to_instruction(t_list *parametros, t_instruccion *instruccion);
 
