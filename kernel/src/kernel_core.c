@@ -198,6 +198,11 @@ void execute()
 
     t_instruccion *instruccion_desalojo = pcontexto_response->motivo_desalojo;
 
+    log_info(logger_aux, "Proceso %d desalojado", pcb->pid);
+
+    t_pcb *pcb_aux = quitar_primer_pcb_de_lista(mutex_running, queues->EXEC);
+    agregar_pcb_a_lista(pcb_aux, mutex_exit, queues->EXIT);
+
     // t_recurso **recursos = malloc(sizeof(t_recurso *) * list_size(config_kernel->recursos));
     // cargar_recursos(recursos);
 

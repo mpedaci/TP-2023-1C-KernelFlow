@@ -4,7 +4,8 @@ t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccio
     ejecutando = false;
 
     t_pcontexto_desalojo *contexto_desalojo = copy_pcontexto(contexto);
-    contexto_desalojo->motivo_desalojo = new_instruction(instruccionListaParaEjecutar->identificador, instruccionListaParaEjecutar->parametros);
+    // contexto_desalojo->motivo_desalojo = new_instruction(instruccionListaParaEjecutar->identificador, instruccionListaParaEjecutar->parametros);
+    contexto_desalojo->motivo_desalojo = instruccionListaParaEjecutar;
 
     return contexto_desalojo;
 }
@@ -124,13 +125,17 @@ void instruction_destroyer(t_instruccion *instruccion) {
 t_pcontexto_desalojo *copy_pcontexto(t_pcontexto *contexto) {
     t_pcontexto_desalojo *contexto_desalojo = malloc(sizeof(t_pcontexto_desalojo));
 
-    memcpy(&contexto_desalojo->pid, &contexto->pid, sizeof(uint32_t));
-    memcpy(&contexto_desalojo->program_counter, &contexto->program_counter, sizeof(uint32_t));
+    // memcpy(&contexto_desalojo->pid, &contexto->pid, sizeof(uint32_t));
+    contexto_desalojo->pid = contexto->pid;
+
+    // memcpy(&contexto_desalojo->program_counter, &contexto->program_counter, sizeof(uint32_t));
+    contexto_desalojo->program_counter = contexto->program_counter;
 
     contexto_desalojo->registers = init_registers();
-    copy_registers(contexto_desalojo->registers, contexto->registers);
+    copy_registers(contexto_desalojo->registers, contexto->registers); // ???
 
-    contexto_desalojo->instructions = copy_instructions_list(contexto->instructions);
+    // contexto_desalojo->instructions = copy_instructions_list(contexto->instructions);
+    contexto_desalojo->instructions = contexto->instructions;
 
     return contexto_desalojo;
 }

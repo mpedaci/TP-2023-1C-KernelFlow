@@ -177,9 +177,6 @@ bool hs_server_to_module_valid(int socket_client, hs_code hs_module_origin, t_lo
     }
     else
     {
-        printf("HS_Recv_A: %d\n", HS_Recv_A);
-        printf("HS_Recv_B: %d\n", HS_Recv_B);
-        printf("HS_Origin: %d\n", HS_Origin);
         log_warning(logger, "Handshake invalido - Conexion rechazada");
         return false;
     }

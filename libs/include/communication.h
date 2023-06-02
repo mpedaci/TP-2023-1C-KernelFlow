@@ -17,13 +17,14 @@
 
 typedef enum
 {
-    INSTRUCCIONES, // Pseudocodigo
-    PCONTEXTO,     // Contexto de proceso
-    TSEGMENTOS,    // Tabla de Segmentos
-    OFILE,         // Archivo abierto
-    FILEADDRESS,   // Datos Archivo
-    DATA,          // Datos
-    INSTRUCCION,   // Instruccion
+    INSTRUCCIONES,          // Pseudocodigo
+    PCONTEXTO,              // Contexto de proceso
+    PCONTEXTODESALOJO,      // Contexto de proceso desalojo
+    TSEGMENTOS,             // Tabla de Segmentos
+    OFILE,                  // Archivo abierto
+    FILEADDRESS,            // Datos Archivo
+    DATA,                   // Datos
+    INSTRUCCION,            // Instruccion
     END,
     SEGMENT_SIZE,
     EXITOSO,
@@ -55,6 +56,7 @@ bool send_data(int socket, t_data* data, t_log *logger);
 bool send_address(int socket,t_address address, t_log* logger);
 bool send_instruccion(int socket, t_instruccion *instruccion, t_log *logger);
 bool send_end(int socket, t_log *logger);
+bool send_exit(int socket, t_log *logger);
 
 /* HANDSHAKE */
 
