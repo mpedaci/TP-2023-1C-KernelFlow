@@ -42,7 +42,7 @@ void end_kernel_server()
     pthread_join(thr_server_conn, NULL);
     socket_destroy(server_socket);
     free(connection);
-    pthread_join(thr_server, NULL);
+    log_info(logger_aux, "Thread Kernel Server: finalizado");
 }
 
 void *process_client_entry(void *ptr)
@@ -54,6 +54,7 @@ void *process_client_entry(void *ptr)
     log_info(logger_aux, "Thread con PID: %d iniciado", conn->pid);
     process_client_communication(conn);
     socket_destroy(conn->socket);
+    log_info(logger_aux, "Thread con PID: %d finalizado", conn->pid);
     free(conn);
     pthread_exit(0);
 }

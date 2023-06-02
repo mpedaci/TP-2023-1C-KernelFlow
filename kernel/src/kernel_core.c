@@ -9,6 +9,7 @@ void end_kernel_core()
 {
     core_running = false;
     pthread_join(thr_core, NULL);
+    log_info(logger_aux, "Thread Kernel Core: finalizado");
 }
 
 // CONTROLER
@@ -47,6 +48,7 @@ void *process_queues()
         sleep(1);
     }
     // free(to_execute); // NO HARIA FALTA SI ESTA DENTRO DE UNA COLA
+    log_info(logger_aux, "Thread Process Queues: finalizado");
     pthread_exit(0);
 }
 
@@ -81,7 +83,7 @@ bool queue_is_empty(t_list *queue)
 
 bool can_move_NEW_to_READY()
 {
-    return list_size(queues->NEW) > 0 && list_size(queues->READY) < config_kernel->grado_max_multiprog;
+    return list_size(queues->NEW) > 0 && (list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK)) < config_kernel->grado_max_multiprog;
 }
 
 bool algorithm_is_FIFO()
