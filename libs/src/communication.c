@@ -73,6 +73,12 @@ bool send_instrucciones(int socket, t_list *lista_instrucciones, t_log *logger)
 bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger)
 {
     t_buffer *buffer = t_pcontexto_create_buffer(contexto);
+
+    t_pcontexto *a = t_pcontexto_create_from_buffer(buffer);
+    printf("PID: %d\n", a->pid);
+    printf("PC: %d\n", a->program_counter);
+    printf("Cant Instrucciones: %d\n", list_size(a->instructions));
+
     t_package *paquete = package_create(buffer, PCONTEXTO);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);

@@ -71,15 +71,8 @@ void process_client_communication(t_client_connection *conn)
         {
         case INSTRUCCIONES:
             log_info(logger_aux, "Thread con PID: %d instrucciones recibidas", conn->pid);
-            t_list *instrucciones = get_instrucciones(package);
-
-            for (int i = 0; i < list_size(instrucciones); i++)
-            {
-                t_instruccion *instruccion = list_get(instrucciones, i);
-                log_debug(logger_aux, "Instruccion: %d", instruccion->identificador);
-                for (int j = 0; j < instruccion->cant_parametros; j++)
-                    log_debug(logger_aux, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
-            }
+            log_info(logger_aux, "Thread con PID: %d instrucciones size %d", conn->pid, package->buffer->size);
+            t_list *instrucciones = get_instrucciones(package); // 800
 
             t_pcb *pcb = pcb_create(conn->pid, instrucciones);
             // send_instruccion(modules_client->memory_client_socket, "TABLA SEGMENTOS NUEVA", logger_aux);
