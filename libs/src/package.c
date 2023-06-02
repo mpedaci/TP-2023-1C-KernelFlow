@@ -50,7 +50,6 @@ t_buffer *t_lista_instrucciones_create_buffer(t_list *lista_instrucciones)
     // creo el stream y copio los datos de cada buffer
     void *stream = malloc(size_total);
     buffer->size = size_total;
-    printf("Buffer size: %d\n", buffer->size);
     uint32_t offset = 0;
     for (int i = 0; i < list_size(lista_instrucciones); i++)
     {
@@ -69,8 +68,6 @@ t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto)
     t_buffer *buffer = malloc(sizeof(t_buffer));
     t_buffer *buffer_instrucciones = t_lista_instrucciones_create_buffer(pcontexto->instructions);
     
-    printf("Buffer size instrucciones: %d\n", buffer_instrucciones->size);
-
     buffer->size = sizeof(uint32_t) * 3 + // pid + program_counter + size lista instrucciones
                     buffer_instrucciones->size + // lista instrucciones
                     4 * 4 + // registers->AX
@@ -368,19 +365,13 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
     pcontexto->registers->RCX = malloc(16);
     pcontexto->registers->RDX = malloc(16);
 
-    printf("Buffer size: %d\n", buffer->size);
-
     void *stream = buffer->stream;
 
     memcpy(&(pcontexto->pid), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
 
-    printf("PID: %d\n", pcontexto->pid);
-
     memcpy(&(pcontexto->program_counter), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
-
-    printf("Program Counter: %d\n", pcontexto->program_counter);
 
     uint32_t offset = 4;
     memcpy(pcontexto->registers->AX, stream, offset);
@@ -417,15 +408,11 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
     memcpy(&(buffer_instructions->size), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
 
-    printf("Buffer size instrucciones: %d\n", buffer_instructions->size);
-
     buffer_instructions->stream = malloc(buffer_instructions->size);
     memcpy(buffer_instructions->stream, stream, buffer_instructions->size);
     stream += buffer_instructions->size;
 
     pcontexto->instructions = t_lista_instrucciones_create_from_buffer(buffer_instructions);
-
-    printf("Cantidad de instrucciones: %d\n", list_size(pcontexto->instructions));
 
     free(buffer_instructions->stream);
     free(buffer_instructions);

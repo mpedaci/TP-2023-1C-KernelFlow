@@ -25,21 +25,24 @@ void process_client(int client_socket, t_log *logger)
         switch (package->operation_code)
         {
         case PCONTEXTO:
-            log_warning(logger, "HOLA TEST");
             t_pcontexto *contexto = get_pcontexto(package);
             log_info(logger, "Se recibio un contexto");
             log_info(logger, "Pid: %d", contexto->pid);
             log_info(logger, "Instrucciones: %d", list_size(contexto->instructions));
+
+            /* for (int i = 0; i < list_size(contexto->instructions); i++)
+            {
+                t_instruccion *instruccion = list_get(contexto->instructions, i);
+                log_debug(logger, "Instruccion: %d", instruccion->identificador);
+                for (int j = 0; j < instruccion->cant_parametros; j++)
+                    log_debug(logger, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
+            } */
+
             copy_registers(cpu_registers, contexto->registers);
             t_pcontexto_desalojo *contexto_desalojo = execute_process(contexto);
+            log_warning(logger, "HOLA TEST 2");
             copy_registers(contexto_desalojo->registers, cpu_registers);
-            int i = 0;
             bool res = send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
-            while (i < 3 && !res)
-            {
-                res = send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
-                i++;
-            }
             free_pcontexto(contexto);
             free_pcontexto_desalojo(contexto_desalojo);
             if (!res)

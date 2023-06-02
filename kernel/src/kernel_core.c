@@ -182,13 +182,13 @@ void execute()
     log_debug(logger_aux, "Program Counter: %d", pcontexto->program_counter);
     log_debug(logger_aux, "Cantidad de instrucciones: %d", list_size(pcontexto->instructions));
     
-    for (int i = 0; i < list_size(pcontexto->instructions); i++)
+    /* for (int i = 0; i < list_size(pcontexto->instructions); i++)
     {
         t_instruccion *instruccion = list_get(pcontexto->instructions, i);
         log_debug(logger_aux, "Instruccion: %d", instruccion->identificador);
         for (int j = 0; j < instruccion->cant_parametros; j++)
             log_debug(logger_aux, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
-    }
+    } */
 
     send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
     log_info(logger_aux, "Esperando respuesta de CPU");
