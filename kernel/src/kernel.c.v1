@@ -26,7 +26,7 @@ int main()
     // 3. Crear estructuras kernel
     queues = create_queues();
     // 4. Levantar hilo de servidor
-    // start_kernel_server(config_kernel->puerto_escucha);
+    start_kernel_server(config_kernel->puerto_escucha);
     // 4.1. Levantar servidor - OK
     // 4.2. Recibir cliente - OK
     // 4.3. Crear hilo para cliente - OK
@@ -43,11 +43,10 @@ int main()
     // 5.4. Actualizar estados - OK
     // 6. Mostrar info del sistema
     // Mantengo abierto el programa por ahora
-    start_kernel_server(config_kernel->puerto_escucha);
-    sleep(3);
-    // while (end_program_flag == false) {
-    //     print_menu();
-    // }
+    sleep(1);
+    while (end_program_flag == false) {
+        print_menu();
+    }
     // 6. Cerrar servidor - OK
     end_kernel_server();
     end_kernel_core();

@@ -23,6 +23,7 @@ int server_start(char *port, t_log *logger)
         freeaddrinfo(servinfo);
         return -1;
     }
+    log_info(logger, "Servidor escuchando en el puerto: %s", port);
     freeaddrinfo(servinfo);
     return server_socket;
 }

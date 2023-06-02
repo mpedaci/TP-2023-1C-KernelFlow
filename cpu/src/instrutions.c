@@ -4,7 +4,7 @@ t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccio
     ejecutando = false;
 
     t_pcontexto_desalojo *contexto_desalojo = copy_pcontexto(contexto);
-    contexto_desalojo->motivo_desalojo = copy_instruction(instruccionListaParaEjecutar);
+    contexto_desalojo->motivo_desalojo = new_instruction(instruccionListaParaEjecutar->identificador, instruccionListaParaEjecutar->parametros);
 
     return contexto_desalojo;
 }
@@ -159,7 +159,7 @@ t_list *copy_instructions_list(t_list *instructions) {
     t_instruccion *instruction;
 
     for(int i=0; i<list_size(instructions); i++) {
-        instruction = copy_instruction(list_get(instructions, i));
+        instruction = new_instruction(((t_instruccion *)list_get(instructions, i))->identificador, ((t_instruccion *)list_get(instructions, i))->parametros);
         list_add(new_list, instruction);
     }
 
@@ -167,55 +167,25 @@ t_list *copy_instructions_list(t_list *instructions) {
 }
 
 // devuelve mallockeado
-t_instruccion *copy_instruction(t_instruccion *instruction) {
-    t_list *params = list_create();
-    for(int i=0; i<instruction->cant_parametros; i++) {
-        list_add(params, instruction->parametros[i]);
-    }
-
-    t_instruccion* instruction_new = new_instruction(instruction->identificador, params);
-
-    list_destroy(params);
-
-    return instruction_new;
-}
-
 t_instruccion *new_instruction(t_identificador identificador, t_list *parametros)
 {
     t_instruccion *tmp = malloc(sizeof(t_instruccion));
-
     tmp->identificador = identificador;
-    if (parametros == NULL)
-    {
-        tmp->cant_parametros = 0;
-        tmp->parametros = NULL;
-    }
-    else
-    {
-        tmp->cant_parametros = list_size(parametros);
-        tmp->parametros = malloc(sizeof(char *) * tmp->cant_parametros);
-        add_param_to_instruction(parametros, tmp);
-    }
-
+    tmp->cant_parametros = list_size(parametros);
+    tmp->parametros = parametros;
+    for (size_t i = 0; i < 4; i++)
+        tmp->p_length[i] = 0;
+    add_param_size_to_instruction(parametros, tmp);
     return tmp;
 }
 
-void add_param_to_instruction(t_list *parametros, t_instruccion *instruccion)
+void add_param_size_to_instruction(t_list *parametros, t_instruccion *instruccion)
 {
-    if (parametros != NULL)
-        for(int i=0; i < instruccion->cant_parametros; i++)
-        {
-            instruccion->parametros[i] = list_get(parametros, i);
-        }
-    instruccion->p1_length = 1;
-    instruccion->p2_length = 1;
-    instruccion->p3_length = 1;
-    instruccion->p4_length = 1;
-    instruccion->p1_length = strlen(instruccion->parametros[0]) + 1;
-    if (instruccion->cant_parametros >= 2)
-        instruccion->p2_length = strlen(instruccion->parametros[1]) + 1;
-    if (instruccion->cant_parametros >= 3)
-        instruccion->p3_length = strlen(instruccion->parametros[2]) + 1;
-    if (instruccion->cant_parametros >= 4)
-        instruccion->p4_length = strlen(instruccion->parametros[3]) + 1;
+    int i = 0;
+    while (i < instruccion->cant_parametros)
+    {
+        char *param = list_get(parametros, i);
+        instruccion->p_length[i] = strlen(param) + 1;
+        i++;
+    }
 }

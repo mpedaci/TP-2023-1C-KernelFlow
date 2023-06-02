@@ -32,13 +32,10 @@ typedef enum
 
 typedef struct
 {
-    t_identificador identificador;
+    t_identificador identificador; // uint32_t
     uint32_t cant_parametros;
-    uint32_t p1_length;
-    uint32_t p2_length;
-    uint32_t p3_length;
-    uint32_t p4_length;
-    char **parametros;
+    uint32_t p_length[4]; // 4 * 4
+    t_list *parametros;
 } t_instruccion;
 
 // CPU

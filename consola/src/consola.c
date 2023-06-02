@@ -6,14 +6,14 @@ int main(int argc, char **argv)
     logger_console = log_create(logger_console_path, "Consola", 1, LOG_LEVEL_DEBUG);
 
     // leer configuracion
-    // char *path_console_config = "/home/utnso/Desktop/Merge/tp-2023-1c-KernelFlow/consola/config/console.config";
-    char *path_console_config = argv[1];
+    char *path_console_config = "./config/console.config";
+    // char *path_console_config = argv[1];
     t_config_console *config = NULL;
     config = read_config(path_console_config, logger_console);
 
     // abro archivo de instrucciones
-    // char *path_pseudocodigo = "/home/utnso/Desktop/Merge/tp-2023-1c-KernelFlow/consola/pseudocodigo.txt";
-    char *path_pseudocodigo = argv[2];
+    char *path_pseudocodigo = "./pseudocodigo.txt";
+    // char *path_pseudocodigo = argv[2];
     FILE *file_instructions = fopen(path_pseudocodigo, "rt");
 
     if (config == NULL)
@@ -43,14 +43,25 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    /* VER INSTRUCCIONES
+    for (int i = 0; i < list_size(lista_instrucciones); i++)
+    {
+        t_instruccion *instruccion = list_get(lista_instrucciones, i);
+        log_debug(logger_console, "Instruccion: %d", instruccion->identificador);
+        for (int j = 0; j < instruccion->cant_parametros; j++)
+            log_debug(logger_console, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
+    }
+    */
+
     // enviar lista de instrucciones a kernel
     send_instrucciones(kernel_socket, lista_instrucciones, logger_console);
 
     // Espero que la instruccion recibida sea END para saber que finalizo
     t_package *p = get_package(kernel_socket, logger_console);
-    if (get_instruccion(p)->identificador == I_EXIT)
+    t_instruccion *instruccion = get_instruccion(p);
+    if (instruccion->identificador == I_EXIT)
     {
-        log_debug(logger_console, "Instruccion recibida: %d", get_instruccion(p)->identificador);
+        log_debug(logger_console, "Instruccion recibida: %d", instruccion->identificador);
     }
 
     // fin del programa

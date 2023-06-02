@@ -1,16 +1,16 @@
 #include "instruction_cycle.h"
 
-t_instruccion* fetch(t_pcontexto* contexto) {
-    t_instruccion* instruccionSiguiente = list_get(contexto->instructions, contexto->program_counter);
+t_instruccion *fetch(t_pcontexto *contexto)
+{
+    t_instruccion *instruccionSiguiente = list_get(contexto->instructions, contexto->program_counter);
     contexto->program_counter++;
     return instruccionSiguiente;
 }
 
-
-t_instruccion* decode(t_instruccion* instruccionSiguiente) {
+t_instruccion *decode(t_instruccion *instruccionSiguiente)
+{
     // creando instruccion lista para ejecutar
-    t_instruccion* instruccionListaParaEjecutar = copy_instruction(instruccionSiguiente);
-
+    t_instruccion *instruccionListaParaEjecutar = new_instruction(instruccionSiguiente->identificador, instruccionSiguiente->parametros);
 
     // CAMBIAR LOS PARAMETROS EN LOS LUGARES QUE SON NECESARIOS (EJ MOV_OUT)
     // ASI COMO ESTA "instruccionListaParaEjecutar" TIENE LOS MISMOS PARAMETROS QUE LA "instruccionSiguiente"
@@ -43,21 +43,21 @@ t_instruccion* decode(t_instruccion* instruccionSiguiente) {
     return instruccionListaParaEjecutar;
 }
 
-
-t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pcontexto *contexto) {
+t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pcontexto *contexto)
+{
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
-        SET(instruccionListaParaEjecutar->parametros[0], instruccionListaParaEjecutar->parametros[1]);
+        SET(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
         break;
     case I_MOV_IN:
-        MOV_IN(instruccionListaParaEjecutar->parametros[0], atoi(instruccionListaParaEjecutar->parametros[1]));
+        MOV_IN(list_get(instruccionListaParaEjecutar->parametros, 0), atoi(list_get(instruccionListaParaEjecutar->parametros, 1)));
         // instruccionListaParaEjecutar va a tener un parametro mas que se le agrego en el decode
         // ese parametro va a servir para loggear el segundo log obligatorio. Una vez utilizado ELIMINARLO. lo mismo para MOV_OUT
         // TODO
         break;
     case I_MOV_OUT:
-        MOV_OUT(atoi(instruccionListaParaEjecutar->parametros[0]), instruccionListaParaEjecutar->parametros[1]);
+        MOV_OUT(atoi(list_get(instruccionListaParaEjecutar->parametros, 0)), list_get(instruccionListaParaEjecutar->parametros, 1));
         break;
     case I_I_O:
         return I_O(contexto, instruccionListaParaEjecutar);
@@ -92,10 +92,11 @@ t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pco
     return NULL;
 }
 
-t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto) {
-    t_instruccion* instruccionSiguiente = fetch(contexto);
-    t_instruccion* instruccionListaParaEjecutar = decode(instruccionSiguiente);
-    t_pcontexto_desalojo* contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
+t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
+{
+    t_instruccion *instruccionSiguiente = fetch(contexto);
+    t_instruccion *instruccionListaParaEjecutar = decode(instruccionSiguiente);
+    t_pcontexto_desalojo *contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
 
     // loggeo la instruccion ejecutada
     char *params_string = get_params_string(instruccionListaParaEjecutar);
@@ -108,18 +109,20 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto* contexto) {
     return contexto_desalojo;
 }
 
-t_pcontexto_desalojo *execute_process(t_pcontexto* contexto) {
+t_pcontexto_desalojo *execute_process(t_pcontexto *contexto)
+{
     ejecutando = true;
     t_pcontexto_desalojo *contexto_desalojo;
-    while(ejecutando) {
+    while (ejecutando)
+    {
         contexto_desalojo = execute_instruction_cycle(contexto);
     }
     return contexto_desalojo;
 }
 
-
 // aux
-char *get_instruction_string(t_identificador id) {
+char *get_instruction_string(t_identificador id)
+{
     switch (id)
     {
     case I_SET:
@@ -159,21 +162,25 @@ char *get_instruction_string(t_identificador id) {
     }
 }
 
-char *get_params_string(t_instruccion *instruction) {
-    if(instruction->cant_parametros == 0) {
+char *get_params_string(t_instruccion *instruction)
+{
+    if (instruction->cant_parametros == 0)
+    {
         return "Sin parametros";
     }
 
-    uint32_t size = instruction->cant_parametros+1;
-    for(int i=0; i<instruction->cant_parametros; i++) {
-        size += string_length(instruction->parametros[i]);
+    uint32_t size = instruction->cant_parametros + 1;
+    for (int i = 0; i < instruction->cant_parametros; i++)
+    {
+        size += instruction->p_length[i];
     }
 
     char *params_string = malloc(size);
-    memcpy(params_string, instruction->parametros[0], instruction->p1_length);
-    for(int i=1; i<instruction->cant_parametros; i++) {
+    memcpy(params_string, list_get(instruction->parametros, 0), instruction->p_length[0]);
+    for (int i = 1; i < instruction->cant_parametros; i++)
+    {
         strcat(params_string, " ");
-        strcat(params_string, instruction->parametros[i]);
+        strcat(params_string, list_get(instruction->parametros, i));
     }
 
     return params_string;

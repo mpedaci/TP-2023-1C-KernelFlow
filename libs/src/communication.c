@@ -54,7 +54,8 @@ t_address get_address(t_package* paquete)
 
 t_instruccion *get_instruccion(t_package *paquete)
 {
-    t_instruccion *instruccion = t_instruccion_create_from_buffer(paquete->buffer, 0);
+    uint32_t offset = 0;
+    t_instruccion *instruccion = t_instruccion_create_from_buffer(paquete->buffer, &offset);
     return instruccion;
 };
 
@@ -135,6 +136,21 @@ bool send_instruccion(int socket, t_instruccion *instruccion, t_log *logger)
 bool send_end(int socket, t_log *logger)
 {
     t_package *paquete = package_create(NULL, END);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_exit(int socket, t_log *logger)
+{
+    t_instruccion *instruccion = malloc(sizeof(t_instruccion));
+    instruccion->identificador = I_EXIT;
+    instruccion->cant_parametros = 0;
+    instruccion->parametros = list_create();
+    for (size_t i = 0; i < 4; i++)
+        instruccion->p_length[i] = 0;
+    t_buffer *buffer = t_instruccion_create_buffer(instruccion);
+    t_package *paquete = package_create(buffer, INSTRUCCION);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;

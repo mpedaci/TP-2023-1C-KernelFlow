@@ -192,30 +192,30 @@ void execute()
     {
 
     case I_WAIT:
-        recurso_solicitado = instruccion_desalojo->parametros[1];
+        recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
         execute_wait(recurso_solicitado, recursos, pcb);
         free(recurso_solicitado);
         break;
 
     case I_SIGNAL:
-        recurso_solicitado = instruccion_desalojo->parametros[1];
+        recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
         execute_signal(recurso_solicitado, recursos, pcb);
         free(recurso_solicitado);
         break;
 
-    case I_CREATE_SEGMENT:
-        uint32_t tamanio_solicitado = atoi(instruccion_desalojo->parametros[2]);
-        uint32_t id_solicitado = atoi(instruccion_desalojo->parametros[3]);
+    /* case I_CREATE_SEGMENT:
+        uint32_t tamanio_solicitado = atoi(list_get(instruccion_desalojo->parametros, 1));
+        uint32_t id_solicitado = atoi(list_get(instruccion_desalojo->parametros, 2));
         execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
         break;
 
     case I_DELETE_SEGMENT:
-        uint32_t id = atoi(instruccion_desalojo->parametros[1]);
+        uint32_t id = atoi(list_get(instruccion_desalojo->parametros, 0));
         execute_delete_segment(id, pcb);
-        break;
+        break; */
 
     case I_I_O:
-        int tiempo = atoi(instruccion_desalojo->parametros[1]);
+        int tiempo = atoi(list_get(instruccion_desalojo->parametros, 0));
         execute_io(tiempo, pcb);
         break;
 

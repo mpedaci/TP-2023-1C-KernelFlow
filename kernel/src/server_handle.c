@@ -13,6 +13,11 @@ void *start_server_listen(void *listen_port)
 {
     char *listen_port_aux = (char *)listen_port;
     server_socket = server_start(listen_port_aux, logger_aux);
+    if (server_socket == -1)
+    {
+        accept_connections = false;
+        pthread_exit(0);
+    }
     while (accept_connections)
     {
         connection = (t_client_connection *)malloc(sizeof(t_client_connection));
@@ -64,18 +69,23 @@ void process_client_communication(t_client_connection *conn)
         switch (package->operation_code)
         {
         case INSTRUCCIONES:
+            log_info(logger_aux, "Thread con PID: %d instrucciones recibidas", conn->pid);
             t_list *instrucciones = get_instrucciones(package);
-            printf("Instrucciones recibidas\n");
+
+            for (int i = 0; i < list_size(instrucciones); i++)
+            {
+                t_instruccion *instruccion = list_get(instrucciones, i);
+                log_debug(logger_aux, "Instruccion: %d", instruccion->identificador);
+                for (int j = 0; j < instruccion->cant_parametros; j++)
+                    log_debug(logger_aux, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
+            }
+
             t_pcb *pcb = pcb_create(conn->pid, instrucciones);
-            printf("PCB PID: %d\n", pcb->pid);
             // send_instruccion(modules_client->memory_client_socket, "TABLA SEGMENTOS NUEVA", logger_aux);
             // t_package *package = get_package(modules_client->memory_client_socket, logger_aux);
             // t_tabla_segmentos *tabla_segmentos = get_tabla_segmentos(package);
             // pcb->segments_table = tabla_segmentos;
-            printf("AAAAAAAAA\n");
             list_add(queues->NEW, pcb);
-            printf("NNNNNNNNNN\n");
-            printf("Instrucciones recibidas\n");
             break;
         case END:
             printf("Conexion Finalizada\n");

@@ -72,12 +72,46 @@ t_queues *create_queues()
     return queues;
 }
 
-t_pcb *pcb_create(uint32_t pid, t_list *instrucciones){
+t_registers *init_registers()
+{
+    t_registers *registers = malloc(sizeof(t_registers));
+
+    registers->AX = malloc(4);
+    registers->BX = malloc(4);
+    registers->CX = malloc(4);
+    registers->DX = malloc(4);
+    registers->EAX = malloc(8);
+    registers->EBX = malloc(8);
+    registers->ECX = malloc(8);
+    registers->EDX = malloc(8);
+    registers->RAX = malloc(16);
+    registers->RBX = malloc(16);
+    registers->RCX = malloc(16);
+    registers->RDX = malloc(16);
+
+    // registers->AX = "000";
+    // registers->BX = "000";
+    // registers->CX = "000";
+    // registers->DX = "000";
+    // registers->EAX = "0000000";
+    // registers->EBX = "0000000";
+    // registers->ECX = "0000000";
+    // registers->EDX = "0000000";
+    // registers->RAX = "000000000000000";
+    // registers->RBX = "000000000000000";
+    // registers->RCX = "000000000000000";
+    // registers->RDX = "000000000000000";
+
+    return registers;
+}
+
+t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
+{
     t_pcb *pcb = malloc(sizeof(t_pcb));
     pcb->pid = pid;
     pcb->instrucciones = instrucciones;
     pcb->program_counter = 0;
-    pcb->registers = NULL;
+    pcb->registers = init_registers();
     pcb->segments_table = NULL;
     pcb->est_sig_rafaga = 0;
     pcb->tiempo_llegada_ready = temporal_create();
