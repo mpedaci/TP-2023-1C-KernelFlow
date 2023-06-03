@@ -1,20 +1,15 @@
 cd ./memoria
-make clean
-make
+./compile
 cd ..
 cd ./filesystem
-make clean
-make
+./compile
 cd ..
 cd ./cpu
-make clean
-make
+./compile
 cd ..
 cd ./kernel
-make clean
-make
+./compile
 cd ..
 cd ./consola
-make clean
-make
+./compile
 cd ..
