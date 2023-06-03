@@ -77,17 +77,15 @@ void process_client_communication(t_client_connection *conn)
         // t_tabla_segmentos *tabla_segmentos = get_tabla_segmentos(package);
         // pcb->segments_table = tabla_segmentos;
         int mp = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK);
+        log_info(logger_aux, "Thread con PID: %d agregado a NEW", conn->pid);
+        log_info(logger_main, "Se crea el proceso %d en NEW", conn->pid);
         if (mp < config_kernel->grado_max_multiprog)
         {
-            log_info(logger_aux, "Thread con PID: %d agregado a NEW", conn->pid);
             log_info(logger_aux, "Thread con PID: %d agregado a READY", conn->pid);
             list_add(queues->READY, pcb);
         }
         else
-        {
-            log_info(logger_aux, "Thread con PID: %d agregado a NEW", conn->pid);
             list_add(queues->NEW, pcb);
-        }
         break;
     case END:
         printf("Conexion Finalizada\n");

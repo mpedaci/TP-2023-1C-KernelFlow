@@ -42,15 +42,12 @@ bool sort_by_rr(t_pcb *pcb1, t_pcb *pcb2)
     t_temporal *tiempo_actual = temporal_create();
     double rr1 = calculate_rr(pcb1, tiempo_actual);
     double rr2 = calculate_rr(pcb2, tiempo_actual);
-    // log_info(logger_main, "PID %d | RR1: %f", pcb1->pid, rr1);
-    // log_info(logger_main, "PID %d | RR2: %f", pcb2->pid, rr2);
     return rr1 >= rr2;
 }
 
 /* ORDENA LA COLA POR HRRN Y DEVUELVE EL ELEMENTO A PROCESAR */
 t_pcb *HRRN(t_list *queue)
 {
-    log_info(logger_main, "Planificando por HRRN");
     // ORDENAR QUEUE POR HRRN
     list_sort(queue, (void *)sort_by_rr);
 
@@ -58,7 +55,7 @@ t_pcb *HRRN(t_list *queue)
     for (int i = 0; i < list_size(queue); i++)
     {
         t_pcb *pcb = list_get(queue, i);
-        log_info(logger_main, "PID %d | RR: %f", pcb->pid, calculate_rr(pcb, tiempo_actual));
+        log_info(logger_aux, "PID %d | RR: %f", pcb->pid, calculate_rr(pcb, tiempo_actual));
     }
 
     // DEVOLVER PRIMER ELEMENTO

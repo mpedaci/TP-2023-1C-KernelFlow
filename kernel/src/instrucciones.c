@@ -149,8 +149,9 @@ void *io(void *args)
     pthread_exit(0);
 }
 
-void execute_exit(t_pcb *pcb)
+void execute_exit(t_pcb *pcb, char *motivo)
 {
+    log_info(logger_main, "Finaliza el proceso %d - Motivo: %s", pcb->pid, motivo);
     agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
 }
 
