@@ -23,6 +23,7 @@ void *process_queues()
         while (can_move_NEW_to_READY())
         {
             t_pcb *pcb = queue_pop(queues->NEW);
+            pcb->tiempo_llegada_ready = temporal_create();
             queue_push(queues->READY, pcb);
         }
         // READY -> EXEC
@@ -178,7 +179,7 @@ void execute()
 {
     t_pcb *pcb = list_get(queues->EXEC, 0);
     log_info(logger_aux, "PID: %d | Ejecutando", pcb->pid);
-
+    pcb->tiempo_entrada_cpu = temporal_create();
     t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
     log_info(logger_aux, "PID: %d | Enviando contexto a CPU", pcontexto->pid);
     send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
@@ -187,6 +188,8 @@ void execute()
     t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
     t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
     update_pcb_from_pcontexto(pcb, pcontexto_response);
+    pcb->tiempo_salida_cpu = temporal_create();
+    update_est_sig_rafaga(pcb);
 
     log_info(logger_aux, "PID: %d | Procesando motivo de desalojo: %d", pcontexto->pid, pcontexto_response->motivo_desalojo->identificador);
     procesar_motivo_desalojo(pcontexto_response);

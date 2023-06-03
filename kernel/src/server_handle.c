@@ -71,11 +71,23 @@ void process_client_communication(t_client_connection *conn)
         log_info(logger_aux, "Thread con PID: %d instrucciones recibidas", conn->pid);
         t_list *instrucciones = get_instrucciones(package); // 800
         t_pcb *pcb = pcb_create(conn->pid, instrucciones);
+        pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
         // send_instruccion(modules_client->memory_client_socket, "TABLA SEGMENTOS NUEVA", logger_aux);
         // t_package *package = get_package(modules_client->memory_client_socket, logger_aux);
         // t_tabla_segmentos *tabla_segmentos = get_tabla_segmentos(package);
         // pcb->segments_table = tabla_segmentos;
-        list_add(queues->NEW, pcb);
+        int mp = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK);
+        if (mp < config_kernel->grado_max_multiprog)
+        {
+            log_info(logger_aux, "Thread con PID: %d agregado a NEW", conn->pid);
+            log_info(logger_aux, "Thread con PID: %d agregado a READY", conn->pid);
+            list_add(queues->READY, pcb);
+        }
+        else
+        {
+            log_info(logger_aux, "Thread con PID: %d agregado a NEW", conn->pid);
+            list_add(queues->NEW, pcb);
+        }
         break;
     case END:
         printf("Conexion Finalizada\n");

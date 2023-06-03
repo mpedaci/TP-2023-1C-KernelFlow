@@ -19,7 +19,7 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente)
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
-        sleep(atoi(config->retardo_instruccion));
+        sleep(atoi(config->retardo_instruccion)/1000); // Miliseconds -> Seconds
         break;
     case I_MOV_IN:
         // traduce mmu

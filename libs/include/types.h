@@ -128,6 +128,8 @@ typedef struct
     t_list *segments_table;
     double est_sig_rafaga;
     t_temporal *tiempo_llegada_ready;
+    t_temporal *tiempo_entrada_cpu;
+    t_temporal *tiempo_salida_cpu;
     t_open_files *open_files_table;
 } t_pcb;
 

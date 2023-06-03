@@ -179,5 +179,6 @@ void execute_exit(t_pcb *pcb)
 
 void execute_to_ready(t_pcb *pcb)
 {
+    pcb->tiempo_llegada_ready = temporal_create();
     agregar_pcb_a_cola(pcb, mutex_ready, queues->READY);
 }

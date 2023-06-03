@@ -28,7 +28,10 @@ void initialize_filesystem(t_config_filesystem *config)
 
 void create_fcb(char *path_fcb)
 {
-    mkdir(path_fcb, 0777);
+    printf("Se crea el directorio FCB \n");
+    int a = mkdir(path_fcb, 0777);
+    printf("A: %d \n", a);
+    printf("Se creo el directorio FCB \n");
 }
 
 void create_superbloque(char *path_superblock)
