@@ -24,6 +24,7 @@ void execute_wait(char *recurso_solicitado, t_recurso **recursos, t_pcb *pcb);
 void execute_signal(char *recurso_solicitado, t_recurso **recursos, t_pcb *pcb);
 void execute_io(int tiempo, t_pcb *pcb);
 void execute_exit(t_pcb *pcb);
+void execute_to_ready(t_pcb *pcb);
 
 void compactar();
 

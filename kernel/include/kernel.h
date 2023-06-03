@@ -25,10 +25,13 @@ void sigintHandler(int signum); // Para cierre seguro
 
 void print_menu();
 void print_config();
-void print_recurso();
-void print_instancias_recursos();
+void print_recurso(char *recurso);
+void print_instancias_recursos(char *instancias_recursos);
 void print_queues();
-void print_pcb();
+void print_pcb(t_pcb *pcb);
+void print_pcb_pid(t_pcb *pcb);
+void print_registers(t_registers *registers);
 void print_internal_states();
+t_pcb *get_pcb_by_pid(int pid);
 
 #endif /* KERNEL_H */

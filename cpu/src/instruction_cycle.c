@@ -96,16 +96,6 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
 {
     t_instruccion *instruccionSiguiente = fetch(contexto);
     t_instruccion *instruccionListaParaEjecutar = decode(instruccionSiguiente);
-    
-
-    log_debug(logger, "Instrucciones: %d", list_size(contexto->instructions));
-    for (int i = 0; i < list_size(contexto->instructions); i++)
-    {
-        t_instruccion *instruccion = list_get(contexto->instructions, i);
-        log_debug(logger, "Instruccion: %d", instruccion->identificador);
-        for (int j = 0; j < instruccion->cant_parametros; j++)
-            log_debug(logger, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
-    }
 
     // loggeo la instruccion ejecutada
     char *params_string = get_params_string(instruccionListaParaEjecutar);

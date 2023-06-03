@@ -176,3 +176,8 @@ void execute_exit(t_pcb *pcb)
 {
     agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
 }
+
+void execute_to_ready(t_pcb *pcb)
+{
+    agregar_pcb_a_cola(pcb, mutex_ready, queues->READY);
+}

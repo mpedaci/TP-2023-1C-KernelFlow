@@ -20,7 +20,7 @@ void *process_queues()
     while (core_running)
     {
         // NEW -> READY (FIFO)
-        if (can_move_NEW_to_READY())
+        while (can_move_NEW_to_READY())
         {
             t_pcb *pcb = queue_pop(queues->NEW);
             queue_push(queues->READY, pcb);
@@ -83,7 +83,9 @@ bool queue_is_empty(t_list *queue)
 
 bool can_move_NEW_to_READY()
 {
-    return list_size(queues->NEW) > 0 && (list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK)) < config_kernel->grado_max_multiprog;
+    int actual_multiprog = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK);
+    // log_debug(logger_aux, "Actual multiprog: %d", actual_multiprog);
+    return list_size(queues->NEW) > 0 && actual_multiprog < config_kernel->grado_max_multiprog;
 }
 
 bool algorithm_is_FIFO()
@@ -175,108 +177,89 @@ void cargar_recursos(t_recurso **recursos)
 void execute()
 {
     t_pcb *pcb = list_get(queues->EXEC, 0);
-    log_info(logger_aux, "Ejecutando proceso %d", pcb->pid);
-    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    log_info(logger_aux, "Enviando contexto a CPU");
-    log_debug(logger_aux, "PID: %d", pcontexto->pid);
-    log_debug(logger_aux, "Program Counter: %d", pcontexto->program_counter);
-    log_debug(logger_aux, "Cantidad de instrucciones: %d", list_size(pcontexto->instructions));
-    
-    /* for (int i = 0; i < list_size(pcontexto->instructions); i++)
-    {
-        t_instruccion *instruccion = list_get(pcontexto->instructions, i);
-        log_debug(logger_aux, "Instruccion: %d", instruccion->identificador);
-        for (int j = 0; j < instruccion->cant_parametros; j++)
-            log_debug(logger_aux, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
-    } */
+    log_info(logger_aux, "PID: %d | Ejecutando", pcb->pid);
 
+    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
+    log_info(logger_aux, "PID: %d | Enviando contexto a CPU", pcontexto->pid);
     send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
-    log_info(logger_aux, "Esperando respuesta de CPU");
+
+    log_info(logger_aux, "PID: %d | Esperando respuesta de CPU", pcontexto->pid);
     t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
     t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
     update_pcb_from_pcontexto(pcb, pcontexto_response);
 
-    t_instruccion *instruccion_desalojo = pcontexto_response->motivo_desalojo;
+    log_info(logger_aux, "PID: %d | Procesando motivo de desalojo: %d", pcontexto->pid, pcontexto_response->motivo_desalojo->identificador);
+    procesar_motivo_desalojo(pcontexto_response);
+    
+    free(pcontexto);
+    free_pcontexto_desalojo(pcontexto_response);
+    // agregar_pcb_a_lista(pcb_aux, mutex_exit, queues->EXIT);
 
-    log_info(logger_aux, "Motivo de desalojo: %d", instruccion_desalojo->identificador);
-
-    log_info(logger_aux, "Proceso %d desalojado", pcb->pid);
-
-    t_pcb *pcb_aux = quitar_primer_pcb_de_lista(mutex_running, queues->EXEC);
-    agregar_pcb_a_lista(pcb_aux, mutex_exit, queues->EXIT);
 
     // t_recurso **recursos = malloc(sizeof(t_recurso *) * list_size(config_kernel->recursos));
     // cargar_recursos(recursos);
-
+    // char *recurso_solicitado;
     
-    /* char *recurso_solicitado;
-    switch (instruccion_desalojo->identificador)
+}
+
+void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response){
+    t_pcb *pcb = quitar_primer_pcb_de_lista(mutex_running, queues->EXEC);
+    switch (pcontexto_response->motivo_desalojo->identificador)
     {
-
     case I_WAIT:
-        recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
-        execute_wait(recurso_solicitado, recursos, pcb);
-        free(recurso_solicitado);
+        // recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
+        // execute_wait(recurso_solicitado, recursos, pcb);
+        // free(recurso_solicitado);
         break;
-
     case I_SIGNAL:
-        recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
-        execute_signal(recurso_solicitado, recursos, pcb);
-        free(recurso_solicitado);
+        // recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
+        // execute_signal(recurso_solicitado, recursos, pcb);
+        // free(recurso_solicitado);
         break;
-
-    // case I_CREATE_SEGMENT:
-    //     uint32_t tamanio_solicitado = atoi(list_get(instruccion_desalojo->parametros, 1));
-    //     uint32_t id_solicitado = atoi(list_get(instruccion_desalojo->parametros, 2));
-    //     execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
-    //     break;
-
-    // case I_DELETE_SEGMENT:
-    //     uint32_t id = atoi(list_get(instruccion_desalojo->parametros, 0));
-    //     execute_delete_segment(id, pcb);
-    //     break;
-
     case I_I_O:
-        int tiempo = atoi(list_get(instruccion_desalojo->parametros, 0));
-        execute_io(tiempo, pcb);
+        // int tiempo = atoi(list_get(instruccion_desalojo->parametros, 0));
+        // execute_io(tiempo, pcb);
         break;
-
     case I_YIELD:
+        execute_to_ready(pcb);
+        break;
+    case I_EXIT:
         execute_exit(pcb);
         break;
-
     case I_F_WRITE:
         execute_exit(pcb);
         break;
-
     case I_F_CLOSE:
         execute_exit(pcb);
         break;
-
     case I_F_OPEN:
         execute_exit(pcb);
         break;
-
     case I_F_READ:
         execute_exit(pcb);
         break;
-
     case I_F_SEEK:
         execute_exit(pcb);
         break;
-
     case I_F_TRUNCATE:
         execute_exit(pcb);
         break;
-
-    case I_EXIT:
+    case I_CREATE_SEGMENT:
+        // uint32_t tamanio_solicitado = atoi(list_get(instruccion_desalojo->parametros, 1));
+        // uint32_t id_solicitado = atoi(list_get(instruccion_desalojo->parametros, 2));
+        // execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
+        execute_exit(pcb);
+        break;
+    case I_DELETE_SEGMENT:
+        // uint32_t id = atoi(list_get(instruccion_desalojo->parametros, 0));
+        // execute_delete_segment(id, pcb);
         execute_exit(pcb);
         break;
     default:
         break;
     }
 
-    free(pcontexto);
+    /* free(pcontexto);
     free(pcontexto_response);
     free(instruccion_desalojo);
     for (size_t i = 0; i < list_size(config_kernel->recursos); i++)
@@ -285,5 +268,4 @@ void execute()
         list_destroy(recursos[i]->lista_bloqueados);
         free(recursos[i]);
     } */
-    
 }

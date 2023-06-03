@@ -178,3 +178,21 @@ void free_queues(t_queues *queues)
     list_destroy(queues->EXIT);
     free(queues);
 }
+
+void free_instruccion(t_instruccion *instruccion)
+{
+    list_destroy_and_destroy_elements(instruccion->parametros, free);
+    free(instruccion);
+}
+
+void free_lista_instrucciones(t_list *lista_instrucciones)
+{
+    list_destroy_and_destroy_elements(lista_instrucciones, (void *)free_instruccion);
+}
+
+void free_pcontexto_desalojo(t_pcontexto_desalojo *pcontexto)
+{
+    free_lista_instrucciones(pcontexto->instructions);
+    free_instruccion(pcontexto->motivo_desalojo);
+    free(pcontexto);
+}

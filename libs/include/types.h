@@ -125,7 +125,6 @@ typedef struct
     t_list *instrucciones;
     uint32_t program_counter;
     t_registers *registers;
-    //t_segments_table *segments_table;
     t_list *segments_table;
     double est_sig_rafaga;
     t_temporal *tiempo_llegada_ready;

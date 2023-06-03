@@ -22,7 +22,6 @@ void process_client(int client_socket, t_log *logger)
     while (exit == false)
     {
         t_package *package = get_package(client_socket, logger);
-        log_warning(logger, "Operacion recibida: %d\n", package->operation_code);
         switch (package->operation_code)
         {
         case PCONTEXTO:
@@ -31,36 +30,20 @@ void process_client(int client_socket, t_log *logger)
 
             copy_registers(cpu_registers, contexto->registers);
             t_pcontexto_desalojo *contexto_desalojo = execute_process(contexto);
-            
-            log_warning(logger, "FINALIZANDO EJECUCION");
             copy_registers(contexto_desalojo->registers, cpu_registers);
 
-            // t_pcontexto_desalojo *contexto_desalojo = copy_pcontexto(contexto);
-
-            // contexto_desalojo->motivo_desalojo = malloc(sizeof(t_instruccion));
-            // contexto_desalojo->motivo_desalojo->identificador = I_EXIT;
-            // contexto_desalojo->motivo_desalojo->cant_parametros = 0;
-            // for (size_t i = 0; i < 4; i++)
-            //     contexto_desalojo->motivo_desalojo->p_length[i] = 0;
-
-            for (int i = 0; i < list_size(contexto_desalojo->instructions); i++)
-            {
-                t_instruccion *instruccion = list_get(contexto_desalojo->instructions, i);
-                log_debug(logger, "Instruccion: %d", instruccion->identificador);
-                for (int j = 0; j < instruccion->cant_parametros; j++)
-                    log_debug(logger, "Parametro %d: %s", j, (char *)list_get(instruccion->parametros, j));
-            }
-
             bool res = send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
-            log_warning(logger, "ENVIADO");
+
             free_pcontexto_desalojo(contexto_desalojo);
             free_pcontexto(contexto);
+
             if (!res)
             {
                 log_error(logger, "El contexto no se pudo enviar al kernel");
                 package_destroy(package);
                 return;
             }
+            
             log_info(logger, "Se envio el contexto al kernel");
             break;
         case END:

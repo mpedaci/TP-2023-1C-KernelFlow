@@ -57,6 +57,6 @@ t_pcb* quitar_pcb_de_cola(pthread_mutex_t mutex, t_list* cola);
 
 void agregar_pcb_a_lista(t_pcb* pcb, pthread_mutex_t mutex, t_list* cola);
 t_pcb* quitar_primer_pcb_de_lista(pthread_mutex_t mutex, t_list* cola);
-
+void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response);
 
 #endif /* KERNEL_CORE_H */
