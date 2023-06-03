@@ -42,21 +42,20 @@ bool algorithm_is_FIFO();
 bool algorithm_is_HRRN();
 bool can_execute_process();
 
-// PCB
-
-t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb);
-void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto);
-void execute();
-
-void inicializar_mutex();
-
 // sincronizacion de colas 
 
 void agregar_pcb_a_cola(t_pcb* pcb, pthread_mutex_t mutex, t_list* cola);
 t_pcb* quitar_pcb_de_cola(pthread_mutex_t mutex, t_list* cola);
-
 void agregar_pcb_a_lista(t_pcb* pcb, pthread_mutex_t mutex, t_list* cola);
 t_pcb* quitar_primer_pcb_de_lista(pthread_mutex_t mutex, t_list* cola);
+void inicializar_mutex();
+
+// PCB
+
+t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb);
+void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto);
+void cargar_recursos();
+void execute();
 void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response);
 
 #endif /* KERNEL_CORE_H */

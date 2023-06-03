@@ -49,4 +49,12 @@ typedef struct
     uint32_t pid;
 } t_client_connection;
 
+typedef struct
+{
+    char *recurso;
+    int instancias;
+    t_list *lista_bloqueados;
+    pthread_mutex_t mutex;
+} t_recurso;
+
 #endif /* KERNEL_STRUCTS_H */

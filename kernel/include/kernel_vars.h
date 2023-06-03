@@ -31,13 +31,17 @@ extern pthread_t thr_core;
 
 extern bool core_running;
 
-//Mutex para proteger las colas
+// RECURSOS
+extern t_list *recursos;
+extern t_list *sem_recursos; // Semaforos para las instancias de los recuros - CONTADOR
+extern t_list *mtx_recursos; // Semaforo para la cola de bloqueados de cada recurso - MUTEX
+
+// Mutex para proteger las colas
 extern pthread_mutex_t mutex_new;
 extern pthread_mutex_t mutex_ready;
 extern pthread_mutex_t mutex_running;
 extern pthread_mutex_t mutex_blocked;
 extern pthread_mutex_t mutex_exit;
 extern pthread_mutex_t mutex_pid;
-
 
 #endif /* KERNEL_VARS_H */

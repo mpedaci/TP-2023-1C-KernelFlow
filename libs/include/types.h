@@ -75,24 +75,23 @@ typedef struct
 
 // MEMORIA
 
-typedef struct 
+typedef struct
 {
     uint32_t id;
     uint32_t size;
     uint32_t base_address;
-}t_segment;
+} t_segment;
 
 typedef struct
 {
     uint32_t pid;
-    t_list* segment_list;
+    t_list *segment_list;
 } t_segments_table;
-
 
 typedef struct
 {
     uint32_t value_length;
-    char* value;
+    char *value;
 } t_data;
 
 typedef uint32_t t_address;
@@ -132,11 +131,5 @@ typedef struct
     t_temporal *tiempo_salida_cpu;
     t_open_files *open_files_table;
 } t_pcb;
-
-typedef struct{
-    char* recurso;
-    int instancias;
-    t_list* lista_bloqueados;
-}t_recurso;
 
 #endif /* TYPES_H_ */

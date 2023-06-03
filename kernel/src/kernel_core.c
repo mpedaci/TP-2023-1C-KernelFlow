@@ -165,13 +165,17 @@ void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto)
     pcb->registers = pcontexto->registers;
 }
 
-void cargar_recursos(t_recurso **recursos)
+void cargar_recursos()
 {
+    recursos = list_create();
     for (int i = 0; i < list_size(config_kernel->recursos); i++)
     {
-        recursos[i]->recurso = (char *)list_get(config_kernel->recursos, i);
-        recursos[i]->instancias = *(int *)list_get(config_kernel->instancias_recursos, i);
-        recursos[i]->lista_bloqueados = list_create();
+        t_recurso *recurso = malloc(sizeof(t_recurso));
+        recurso->recurso = list_get(config_kernel->recursos, i);
+        recurso->instancias = atoi((char *)list_get(config_kernel->instancias_recursos, i));
+        recurso->lista_bloqueados = list_create(); // PCBs Bloqueados
+        list_add(recursos, recurso);
+        pthread_mutex_init(&recurso->mutex, NULL);
     }
 }
 
@@ -196,27 +200,21 @@ void execute()
     
     free(pcontexto);
     free_pcontexto_desalojo(pcontexto_response);
-    // agregar_pcb_a_lista(pcb_aux, mutex_exit, queues->EXIT);
-
-
-    // t_recurso **recursos = malloc(sizeof(t_recurso *) * list_size(config_kernel->recursos));
-    // cargar_recursos(recursos);
-    // char *recurso_solicitado;
-    
 }
 
 void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response){
+    char *recurso_solicitado;
     t_pcb *pcb = quitar_primer_pcb_de_lista(mutex_running, queues->EXEC);
     switch (pcontexto_response->motivo_desalojo->identificador)
     {
     case I_WAIT:
-        // recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
-        // execute_wait(recurso_solicitado, recursos, pcb);
+        recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
+        execute_wait(recurso_solicitado, pcb);
         // free(recurso_solicitado);
         break;
     case I_SIGNAL:
-        // recurso_solicitado = list_get(instruccion_desalojo->parametros, 0);
-        // execute_signal(recurso_solicitado, recursos, pcb);
+        recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
+        execute_signal(recurso_solicitado, pcb);
         // free(recurso_solicitado);
         break;
     case I_I_O:

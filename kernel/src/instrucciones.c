@@ -62,94 +62,68 @@ void execute_delete_segment(uint32_t segment_id, t_pcb *pcb)
     send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux); */
 }
 
-void execute_wait(char *recurso_solicitado, t_recurso **recursos, t_pcb *pcb)
+t_recurso *find_recurso(char *recurso_solicitado)
 {
-    int posicion_aux = -1;
-    int cantidad_recursos = list_size(config_kernel->recursos);
+    for (int i = 0; i < list_size(recursos); i++)
+        if (string_equals_ignore_case(recurso_solicitado, ((t_recurso *)list_get(recursos, i))->recurso))
+            return list_get(recursos, i);
+    return NULL;
+}
 
-    // Un semaforo por cada recurso y un mutex para la cola de bloqueados del mismo
-    sem_t sem_recursos[cantidad_recursos];
-    pthread_mutex_t mutex_colas_bloqueados[cantidad_recursos];
+int find_pcb_index(t_list *cola, uint32_t pid)
+{
+    for (int i = 0; i < list_size(cola); i++)
+        if (((t_pcb *)list_get(cola, i))->pid == pid)
+            return i;
+    return -1;
+}
 
-    for (int i = 0; i < cantidad_recursos; i++)
-    {
-        sem_init(&sem_recursos[i], 0, recursos[i]->instancias);
-    }
 
-    for (int i = 0; i < cantidad_recursos; i++)
-    {
-        pthread_mutex_init(&mutex_colas_bloqueados[i], NULL);
-    }
-
+void execute_wait(char *recurso_solicitado, t_pcb *pcb)
+{
     // busco la posicion del recurso
-    for (int i = 0; i < cantidad_recursos; i++)
-    {
-        if (string_equals_ignore_case(recurso_solicitado, recursos[i]->recurso))
-        {
-            posicion_aux = i;
-        }
-    }
-
-    if (posicion_aux == -1)
+    t_recurso *recurso = find_recurso(recurso_solicitado);
+    if (recurso == NULL)
     {
         log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
         agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
+        return;
     }
 
-    sem_wait(&sem_recursos[posicion_aux]);
-
-    recursos[posicion_aux]->instancias--;
-
-    if (recursos[posicion_aux]->instancias < 0)
+    recurso->instancias--;
+    if (recurso->instancias >= 0)
     {
-        sem_post(&sem_recursos[posicion_aux]);
-
-        agregar_pcb_a_cola(pcb, mutex_colas_bloqueados[posicion_aux], recursos[posicion_aux]->lista_bloqueados);
-
-        log_info(logger_main, "PID: %d - Bloqueado por: %s", pcb->pid, recursos[posicion_aux]->recurso);
+        log_info(logger_main, "PID: %d - Wait: %s - Instancias: %d", pcb->pid, recurso->recurso, recurso->instancias);
+        // MANDAR A EJECUTAR DEVUELTA CPU
     }
     else
-        sem_post(&sem_recursos[posicion_aux]);
-
-    log_info(logger_main, "PID: %d - Wait: %s - Instancias: %d", pcb->pid, recursos[posicion_aux]->recurso, recursos[posicion_aux]->instancias);
-
-    // destruir semaforos
-    for (int i = 0; i < cantidad_recursos; i++)
     {
-        sem_destroy(&sem_recursos[i]);
+        agregar_pcb_a_cola(pcb, mutex_blocked, queues->BLOCK);
+        list_add(recurso->lista_bloqueados, pcb);
+        log_info(logger_main, "PID: %d - Bloqueado por: %s", pcb->pid, recurso->recurso);
     }
 }
 
-void execute_signal(char *recurso_solicitado, t_recurso **recursos, t_pcb *pcb)
+void execute_signal(char *recurso_solicitado, t_pcb *pcb)
 {
-    int posicion_aux = -1;
-    int cantidad_recursos = list_size(config_kernel->recursos);
-    // Un semaforo por recurso y un mutex para la cola de bloqueados del mismo
-    sem_t sem_recursos[cantidad_recursos];
-    pthread_mutex_t mutex_colas_bloqueados[cantidad_recursos];
-    for (int i = 0; i < cantidad_recursos; i++)
-        sem_init(&sem_recursos[i], 0, recursos[i]->instancias);
-    for (int i = 0; i < cantidad_recursos; i++)
-        pthread_mutex_init(&mutex_colas_bloqueados[i], NULL);
-    // busco la posicion del recurso
-    for (int i = 0; i < cantidad_recursos; i++)
-        if (string_equals_ignore_case(recurso_solicitado, recursos[i]->recurso))
-            posicion_aux = i;
-
-    if (posicion_aux == -1)
+    t_recurso *recurso = find_recurso(recurso_solicitado);
+    if (recurso == NULL)
     {
         log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
         agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
+        return;
     }
-
-    sem_wait(&sem_recursos[posicion_aux]);
-    recursos[posicion_aux]->instancias++;
-    t_pcb *proceso = quitar_pcb_de_cola(mutex_colas_bloqueados[posicion_aux], recursos[posicion_aux]->lista_bloqueados);
-    agregar_pcb_a_cola(proceso, mutex_running, queues->EXEC);
-    sem_post(&sem_recursos[posicion_aux]);
-    log_info(logger_main, "PID: %d - Signal: %s - Instancias: %d", pcb->pid, recursos[posicion_aux]->recurso, recursos[posicion_aux]->instancias);
-    for (int i = 0; i < cantidad_recursos; i++)
-        sem_destroy(&sem_recursos[i]);
+    
+    recurso->instancias++;
+    log_info(logger_main, "PID: %d - Signal: %s - Instancias: %d", pcb->pid, recurso->recurso, recurso->instancias);
+    if (recurso->instancias <= 0)
+    {
+        t_pcb *pendiente = quitar_pcb_de_cola(recurso->mutex, recurso->lista_bloqueados);
+        int index_pendiente = find_pcb_index(queues->BLOCK, pendiente->pid);
+        list_remove(pendiente, index_pendiente);
+        agregar_pcb_a_cola(pcb, mutex_ready, queues->READY);
+    }
+    // MANDAR A EJECUTAR DEVUELTA CPU 
 }
 
 void execute_io(int tiempo, t_pcb *pcb)

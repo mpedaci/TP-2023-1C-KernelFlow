@@ -24,7 +24,10 @@ int main()
         return EXIT_FAILURE;
     } */
     // 3. Crear estructuras kernel
+    // 3.1. Crear colas
     queues = create_queues();
+    // 3.2 Crear recursos
+    cargar_recursos();
     // 4. Levantar hilo de servidor
     start_kernel_server(config_kernel->puerto_escucha);
     // 4.1. Levantar servidor - OK
