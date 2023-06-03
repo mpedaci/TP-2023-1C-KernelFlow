@@ -121,6 +121,15 @@ t_pcb *quitar_pcb_de_cola(pthread_mutex_t mutex, t_list *cola)
     return pcb;
 }
 
+
+t_pcb *quitar_pcb_de_cola_by_index(pthread_mutex_t mutex, t_list *cola, int index)
+{
+    pthread_mutex_lock(&mutex);
+    t_pcb *pcb = list_remove(cola, index);
+    pthread_mutex_unlock(&mutex);
+    return pcb;
+}
+
 void agregar_pcb_a_lista(t_pcb *pcb, pthread_mutex_t mutex, t_list *cola)
 {
     pthread_mutex_lock(&mutex);
@@ -192,34 +201,64 @@ void execute()
     t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
     t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
     update_pcb_from_pcontexto(pcb, pcontexto_response);
-    pcb->tiempo_salida_cpu = temporal_create();
-    update_est_sig_rafaga(pcb);
 
     log_info(logger_aux, "PID: %d | Procesando motivo de desalojo: %d", pcontexto->pid, pcontexto_response->motivo_desalojo->identificador);
     procesar_motivo_desalojo(pcontexto_response);
-    
+
+    pcb->tiempo_salida_cpu = temporal_create();
+    update_est_sig_rafaga(pcb);
+
     free(pcontexto);
     free_pcontexto_desalojo(pcontexto_response);
 }
 
-void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response){
+void sexecute()
+{
+    t_pcb *pcb = list_get(queues->EXEC, 0);
+    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
+    log_info(logger_aux, "PID: %d | Enviando contexto a CPU", pcontexto->pid);
+    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux);
+
+    log_info(logger_aux, "PID: %d | Esperando respuesta de CPU", pcontexto->pid);
+    t_package *p = get_package(modules_client->cpu_client_socket, logger_aux);
+    t_pcontexto_desalojo *pcontexto_response = get_pcontexto_desalojo(p);
+    update_pcb_from_pcontexto(pcb, pcontexto_response);
+
+    log_info(logger_aux, "PID: %d | Procesando motivo de desalojo: %d", pcontexto->pid, pcontexto_response->motivo_desalojo->identificador);
+    procesar_motivo_desalojo(pcontexto_response);
+
+    free(pcontexto);
+    free_pcontexto_desalojo(pcontexto_response);
+}
+
+void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
+{
     char *recurso_solicitado;
+    bool se = false;
     t_pcb *pcb = quitar_primer_pcb_de_lista(mutex_running, queues->EXEC);
     switch (pcontexto_response->motivo_desalojo->identificador)
     {
     case I_WAIT:
         recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
-        execute_wait(recurso_solicitado, pcb);
+        se = execute_wait(recurso_solicitado, pcb);
+        if (se) {
+            queue_add(queues->EXEC, pcb);
+            sexecute();
+        }
         // free(recurso_solicitado);
         break;
     case I_SIGNAL:
         recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
-        execute_signal(recurso_solicitado, pcb);
+        se = execute_signal(recurso_solicitado, pcb);
+        if (se) {
+            queue_add(queues->EXEC, pcb);
+            sexecute();
+        }
         // free(recurso_solicitado);
         break;
     case I_I_O:
-        // int tiempo = atoi(list_get(instruccion_desalojo->parametros, 0));
-        // execute_io(tiempo, pcb);
+        int tiempo = atoi(list_get(pcontexto_response->motivo_desalojo->parametros, 0));
+        execute_io(tiempo, pcb);
         break;
     case I_YIELD:
         execute_to_ready(pcb);
@@ -259,14 +298,4 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response){
     default:
         break;
     }
-
-    /* free(pcontexto);
-    free(pcontexto_response);
-    free(instruccion_desalojo);
-    for (size_t i = 0; i < list_size(config_kernel->recursos); i++)
-    {
-        free(recursos[i]->recurso);
-        list_destroy(recursos[i]->lista_bloqueados);
-        free(recursos[i]);
-    } */
 }

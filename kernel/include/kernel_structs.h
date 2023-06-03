@@ -57,4 +57,10 @@ typedef struct
     pthread_mutex_t mutex;
 } t_recurso;
 
+typedef struct
+{
+    int t_sleep;
+    int pid;
+} t_io_pcb;
+
 #endif /* KERNEL_STRUCTS_H */

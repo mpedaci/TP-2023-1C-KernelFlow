@@ -22,6 +22,8 @@ bool core_running = true;
 
 t_list *recursos = NULL;
 
+pthread_t thr_io;
+
 pthread_mutex_t mutex_new;
 pthread_mutex_t mutex_ready;
 pthread_mutex_t mutex_running;

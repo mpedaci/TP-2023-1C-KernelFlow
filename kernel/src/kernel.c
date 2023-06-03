@@ -78,7 +78,8 @@ void print_menu()
     printf("2. Mostrar colas\n");
     printf("3. Mostrar estados internos\n");
     printf("4. Mostrar PCB\n");
-    printf("5. Salir\n");
+    printf("5. Mostrar recursos\n");
+    printf("6. Salir\n");
     input = readline("Ingrese una opcion: ");
     printf("\n\n");
     switch (atoi(input))
@@ -102,6 +103,9 @@ void print_menu()
             printf("No se encontro el PCB\n");
         break;
     case 5:
+        print_status_recursos();
+        break;
+    case 6:
         end_program_flag = true;
         break;
     default:
@@ -292,4 +296,15 @@ void print_internal_states()
     printf("Grado de multiprogramacion: %d\n", grado_multiprog);
     printf("Aceptar conexiones consola: %d\n", accept_connections);
     printf("Nucleo kernel estado: %d\n", core_running);
+}
+
+void print_status_recursos()
+{
+    for (int i = 0; i < list_size(recursos); i++)
+    {
+        t_recurso *recurso = list_get(recursos, i);
+        printf("RECURSO: %s\n", recurso->recurso);
+        printf("INSTANCIAS: %d\n", recurso->instancias);
+        printf("BLOQUEADOS: %d\n", list_size(recurso->lista_bloqueados));
+    }
 }

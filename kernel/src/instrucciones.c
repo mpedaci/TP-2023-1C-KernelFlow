@@ -78,8 +78,7 @@ int find_pcb_index(t_list *cola, uint32_t pid)
     return -1;
 }
 
-
-void execute_wait(char *recurso_solicitado, t_pcb *pcb)
+bool execute_wait(char *recurso_solicitado, t_pcb *pcb)
 {
     // busco la posicion del recurso
     t_recurso *recurso = find_recurso(recurso_solicitado);
@@ -87,62 +86,66 @@ void execute_wait(char *recurso_solicitado, t_pcb *pcb)
     {
         log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
         agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
-        return;
+        return false;
     }
 
     recurso->instancias--;
     if (recurso->instancias >= 0)
     {
         log_info(logger_main, "PID: %d - Wait: %s - Instancias: %d", pcb->pid, recurso->recurso, recurso->instancias);
-        // MANDAR A EJECUTAR DEVUELTA CPU
+        return true;
     }
     else
     {
         agregar_pcb_a_cola(pcb, mutex_blocked, queues->BLOCK);
         list_add(recurso->lista_bloqueados, pcb);
         log_info(logger_main, "PID: %d - Bloqueado por: %s", pcb->pid, recurso->recurso);
+        return false;
     }
+    return false;
 }
 
-void execute_signal(char *recurso_solicitado, t_pcb *pcb)
+bool execute_signal(char *recurso_solicitado, t_pcb *pcb)
 {
     t_recurso *recurso = find_recurso(recurso_solicitado);
     if (recurso == NULL)
     {
         log_info(logger_main, "El recurso %s no existe", recurso_solicitado);
         agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
-        return;
+        return false;
     }
-    
+
     recurso->instancias++;
     log_info(logger_main, "PID: %d - Signal: %s - Instancias: %d", pcb->pid, recurso->recurso, recurso->instancias);
     if (recurso->instancias <= 0)
     {
         t_pcb *pendiente = quitar_pcb_de_cola(recurso->mutex, recurso->lista_bloqueados);
         int index_pendiente = find_pcb_index(queues->BLOCK, pendiente->pid);
-        list_remove(pendiente, index_pendiente);
+        quitar_pcb_de_cola_by_index(mutex_blocked, queues->BLOCK, index_pendiente);
         agregar_pcb_a_cola(pcb, mutex_ready, queues->READY);
     }
-    // MANDAR A EJECUTAR DEVUELTA CPU 
+    // MANDAR A EJECUTAR DEVUELTA CPU
+    return true;
 }
 
 void execute_io(int tiempo, t_pcb *pcb)
 {
     agregar_pcb_a_cola(pcb, mutex_blocked, queues->BLOCK);
     log_info(logger_main, "PID: %d - Ejecuta IO: %d", pcb->pid, tiempo);
-    pthread_t hilo_IO;
-    int *arg = &tiempo;
-    pthread_create(&hilo_IO, NULL, io, (void *)arg);
-    pthread_detach(hilo_IO);
+    t_io_pcb *arg = malloc(sizeof(t_io_pcb));
+    arg->pid = pcb->pid;
+    arg->t_sleep = tiempo;
+    pthread_create(&thr_io, 0, io, (void *)arg);
 }
 
-void *io(void *tiempo)
+void *io(void *args)
 {
-    t_pcb *pcb = quitar_pcb_de_cola(mutex_blocked, queues->BLOCK);
-    int *t = (int *)tiempo;
-    sleep(*t);
+    t_io_pcb *io_pcb = (t_io_pcb *)args;
+    sleep(io_pcb->t_sleep);
+    int index = find_pcb_index(queues->BLOCK, io_pcb->pid);
+    t_pcb *pcb = quitar_pcb_de_cola_by_index(mutex_blocked, queues->BLOCK, index);
     agregar_pcb_a_cola(pcb, mutex_ready, queues->READY);
-    free(t);
+    free(io_pcb);
     pthread_exit(0);
 }
 

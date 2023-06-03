@@ -19,7 +19,7 @@ t_identificador mapear_identificador(char *identificador)
         id = I_F_SEEK;
     else if (string_equals_ignore_case(identificador, "CREATE_SEGMENT"))
         id = I_CREATE_SEGMENT;
-    else if (string_equals_ignore_case(identificador, "I_O"))
+    else if (string_equals_ignore_case(identificador, "I/O"))
         id = I_I_O;
     else if (string_equals_ignore_case(identificador, "WAIT"))
         id = I_WAIT;

@@ -33,5 +33,6 @@ void print_pcb_pid(t_pcb *pcb);
 void print_registers(t_registers *registers);
 void print_internal_states();
 t_pcb *get_pcb_by_pid(int pid);
+void print_status_recursos();
 
 #endif /* KERNEL_H */

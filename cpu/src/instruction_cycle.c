@@ -2,7 +2,7 @@
 
 t_instruccion *fetch(t_pcontexto *contexto)
 {
-    t_instruccion *instruccionSiguiente = list_get(contexto->instructions, contexto->program_counter);
+    t_instruccion *instruccionSiguiente = list_get(contexto->instructions, contexto->program_counter);    
     contexto->program_counter++;
     return instruccionSiguiente;
 }
@@ -86,7 +86,7 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
     case I_EXIT:
         return EXIT(contexto, instruccionListaParaEjecutar);
     default:
-        printf("No se pudo encontrar la instruccion :(");
+        log_error(logger_aux, "No se pudo encontrar la instruccion :(\n");
         break;
     }
     return NULL;
@@ -103,13 +103,6 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
     log_info(logger, "PID: %d - Ejecutando: %s - %s", contexto->pid, instruction_string, params_string);
 
     t_pcontexto_desalojo *contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
-
-    // log_warning(logger, "FREE 1");
-    // free(params_string);
-    // log_warning(logger, "FREE 2");
-    // free(instruction_string);
-    // log_warning(logger, "FREE 3");
-    // instruction_destroyer(instruccionListaParaEjecutar);
 
     return contexto_desalojo;
 }
