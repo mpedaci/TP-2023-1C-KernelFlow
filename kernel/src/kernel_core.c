@@ -276,6 +276,11 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_exit(pcb, "NO IMPLEMENTADO");
         break;
     case I_F_READ:
+        //F_READ(Nombre Archivo, Dirección Lógica, Cantidad de Bytes)
+        char* nombre_archivo = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
+        int direccion_logica = atoi(list_get(pcontexto_response->motivo_desalojo->parametros, 1));
+        int cantidad_bytes = atoi(list_get(pcontexto_response->motivo_desalojo->parametros, 2));
+        execute_fread(nombre_archivo, direccion_logica, cantidad_bytes, pcb);
         execute_exit(pcb, "NO IMPLEMENTADO");
         break;
     case I_F_SEEK:
@@ -285,15 +290,13 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_exit(pcb, "NO IMPLEMENTADO");
         break;
     case I_CREATE_SEGMENT:
-        // uint32_t tamanio_solicitado = atoi(list_get(instruccion_desalojo->parametros, 1));
-        // uint32_t id_solicitado = atoi(list_get(instruccion_desalojo->parametros, 2));
-        // execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        uint32_t tamanio_solicitado = atoi(list_get(pcontexto_response->motivo_desalojo->parametros, 0));
+        uint32_t id_solicitado = atoi(list_get(pcontexto_response->motivo_desalojo->parametros, 1));
+        execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
         break;
     case I_DELETE_SEGMENT:
-        // uint32_t id = atoi(list_get(instruccion_desalojo->parametros, 0));
-        // execute_delete_segment(id, pcb);
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        uint32_t id = atoi(list_get(pcontexto_response->motivo_desalojo->parametros, 0));
+        execute_delete_segment(id, pcb);
         break;
     default:
         break;

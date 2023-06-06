@@ -18,8 +18,8 @@
 #include "communication.h"
 
 
-void execute_create_segment(uint32_t segment_size, uint32_t segment_id, t_pcb *pcb);
-void execute_delete_segment(uint32_t segment_id, t_pcb *pcb);
+bool execute_create_segment(uint32_t segment_size, uint32_t segment_id, t_pcb *pcb);
+bool execute_delete_segment(uint32_t segment_id, t_pcb *pcb);
 bool execute_wait(char *recurso_solicitado, t_pcb *pcb);
 bool execute_signal(char *recurso_solicitado, t_pcb *pcb);
 void execute_io(int tiempo, t_pcb *pcb);
