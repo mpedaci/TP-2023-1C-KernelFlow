@@ -1,7 +1,7 @@
 #include "modulos.h"
 
-void kernel_operations(int client_socket){
-    //ASUMO QUE EL HANDSHAKE YA LO CONTESTE
+void kernel_operations(int client_socket)
+{
     // CHEQUEAR
     /* while(1){
         t_package* package = get_package(client_socket,logger_aux);
@@ -42,8 +42,8 @@ void kernel_operations(int client_socket){
     }
 }
 
-void cpu_operations(int client_socket){
-    //ASUMO QUE EL HANDSHAKE YA LO CONTESTE
+void cpu_operations(int client_socket)
+{
     /* while(1){
         t_package* package = get_package(client_socket,logger_aux);
         t_instruccion* instruccion = get_instruccion(package);
@@ -84,8 +84,8 @@ void cpu_operations(int client_socket){
     }
 }
 
-void fs_operations(int client_socket){
-    //ASUMO QUE EL HANDSHAKE YA LO CONTESTE
+void fs_operations(int client_socket)
+{
     /* while(1){
         t_package* package = get_package(client_socket,logger_aux);
         t_instruccion* instruccion = get_instruccion(package);

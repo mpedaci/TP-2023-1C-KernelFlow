@@ -13,8 +13,7 @@ void wait_clients(int server_fd)
 {
    while (server_fd != -1)
    { // No estoy muy seguro de esta condicion
-      char *socket_client = malloc(sizeof(char *));
-      sprintf(socket_client, "%d", client_wait(server_fd, logger_aux));
+      char *socket_client = string_itoa(client_wait(server_fd, logger_aux));
       pthread_t conection;
       pthread_create(&conection, 0, handle_client, (void *)socket_client);
       pthread_detach(conection);
@@ -24,7 +23,6 @@ void wait_clients(int server_fd)
 void *handle_client(void *socket_client)
 {
    int socket = atoi((char *)socket_client);
-   // Deberia mandarle un send diciendo que se conecto correctamente?
    int HS_module = hs_server_to_module_get_type(socket, HSMEMORIA, logger_aux);
 
    switch (HS_module)
