@@ -83,7 +83,7 @@ uint32_t BEST_FIT(t_segment *segment)
 uint32_t WORST_FIT(t_segment *segment)
 {
     uint32_t best_size = 0;
-    uint32_t *best_pos = 0;
+    uint32_t best_pos = 0;
     uint32_t s_size = segment->size;
     uint32_t fst_size = bitarray_get_max_bit(free_space_table);
 

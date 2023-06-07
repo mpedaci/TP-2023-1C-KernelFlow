@@ -1,11 +1,19 @@
 #ifndef MEMORY_VARS_H
 #define MEMORY_VARS_H
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <commons/log.h>
+#include <commons/config.h>
 #include "server.h"
-#include "utils.h"
+
+typedef struct{
+	char *port;
+	size_t memory_size;
+	size_t segment_zero_size;
+	int segment_quantity;
+	int memory_time_delay;
+	int compactation_time_delay;
+	char *compactation_algorithm;
+} t_config_memoria;
 
 // Loggers
 extern t_log *logger_main;
