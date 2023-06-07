@@ -27,16 +27,12 @@ void process_client(int client_socket, t_log *logger)
         case PCONTEXTO:
             t_pcontexto *contexto = get_pcontexto(package);
             log_info(logger, "Se recibio un contexto | Pid: %d", contexto->pid);
-
             copy_registers(cpu_registers, contexto->registers);
             t_pcontexto_desalojo *contexto_desalojo = execute_process(contexto);
             copy_registers(contexto_desalojo->registers, cpu_registers);
-
             bool res = send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
-
             free_pcontexto_desalojo(contexto_desalojo);
             free_pcontexto(contexto);
-
             if (!res)
             {
                 log_error(logger, "El contexto no se pudo enviar al kernel");
@@ -63,10 +59,8 @@ void free_pcontexto(t_pcontexto *contexto)
 {
     // free t_list* instructions
     list_destroy_and_destroy_elements(contexto->instructions, (void *)instruction_destroyer);
-
     // free registers pcontexto
     registers_destroy(contexto->registers);
-
     // free todo lo demas
     free(contexto);
 }
@@ -74,14 +68,11 @@ void free_pcontexto(t_pcontexto *contexto)
 void free_pcontexto_desalojo(t_pcontexto_desalojo *contexto)
 {
     // free t_list* instructions
-    // list_destroy_and_destroy_elements(contexto->instructions, (void *)instruction_destroyer);
-
+    list_destroy_and_destroy_elements(contexto->instructions, (void *)instruction_destroyer);
     // free registers pcontexto
     registers_destroy(contexto->registers);
-
     // free motivo_desalojo
-    // instruction_destroyer(contexto->motivo_desalojo);
-
+    instruction_destroyer(contexto->motivo_desalojo);
     // free todo lo demas
     free(contexto);
 }
