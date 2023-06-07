@@ -227,5 +227,59 @@ void free_pcontexto_desalojo(t_pcontexto_desalojo *pcontexto)
 {
     free_lista_instrucciones(pcontexto->instructions);
     free_instruccion(pcontexto->motivo_desalojo);
+    free_registers(pcontexto->registers);
     free(pcontexto);
+}
+
+void free_pcontexto(t_pcontexto *pcontexto)
+{
+    free_lista_instrucciones(pcontexto->instructions);
+    free_registers(pcontexto->registers);
+    free(pcontexto);
+}
+
+
+void copy_registers(t_registers *dest, t_registers *src)
+{
+    memcpy(dest->AX, src->AX, 4);
+    memcpy(dest->BX, src->BX, 4);
+    memcpy(dest->CX, src->CX, 4);
+    memcpy(dest->DX, src->DX, 4);
+
+    memcpy(dest->EAX, src->EAX, 8);
+    memcpy(dest->EBX, src->EBX, 8);
+    memcpy(dest->ECX, src->ECX, 8);
+    memcpy(dest->EDX, src->EDX, 8);
+
+    memcpy(dest->RAX, src->RAX, 16);
+    memcpy(dest->RBX, src->RBX, 16);
+    memcpy(dest->RCX, src->RCX, 16);
+    memcpy(dest->RDX, src->RDX, 16);
+}
+
+t_list *copy_instructions_list(t_list *instructions)
+{
+    t_list *new_list = list_create();
+    for (int i = 0; i < list_size(instructions); i++)
+    {
+        t_instruccion *instruction = new_instruction(((t_instruccion *)list_get(instructions, i)));
+        list_add(new_list, instruction);
+    }
+    return new_list;
+}
+
+t_instruccion *new_instruction(t_instruccion *instruccion)
+{
+    t_instruccion *new_instruction = malloc(sizeof(t_instruccion));
+    new_instruction->identificador = instruccion->identificador;
+    new_instruction->cant_parametros = instruccion->cant_parametros;
+    new_instruction->parametros = list_create();
+    for (int i = 0; i < instruccion->cant_parametros; i++)
+    {
+        char *param = string_duplicate(list_get(instruccion->parametros, i));
+        list_add(new_instruction->parametros, param);
+    }
+    for (int i = 0; i < 4; i++)
+        new_instruction->p_length[i] = instruccion->p_length[i];
+    return new_instruction;
 }

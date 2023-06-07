@@ -152,6 +152,8 @@ bool send_exit(int socket, t_log *logger)
     t_buffer *buffer = t_instruccion_create_buffer(instruccion);
     t_package *paquete = package_create(buffer, INSTRUCCION);
     bool res = package_send(socket, paquete, logger);
+    list_destroy(instruccion->parametros);
+    free(instruccion);
     package_destroy(paquete);
     return res;
 };

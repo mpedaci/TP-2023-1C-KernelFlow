@@ -91,19 +91,19 @@ void inicializar_mutex()
 
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
 {
-    // ACA TALVEZ DEBA COPIAR LA MEMORIA
     t_pcontexto *pcontexto = malloc(sizeof(t_pcontexto));
     pcontexto->pid = pcb->pid;
     pcontexto->program_counter = pcb->program_counter;
-    pcontexto->registers = pcb->registers;
-    pcontexto->instructions = pcb->instrucciones;
+    pcontexto->registers = init_registers();
+    copy_registers(pcontexto->registers, pcb->registers);
+    pcontexto->instructions = copy_instructions_list(pcb->instrucciones);
     return pcontexto;
 }
 
 void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto)
 {
     pcb->program_counter = pcontexto->program_counter;
-    pcb->registers = pcontexto->registers;
+    copy_registers(pcb->registers, pcontexto->registers);
 }
 
 void cargar_recursos()
@@ -140,8 +140,9 @@ void execute()
     pcb->tiempo_salida_cpu = temporal_create();
     update_est_sig_rafaga(pcb);
 
-    free(pcontexto);
+    free_pcontexto(pcontexto);
     free_pcontexto_desalojo(pcontexto_response);
+    package_destroy(p);
 }
 
 void sexecute()
