@@ -5,6 +5,15 @@
 
 #include <commons/collections/list.h>
 
+typedef enum
+{
+    QNEW,
+    QREADY,
+    QEXEC,
+    QBLOCK,
+    QEXIT
+} t_queue_id;
+
 typedef struct
 {
     // Configuración del cliente

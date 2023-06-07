@@ -38,6 +38,8 @@ void end_program(
 
 void free_config_kernel(t_config_kernel *config);
 void free_modules_client(t_modules_client *modules_client);
+void free_registers(t_registers *registers);
+void free_pcb(t_pcb *pcb);
 void free_queues(t_queues *queues);
 void free_instruccion(t_instruccion *instruccion);
 void free_lista_instrucciones(t_list *lista_instrucciones);

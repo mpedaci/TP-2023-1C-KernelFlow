@@ -172,13 +172,43 @@ void free_modules_client(t_modules_client *modules_client)
     free(modules_client);
 }
 
+void free_registers(t_registers *registers)
+{
+    free(registers->AX);
+    free(registers->BX);
+    free(registers->CX);
+    free(registers->DX);
+    free(registers->EAX);
+    free(registers->EBX);
+    free(registers->ECX);
+    free(registers->EDX);
+    free(registers->RAX);
+    free(registers->RBX);
+    free(registers->RCX);
+    free(registers->RDX);
+
+    free(registers);
+}
+
+void free_pcb(t_pcb *pcb)
+{
+    free_lista_instrucciones(pcb->instrucciones);
+    free_registers(pcb->registers);
+    // free(pcb->segments_table);
+    temporal_destroy(pcb->tiempo_llegada_ready);
+    temporal_destroy(pcb->tiempo_entrada_cpu);
+    temporal_destroy(pcb->tiempo_salida_cpu);
+    // free(pcb->open_files_table);
+    free(pcb);
+}
+
 void free_queues(t_queues *queues)
 {
-    list_destroy(queues->NEW);
-    list_destroy(queues->READY);
-    list_destroy(queues->EXEC);
-    list_destroy(queues->BLOCK);
-    list_destroy(queues->EXIT);
+    list_destroy_and_destroy_elements(queues->NEW, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->READY, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->EXEC, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->BLOCK, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->EXIT, (void *)free_pcb);
     free(queues);
 }
 
