@@ -20,17 +20,17 @@ int get_direccion_fisica(int dir_logica, t_list *segmentos) {
     // devolver la direccion fisica
     int num_segmento = get_num_segmento(dir_logica);
     int desplazamiento = get_desplazamiento_segmento(dir_logica);
-    t_segmento *segmento = get_by_num_segmento(num_segmento, segmentos);
+    t_segment *segmento = get_by_num_segmento(num_segmento, segmentos);
     int inicio_segmento = segmento->base_address;
     return inicio_segmento + desplazamiento;
 }
 
-t_segmento *get_by_num_segmento(int num_segmento, t_list *segmentos) {
-    t_segmento *segmento;
+t_segment *get_by_num_segmento(int num_segmento, t_list *segmentos) {
+    t_segment *segmento;
     for (int i = 0; i < list_size(segmentos); i++)
     {
         segmento = list_get(segmentos, i);
-        if (segmento->num_segmento == num_segmento)
+        if (segmento->id == num_segmento)
             return segmento;
     }
     return NULL;
