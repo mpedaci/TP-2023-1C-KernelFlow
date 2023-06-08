@@ -7,14 +7,16 @@ int main(void) {
 
 	//INICIALIZAR MEMORIA
 	t_config_memoria* config = NULL;
-	config = read_config(config_path, logger_main);
+	config = read_config(config_path);
    	if (config == NULL)
        {end_program(logger_main,logger_aux,config);
       	return EXIT_FAILURE;
    	   }
-	
+
+	start_memory(config);
+
 	//INICIALIZO SERVIDOR
-	start_memory_server(config->port,logger_aux);
+	start_memory_server(config->port);
 
 	end_program(logger_main,logger_aux,config);
 

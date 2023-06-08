@@ -1,0 +1,5 @@
+#!/bin/bash
+FILE=bin/memoria
+mkdir -p logs
+make clean
+make

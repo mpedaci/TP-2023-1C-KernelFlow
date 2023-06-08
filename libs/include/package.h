@@ -25,35 +25,27 @@ typedef struct
 /* BUFFERS TIPOS DE DATOS -> SEND */
 
 uint32_t espacio_de_array_parametros(t_instruccion *instruccion);
-
 t_buffer *t_instruccion_create_buffer(t_instruccion *instruccion);
-
-uint32_t espacio_de_array_parametros(t_instruccion *instruccion);
-
 t_buffer *t_lista_instrucciones_create_buffer(t_list *lista_instrucciones);
-
 t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto);
-
 t_buffer *t_pcontexto_desalojo_create_buffer(t_pcontexto_desalojo *pcontexto);
-
-t_buffer *t_segment_table_create_buffer(t_segments_table *segment_table);
-
+t_buffer *t_segment_create_buffer(t_segment *segment);
+t_buffer *t_segments_table_create_buffer(t_segments_table *segments_table);
+t_buffer *t_data_create_buffer(t_data *data);
+t_buffer *t_address_create_buffer(t_address address);
 t_buffer *t_open_files_create_buffer(t_open_files *open_files);
-
 t_buffer *null_buffer();
 
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
 t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offset);
-
 t_list *t_lista_instrucciones_create_from_buffer(t_buffer *buffer);
-
 t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer);
-
 t_pcontexto_desalojo *t_pcontexto_desalojo_create_from_buffer(t_buffer *buffer);
-
-t_segments_table *t_segment_table_create_from_buffer(t_buffer *buffer);
-
+t_segment *t_segment_create_from_buffer(t_buffer *buffer, uint32_t *offset);
+t_segments_table *t_segments_table_create_from_buffer(t_buffer *buffer);
+t_data *t_data_create_from_buffer(t_buffer *buffer);
+t_address t_address_create_from_buffer(t_buffer *buffer);
 t_open_files *t_open_files_create_from_buffer(t_buffer *buffer);
 
 /* PAQUETE */

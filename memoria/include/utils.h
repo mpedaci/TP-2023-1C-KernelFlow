@@ -7,21 +7,21 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>
-#include "server.h"
+#include <pthread.h>
+#include "memory_vars.h"
 
 typedef struct
 {
     char* port;
-	char* memory_size;
-	char* segment_zero_size;
-	char* segment_quantity;
-	char* memory_time_delay;
-	char* compactation_time_delay;
+	size_t memory_size;
+	size_t segment_zero_size;
+	int segment_quantity;
+	int memory_time_delay;
+	int compactation_time_delay;
 	char* compactation_algorithm;
 } t_config_memoria;
 
-t_config_memoria *read_config(char *path, t_log *logger);
-void start_memory_server(char* port, t_log * logger);
+t_config_memoria *read_config(char *path);
 void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config);
 
 #endif /* UTILS_H */

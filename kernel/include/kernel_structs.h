@@ -5,6 +5,15 @@
 
 #include <commons/collections/list.h>
 
+typedef enum
+{
+    QNEW,
+    QREADY,
+    QEXEC,
+    QBLOCK,
+    QEXIT
+} t_queue_id;
+
 typedef struct
 {
     // Configuración del cliente
@@ -48,5 +57,19 @@ typedef struct
     int socket;
     uint32_t pid;
 } t_client_connection;
+
+typedef struct
+{
+    char *recurso;
+    int instancias;
+    t_list *lista_bloqueados;
+    pthread_mutex_t mutex;
+} t_recurso;
+
+typedef struct
+{
+    int t_sleep;
+    int pid;
+} t_io_pcb;
 
 #endif /* KERNEL_STRUCTS_H */

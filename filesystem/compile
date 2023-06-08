@@ -1,0 +1,6 @@
+#!/bin/bash
+FILE=bin/filesystem
+mkdir -p logs
+mkdir -p fs
+make clean
+make

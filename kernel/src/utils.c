@@ -72,15 +72,54 @@ t_queues *create_queues()
     return queues;
 }
 
-t_pcb *pcb_create(uint32_t pid, t_list *instrucciones){
+t_registers *init_registers()
+{
+    t_registers *registers = malloc(sizeof(t_registers));
+
+    registers->AX = malloc(4);
+    registers->BX = malloc(4);
+    registers->CX = malloc(4);
+    registers->DX = malloc(4);
+    registers->EAX = malloc(8);
+    registers->EBX = malloc(8);
+    registers->ECX = malloc(8);
+    registers->EDX = malloc(8);
+    registers->RAX = malloc(16);
+    registers->RBX = malloc(16);
+    registers->RCX = malloc(16);
+    registers->RDX = malloc(16);
+
+    char *zero = "0000000000000000";
+
+    memcpy(registers->AX, zero, 4);
+    memcpy(registers->BX, zero, 4);
+    memcpy(registers->CX, zero, 4);
+    memcpy(registers->DX, zero, 4);
+    memcpy(registers->EAX, zero, 8);
+    memcpy(registers->EBX, zero, 8);
+    memcpy(registers->ECX, zero, 8);
+    memcpy(registers->EDX, zero, 8);
+    memcpy(registers->RAX, zero, 16);
+    memcpy(registers->RBX, zero, 16);
+    memcpy(registers->RCX, zero, 16);
+    memcpy(registers->RDX, zero, 16);
+
+    return registers;
+}
+
+t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
+{
     t_pcb *pcb = malloc(sizeof(t_pcb));
     pcb->pid = pid;
     pcb->instrucciones = instrucciones;
     pcb->program_counter = 0;
-    pcb->registers = NULL;
+    pcb->registers = init_registers();
     pcb->segments_table = NULL;
     pcb->est_sig_rafaga = 0;
-    pcb->tiempo_llegada_ready = temporal_create();
+    t_temporal *temporal = temporal_create();
+    pcb->tiempo_llegada_ready = temporal;
+    pcb->tiempo_entrada_cpu = temporal;
+    pcb->tiempo_salida_cpu = temporal;
     pcb->open_files_table = NULL;
     return pcb;
 }
@@ -133,12 +172,114 @@ void free_modules_client(t_modules_client *modules_client)
     free(modules_client);
 }
 
+void free_registers(t_registers *registers)
+{
+    free(registers->AX);
+    free(registers->BX);
+    free(registers->CX);
+    free(registers->DX);
+    free(registers->EAX);
+    free(registers->EBX);
+    free(registers->ECX);
+    free(registers->EDX);
+    free(registers->RAX);
+    free(registers->RBX);
+    free(registers->RCX);
+    free(registers->RDX);
+
+    free(registers);
+}
+
+void free_pcb(t_pcb *pcb)
+{
+    free_lista_instrucciones(pcb->instrucciones);
+    free_registers(pcb->registers);
+    // free(pcb->segments_table);
+    temporal_destroy(pcb->tiempo_llegada_ready);
+    temporal_destroy(pcb->tiempo_entrada_cpu);
+    temporal_destroy(pcb->tiempo_salida_cpu);
+    // free(pcb->open_files_table);
+    free(pcb);
+}
+
 void free_queues(t_queues *queues)
 {
-    list_destroy(queues->NEW);
-    list_destroy(queues->READY);
-    list_destroy(queues->EXEC);
-    list_destroy(queues->BLOCK);
-    list_destroy(queues->EXIT);
+    list_destroy_and_destroy_elements(queues->NEW, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->READY, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->EXEC, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->BLOCK, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->EXIT, (void *)free_pcb);
     free(queues);
+}
+
+void free_instruccion(t_instruccion *instruccion)
+{
+    list_destroy_and_destroy_elements(instruccion->parametros, free);
+    free(instruccion);
+}
+
+void free_lista_instrucciones(t_list *lista_instrucciones)
+{
+    list_destroy_and_destroy_elements(lista_instrucciones, (void *)free_instruccion);
+}
+
+void free_pcontexto_desalojo(t_pcontexto_desalojo *pcontexto)
+{
+    free_lista_instrucciones(pcontexto->instructions);
+    free_instruccion(pcontexto->motivo_desalojo);
+    free_registers(pcontexto->registers);
+    free(pcontexto);
+}
+
+void free_pcontexto(t_pcontexto *pcontexto)
+{
+    free_lista_instrucciones(pcontexto->instructions);
+    free_registers(pcontexto->registers);
+    free(pcontexto);
+}
+
+
+void copy_registers(t_registers *dest, t_registers *src)
+{
+    memcpy(dest->AX, src->AX, 4);
+    memcpy(dest->BX, src->BX, 4);
+    memcpy(dest->CX, src->CX, 4);
+    memcpy(dest->DX, src->DX, 4);
+
+    memcpy(dest->EAX, src->EAX, 8);
+    memcpy(dest->EBX, src->EBX, 8);
+    memcpy(dest->ECX, src->ECX, 8);
+    memcpy(dest->EDX, src->EDX, 8);
+
+    memcpy(dest->RAX, src->RAX, 16);
+    memcpy(dest->RBX, src->RBX, 16);
+    memcpy(dest->RCX, src->RCX, 16);
+    memcpy(dest->RDX, src->RDX, 16);
+}
+
+t_list *copy_instructions_list(t_list *instructions)
+{
+    t_list *new_list = list_create();
+    for (int i = 0; i < list_size(instructions); i++)
+    {
+        t_instruccion *instruction = new_instruction(((t_instruccion *)list_get(instructions, i)));
+        list_add(new_list, instruction);
+    }
+    return new_list;
+}
+
+t_instruccion *new_instruction(t_instruccion *instruccion)
+{
+    t_instruccion *new_instruction = malloc(sizeof(t_instruccion));
+    new_instruction->identificador = instruccion->identificador;
+    new_instruction->cant_parametros = instruccion->cant_parametros;
+    new_instruction->parametros = list_create();
+    for (int i = 0; i < instruccion->cant_parametros; i++)
+    {
+        char *param = string_duplicate(list_get(instruccion->parametros, i));
+        list_add(new_instruction->parametros, param);
+    }
+    for (int i = 0; i < 4; i++)
+        new_instruction->p_length[i] = instruccion->p_length[i];
+    return new_instruction;
 }

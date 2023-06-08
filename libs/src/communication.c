@@ -30,8 +30,8 @@ t_pcontexto_desalojo *get_pcontexto_desalojo(t_package *paquete)
 
 t_segments_table *get_tsegmento(t_package *paquete)
 {
-    t_segments_table *tsegmento = t_segment_table_create_from_buffer(paquete->buffer);
-    return tsegmento;
+    t_segments_table *segments_table = t_segments_table_create_from_buffer(paquete->buffer);
+    return segments_table;
 };
 
 t_open_files *get_ofile(t_package *paquete)
@@ -40,21 +40,22 @@ t_open_files *get_ofile(t_package *paquete)
     return ofiles;
 };
 
-// t_persona* get_file(t_package* paquete)
-// {
-//     t_persona* persona = t_persona_create_from_buffer(paquete->buffer);
-//     return persona;
-// };
+t_data* get_data(t_package* paquete)
+{
+    t_data* data = t_data_create_from_buffer(paquete->buffer);
+    return data;
+};
 
-// t_persona* get_data(t_package* paquete)
-// {
-//     t_persona* persona = t_persona_create_from_buffer(paquete->buffer);
-//     return persona;
-// };
+t_address get_address(t_package* paquete)
+{
+    t_address address = t_address_create_from_buffer(paquete->buffer);
+    return address;
+};
 
 t_instruccion *get_instruccion(t_package *paquete)
 {
-    t_instruccion *instruccion = t_instruccion_create_from_buffer(paquete->buffer, 0);
+    uint32_t offset = 0;
+    t_instruccion *instruccion = t_instruccion_create_from_buffer(paquete->buffer, &offset);
     return instruccion;
 };
 
@@ -89,7 +90,7 @@ bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *
 
 bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger)
 {
-    t_buffer *buffer = t_segment_table_create_buffer(t_segmento);
+    t_buffer *buffer = t_segments_table_create_buffer(t_segmento);
     t_package *paquete = package_create(buffer, TSEGMENTOS);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
@@ -105,23 +106,23 @@ bool send_ofile(int socket, t_open_files *t_ofiles, t_log *logger)
     return res;
 };
 
-// bool send_file(int socket, t_persona persona, t_log *logger)
-// {
-//     t_buffer *buffer = t_persona_create_buffer(persona);
-//     t_package *paquete = package_create(buffer, DFILE);
-//     bool res = package_send(socket, paquete, logger);
-//     package_destroy(paquete);
-//     return res;
-// };
+bool send_data(int socket, t_data* data, t_log *logger)
+{
+    t_buffer *buffer = t_data_create_buffer(data);
+    t_package *paquete = package_create(buffer, DATA);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
 
-// bool send_data(int socket, t_persona persona, t_log *logger)
-// {
-//     t_buffer *buffer = t_persona_create_buffer(persona);
-//     t_package *paquete = package_create(buffer, DATA);
-//     bool res = package_send(socket, paquete, logger);
-//     package_destroy(paquete);
-//     return res;
-// };
+bool send_address(int socket,t_address address, t_log* logger)
+{
+    t_buffer *buffer = t_address_create_buffer(address);
+    t_package *paquete = package_create(buffer, FILEADDRESS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+}
 
 bool send_instruccion(int socket, t_instruccion *instruccion, t_log *logger)
 {
@@ -136,6 +137,23 @@ bool send_end(int socket, t_log *logger)
 {
     t_package *paquete = package_create(NULL, END);
     bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_exit(int socket, t_log *logger)
+{
+    t_instruccion *instruccion = malloc(sizeof(t_instruccion));
+    instruccion->identificador = I_EXIT;
+    instruccion->cant_parametros = 0;
+    instruccion->parametros = list_create();
+    for (size_t i = 0; i < 4; i++)
+        instruccion->p_length[i] = 0;
+    t_buffer *buffer = t_instruccion_create_buffer(instruccion);
+    t_package *paquete = package_create(buffer, INSTRUCCION);
+    bool res = package_send(socket, paquete, logger);
+    list_destroy(instruccion->parametros);
+    free(instruccion);
     package_destroy(paquete);
     return res;
 };
@@ -163,6 +181,30 @@ bool hs_server_to_module_valid(int socket_client, hs_code hs_module_origin, t_lo
     {
         log_warning(logger, "Handshake invalido - Conexion rechazada");
         return false;
+    }
+}
+
+int hs_server_to_module_get_type(int socket_client, hs_code hs_module_origin, t_log *logger)
+{
+    int HS_Recv_A = -1;
+    int HS_Recv_B = -1;
+    int HS_Origin = hs_module_origin;
+    // Recibo conexion
+    recv(socket_client, &HS_Recv_A, sizeof(int), MSG_WAITALL);
+    // Mando quien soy
+    send(socket_client, &HS_Origin, sizeof(int), 0);
+    // Espero confirmacion
+    recv(socket_client, &HS_Recv_B, sizeof(int), MSG_WAITALL);
+    // Chequeo si es el modulo se desconecta
+    if (HS_Recv_B == HSOK)
+    {
+        log_info(logger, "Handshake valido - Conexion aceptada");
+        return HS_Recv_A;
+    }
+    else
+    {
+        log_warning(logger, "Handshake invalido - Conexion rechazada");
+        return -1;
     }
 }
 

@@ -19,3 +19,14 @@ pthread_t thr_server_conn;
 pthread_t thr_core;
 
 bool core_running = true;
+
+t_list *recursos = NULL;
+
+pthread_t thr_io;
+
+pthread_mutex_t mutex_new;
+pthread_mutex_t mutex_ready;
+pthread_mutex_t mutex_running;
+pthread_mutex_t mutex_blocked;
+pthread_mutex_t mutex_exit;
+pthread_mutex_t mutex_pid;

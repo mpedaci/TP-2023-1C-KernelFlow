@@ -32,13 +32,10 @@ typedef enum
 
 typedef struct
 {
-    t_identificador identificador;
+    t_identificador identificador; // uint32_t
     uint32_t cant_parametros;
-    uint32_t p1_length;
-    uint32_t p2_length;
-    uint32_t p3_length;
-    uint32_t p4_length;
-    char **parametros;
+    uint32_t p_length[4]; // 4 * 4
+    t_list *parametros;
 } t_instruccion;
 
 // CPU
@@ -81,10 +78,23 @@ typedef struct
 typedef struct
 {
     uint32_t id;
-    uint32_t segment_size;
-    uint32_t base_direction_length;
-    char *base_direction;
+    uint32_t size;
+    uint32_t base_address;
+} t_segment;
+
+typedef struct
+{
+    uint32_t pid;
+    t_list *segment_list;
 } t_segments_table;
+
+typedef struct
+{
+    uint32_t value_length;
+    char *value;
+} t_data;
+
+typedef uint32_t t_address;
 
 // FILESYSTEM
 
@@ -108,16 +118,17 @@ typedef struct
 } t_open_files;
 
 // KERNEL
-
 typedef struct
 {
     uint32_t pid;
     t_list *instrucciones;
     uint32_t program_counter;
     t_registers *registers;
-    t_segments_table *segments_table;
+    t_list *segments_table;
     double est_sig_rafaga;
     t_temporal *tiempo_llegada_ready;
+    t_temporal *tiempo_entrada_cpu;
+    t_temporal *tiempo_salida_cpu;
     t_open_files *open_files_table;
 } t_pcb;
 

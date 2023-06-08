@@ -1,0 +1,5 @@
+#!/bin/bash
+FILE=bin/cpu
+mkdir -p logs
+make clean
+make
