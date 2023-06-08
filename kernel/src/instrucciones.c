@@ -1,65 +1,96 @@
 #include "instrucciones.h"
 
-void execute_create_segment(uint32_t segment_size, uint32_t segment_id, t_pcb *pcb)
+//////////////// va en types
+typedef struct{
+    t_instruccion *instruccion;
+    uint32_t pid;
+} t_pid_instruccion;
+/////////////////
+
+t_pcb *find_pcb(uint32_t pid)
 {
-    // Enviar a memoria tamanio para crear segmento y id
-    /* send(modules_client->memory_client_socket, &segment_size, sizeof(uint32_t), NULL);
-    send(modules_client->memory_client_socket, &segment_id, sizeof(uint32_t), NULL);
+    for (int i = 0; i < list_size(all_pcb); i++)
+        if (((t_pcb*)list_get(all_pcb, i))->pid == pid)
+            return list_get(all_pcb, i);
+    return NULL;
+}
 
-    op_code codigo_operacion = get_op_code(modules_client->memory_client_socket);       // falta desde memoria
+void actualizar_tablas(t_list *tablas_actualizadas){    
+    for(int i = 0; i< list_size(tablas_actualizadas); i++){
+        t_segments_table *aux_table = list_get(tablas_actualizadas, i);
+        t_pcb *pcb_aux = find_pcb(aux_table->pid);
+        pcb_aux->segments_table = aux_table;
+    }
+}
 
-    switch(codigo_operacion){
+bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
+{   
+    t_pid_instruccion * p = malloc(sizeof(t_pid_instruccion));
+    p->instruccion = instruccion;
+    p->pid = pcb->pid;
+
+    // Envio a memoria instruccion y pid
+    send_pid_instruccion(modules_client->memory_client_socket, p, logger_aux);
+
+    uint32_t segment_id = atoi(list_get(instruccion->parametros,0));
+    uint32_t segment_size = atoi(list_get(instruccion->parametros,1));
+    
+    t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
+
+    switch(paquete->operation_code){
         case EXITOSO:
-            uint32_t base_nuevo_segmento;
-            recv(modules_client->memory_client_socket, &base_nuevo_segmento, sizeof(uint32_t), NULL);
+            t_address base_nuevo_segmento = get_address(paquete); // problema para castear
             t_segment* nuevo_segmento = malloc(sizeof(t_segment));
             nuevo_segmento->base_address = base_nuevo_segmento;
-            nuevo_segmento->size = segment_size;
-            nuevo_segmento->id = segment_id;
+            nuevo_segmento->size = segment_id;
+            nuevo_segmento->id = segment_size;
             list_add(pcb->segments_table->segment_list, nuevo_segmento);
             log_info(logger_main,"PID: %d - Crear Segmento - Id: %d - Tamanio: %d", pcb->pid, segment_id, segment_size);
+            return true;
             break;
 
         case SIN_ESPACIO:
-            log_error(logger_main, "OUTOFMEMORY"); //?
-            agregar_pcb_a_cola(pcb, mutex_exit, queues->EXIT);
+            execute_exit(pcb, "OUTOFMEMORY");
+            return false;
             break;
 
         case COMPACTAR:
-            compactar();
-            t_segments_table *tabla_actualizada = get_tsegmento(modules_client->memory_client_socket);
-            pcb->segments_table = tabla_actualizada;
-
+            compactar(pcb);
+            log_info(logger_main, "Se finalizo el proceso de compactacion");
+            t_list *tablas_actualizadas = get_lista_segmentos(paquete);
+            actualizar_tablas(tablas_actualizadas);
             // vuelvo a ejecutar create_segment
-            execute_create_segment(segment_size, segment_id, pcb);
+            execute_create_segment(instruccion, pcb);
     }
-
-    // Devolver contexto a cpu
-    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux); */
+    return false;
 }
 
-void compactar()
+void compactar(t_pcb *pcb)
 {
     log_info(logger_main, "Compactacion: Se solicito compactacion");
-    log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
-    log_info(logger_main, "Se finalizo el proceso de compactacion");
+    int i = find_pcb_index(QBLOCK, pcb->pid);
+    while(i != -1){ // esta en la cola de bloqueados
+        log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
+    }
+    return;
 }
 
-void execute_delete_segment(uint32_t segment_id, t_pcb *pcb)
+bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
 {
-    // Enviar a memoria id del segmento a eliminar
-    /* send(modules_client->memory_client_socket, &segment_id, sizeof(uint32_t), NULL);
+    t_pid_instruccion * pid_instruccion = malloc(sizeof(t_pid_instruccion));
+    pid_instruccion->instruccion = instruccion;
+    pid_instruccion->pid = pcb->pid;
+
+    // Envio a memoria instruccion y pid
+    send_pid_instruccion(modules_client->memory_client_socket, pid_instruccion, logger_aux);
 
     t_package* p = get_package(modules_client->memory_client_socket, logger_aux);
     t_segments_table *tabla_actualizada = get_tsegmento(p);
     pcb->segments_table = tabla_actualizada;
 
-    log_info(logger_main,"PID: %d - Eliminar Segmento - Id: %d", pcb->pid, segment_id);
+    log_info(logger_main,"PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros,0)));
 
-    // Devolver contexto a cpu
-    t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
-    send_pcontexto(modules_client->cpu_client_socket, pcontexto, logger_aux); */
+    return true;
 }
 
 t_recurso *find_recurso(char *recurso_solicitado)
