@@ -2,33 +2,20 @@
 
 void kernel_operations(int client_socket)
 {
-    // CHEQUEAR
-    /* while(1){
-        t_package* package = get_package(client_socket,logger_aux);
-        t_instruccion* instruccion = get_instruccion(package);
-        //Esto es una ensalada de frutas
-        t_segment* segment = create_segment(0,0,0);
-        t_list* s_table= list_create();
-        list_add(s_table,segment);
-        switch (instruccion->identificador){
-        case I_CREATE_SEGMENT:
-        case I_DELETE_SEGMENT:
-            send_tsegmento(client_socket,s_table,logger_aux);
-            break;
-        case I_EXIT:
-            log_debug(logger_aux,"Conexion Kernel-Memoria finalizada");
-            return;
-        default:
-            log_warning(logger_aux,"Operacion desconocida");
-            break;
-        }
-    } */
     bool exit = false;
     while (exit == false)
     {
         t_package *package = get_package(client_socket, logger_aux);
         switch (package->operation_code)
         {
+        case PID_INSTRUCCION:
+            t_pid_instruccion *pidtruction = get_pid_instruccion(package);
+            handle_pid_instruction(client_socket, pidtruction);
+            break;
+        case COMPACTAR:
+            compact_memory();
+            send_ltsegmentos(client_socket,all_segments_tables,logger_aux);
+            break;
         case END:
             printf("Conexion Finalizada\n");
             exit = true;
@@ -42,35 +29,73 @@ void kernel_operations(int client_socket)
     }
 }
 
-void cpu_operations(int client_socket)
+void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
 {
-    /* while(1){
-        t_package* package = get_package(client_socket,logger_aux);
-        t_instruccion* instruccion = get_instruccion(package);
-        t_address address;
-        switch (instruccion->identificador){
-        case I_MOV_IN:
-            address= 1;
-            send_address(client_socket,address,logger_aux);
+    t_instruccion *instruccion = pidtruction->instruccion;
+    int pid = pidtruction->pid;
+    int id = atoi((char*)list_get(instruccion->parametros, 0));
+    switch (instruccion->identificador)
+    {
+    case I_CREATE_SEGMENT:
+        int size = atoi((char*)list_get(instruccion->parametros, 1));
+        t_segment *segment = create_segment(id,size);
+        // OUT OF MEMORY
+        if (segment == NULL)
+        {
+            send_status_code(client_socket, OUT_OF_MEMORY, logger_aux);
             break;
-        case I_MOV_OUT:
-            address= 1;
-            send_address(client_socket,address,logger_aux);
-            break;
-        case I_EXIT:
-            log_debug(logger_aux,"Conexion CPU-Memoria finalizada");
-            return;
-        default:
-            log_warning(logger_aux,"Operacion desconocida");
+        } else if (segment->base_address == -1)
+        // COMPACTATION REQUIRED
+        {
+            log_debug(logger_aux, "No se pudo crear el segmento, se necesita compactar");
+            send_compactar(client_socket, logger_aux);
             break;
         }
-    } */
+        // SUCCESS
+        add_segment_to_table(pid,segment);
+        //Esto no me gusta (Para mi deberia ser un unico paquete)
+        send_status_code(client_socket, SUCCESS, logger_aux);
+        send_segment(client_socket, segment, logger_aux);
+        break;
+    case I_DELETE_SEGMENT:
+        delete_segment(pid, id);
+        t_segments_table *segments_table = get_segments_table_by_pid(pid);
+        send_tsegmento(client_socket, segments_table, logger_aux);
+        break;
+    default:
+        log_warning(logger_aux, "Instruccion desconocida");
+        break;
+    }
+    // HACER UN FREE DE PIDTRUCTION POR FAVOR
+}
+
+void cpu_operations(int client_socket)
+{
     bool exit = false;
     while (exit == false)
     {
         t_package *package = get_package(client_socket, logger_aux);
         switch (package->operation_code)
         {
+        case INSTRUCCION:
+            t_instruccion *instruccion = get_instruccion(package);
+            t_address address;
+            switch (instruccion->identificador)
+            {
+            case I_MOV_IN:
+                address = 1;
+                send_address(client_socket, address, logger_aux);
+                break;
+            case I_MOV_OUT:
+                address = 1;
+                send_address(client_socket, address, logger_aux);
+                break;
+            default:
+                printf("Instruccion desconocida\n");
+                exit = true;
+                break;
+            }
+            // hay que hacer un free de la intruccion :)
         case END:
             printf("Conexion Finalizada\n");
             exit = true;
@@ -86,28 +111,6 @@ void cpu_operations(int client_socket)
 
 void fs_operations(int client_socket)
 {
-    /* while(1){
-        t_package* package = get_package(client_socket,logger_aux);
-        t_instruccion* instruccion = get_instruccion(package);
-        t_data* data;
-        switch (instruccion->identificador){
-        case I_F_READ:
-            data = create_data((char*)instruccion->parametros[1],instruccion->p1_length);
-            send_data(client_socket,data,logger_aux);
-            break;
-        case I_F_WRITE:
-            data->value="OK";
-            data->value_length=2;
-            send_data(client_socket,data,logger_aux);
-            break;
-        case I_EXIT:
-            log_debug(logger_aux,"Conexion FS-Memoria finalizada");
-            return;
-        default:
-            log_warning(logger_aux,"Operacion desconocida");
-            break;
-        }
-    } */
     bool exit = false;
     while (exit == false)
     {

@@ -20,7 +20,7 @@ void end_memory()
 {
     // Cuando se elimina una tabla de segmentos, el segmento 0 no se libera porque es compartido.
     free(segment_0);
-    list_destroy_and_destroy_elements(all_segments_tables, free);
+    list_destroy_and_destroy_elements(all_segments_tables, delete_segments_table);
     bitarray_destroy(free_space_table);
     free(memory_space);
 }
