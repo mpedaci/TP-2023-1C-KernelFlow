@@ -28,12 +28,6 @@ t_pcontexto_desalojo *get_pcontexto_desalojo(t_package *paquete)
     return contexto;
 };
 
-t_segments_table *get_tsegmento(t_package *paquete)
-{
-    t_segments_table *segments_table = t_segments_table_create_from_buffer(paquete->buffer);
-    return segments_table;
-};
-
 t_open_files *get_ofile(t_package *paquete)
 {
     t_open_files *ofiles = t_open_files_create_from_buffer(paquete->buffer);
@@ -59,6 +53,36 @@ t_instruccion *get_instruccion(t_package *paquete)
     return instruccion;
 };
 
+t_list *get_ltsegmentos(t_package *paquete)
+{
+    t_list *lt_segmentos = t_lista_t_segments_create_from_buffer(paquete->buffer);
+    return lt_segmentos;
+};
+
+t_segments_table *get_tsegmento(t_package *paquete)
+{
+    uint32_t offset = 0;
+    t_segments_table *segments_table = t_segments_table_create_from_buffer(paquete->buffer, &offset);
+    return segments_table;
+};
+
+t_segment *get_segment(t_package *paquete){
+    uint32_t offset = 0;
+    t_segment *segment = t_segment_create_from_buffer(paquete->buffer, &offset);
+    return segment;
+};
+
+t_status_code get_status_code(t_package *paquete){
+    t_status_code status_code = t_status_code_create_from_buffer(paquete->buffer);
+    return status_code;
+};
+
+t_pid_instruccion *get_pid_instruccion(t_package *paquete){
+    t_pid_instruccion *pid_instruccion = t_pid_instruccion_create_from_buffer(paquete->buffer);
+    return pid_instruccion;
+};
+
+
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
 bool send_instrucciones(int socket, t_list *lista_instrucciones, t_log *logger)
@@ -83,15 +107,6 @@ bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *
 {
     t_buffer *buffer = t_pcontexto_desalojo_create_buffer(contexto);
     t_package *paquete = package_create(buffer, PCONTEXTO);
-    bool res = package_send(socket, paquete, logger);
-    package_destroy(paquete);
-    return res;
-};
-
-bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger)
-{
-    t_buffer *buffer = t_segments_table_create_buffer(t_segmento);
-    t_package *paquete = package_create(buffer, TSEGMENTOS);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
@@ -154,6 +169,59 @@ bool send_exit(int socket, t_log *logger)
     bool res = package_send(socket, paquete, logger);
     list_destroy(instruccion->parametros);
     free(instruccion);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_ltsegmentos(int socket, t_list *lt_segmentos, t_log *logger)
+{
+    t_buffer *buffer = t_lista_t_segments_create_buffer(lt_segmentos);
+    t_package *paquete = package_create(buffer, LTSEGMENTOS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger)
+{
+    t_buffer *buffer = t_segments_table_create_buffer(t_segmento);
+    t_package *paquete = package_create(buffer, TSEGMENTOS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_segment(int socket, t_segment *segmento, t_log *logger)
+{
+    t_buffer *buffer = t_segment_create_buffer(segmento);
+    t_package *paquete = package_create(buffer, SEGMENTO);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_status_code(int socket, t_status_code status_code, t_log *logger)
+{
+    t_buffer *buffer = t_status_code_create_buffer(status_code);
+    t_package *paquete = package_create(buffer, TSEGMENTOS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_pid_instruccion(int socket, t_pid_instruccion *pid_instruccion, t_log *logger)
+{
+    t_buffer *buffer = t_pid_instruccion_create_buffer(pid_instruccion);
+    t_package *paquete = package_create(buffer, TSEGMENTOS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+};
+
+bool send_compactar(int socket, t_log *logger)
+{
+    t_package *paquete = package_create(NULL, COMPACTAR);
+    bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
 };

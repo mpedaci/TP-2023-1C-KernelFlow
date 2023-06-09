@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <sys/socket.h> // send - recv
-#include <unistd.h>     // close
+#include <sys/socket.h>     // send - recv
+#include <unistd.h>         // close
 #include <string.h>
 
 #include <commons/log.h>
@@ -20,16 +20,17 @@ typedef enum
     INSTRUCCIONES,          // Pseudocodigo
     PCONTEXTO,              // Contexto de proceso
     PCONTEXTODESALOJO,      // Contexto de proceso desalojo
+    LTSEGMENTOS,            // Lista de Tabla de Segmentos
     TSEGMENTOS,             // Tabla de Segmentos
+    SEGMENTO,               // Segmento
     OFILE,                  // Archivo abierto
     FILEADDRESS,            // Datos Archivo
     DATA,                   // Datos
     INSTRUCCION,            // Instruccion
-    END,
-    SEGMENT_SIZE,
-    EXITOSO,
-    SIN_ESPACIO,
-    COMPACTAR
+    END,                    // Fin Conexion - Programa
+    STATUS_CODE,            // Codigo de estado
+    PID_INSTRUCCION,        // Pid e instruccion
+    COMPACTAR               // Compactar
 } op_code;
 
 /* CLIENTE -> SERVIDOR -> PROGRAMA */
@@ -39,24 +40,35 @@ t_package *get_package(int socket, t_log *logger);
 t_list *get_instrucciones(t_package *paquete);
 t_pcontexto *get_pcontexto(t_package *paquete);
 t_pcontexto_desalojo *get_pcontexto_desalojo(t_package *paquete);
-t_segments_table *get_tsegmento(t_package *paquete);
 t_open_files *get_ofile(t_package *paquete);
 t_data* get_data(t_package* paquete);
 t_address get_address(t_package* paquete);
 t_instruccion *get_instruccion(t_package *paquete);
+
+t_list *get_ltsegmentos(t_package *paquete);
+t_segments_table *get_tsegmento(t_package *paquete);
+t_segment *get_segment(t_package *paquete);
+t_status_code get_status_code(t_package *paquete);
+t_pid_instruccion *get_pid_instruccion(t_package *paquete);
 
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
 bool send_instrucciones(int socket, t_list *lista_instrucciones, t_log *logger);
 bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger);
 bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *logger);
-bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger);
 bool send_ofile(int socket, t_open_files *t_ofiles, t_log *logger);
 bool send_data(int socket, t_data* data, t_log *logger);
 bool send_address(int socket,t_address address, t_log* logger);
 bool send_instruccion(int socket, t_instruccion *instruccion, t_log *logger);
 bool send_end(int socket, t_log *logger);
 bool send_exit(int socket, t_log *logger);
+
+bool send_ltsegmentos(int socket, t_list *lt_segmentos, t_log *logger);
+bool send_tsegmento(int socket, t_segments_table *t_segmento, t_log *logger);
+bool send_segment(int socket, t_segment *segmento, t_log *logger);
+bool send_status_code(int socket, t_status_code status_code, t_log *logger);
+bool send_pid_instruccion(int socket, t_pid_instruccion *pid_instruccion, t_log *logger);
+bool send_compactar(int socket, t_log *logger);
 
 /* HANDSHAKE */
 
