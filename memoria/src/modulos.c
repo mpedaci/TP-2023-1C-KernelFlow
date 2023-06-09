@@ -48,7 +48,7 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
         // COMPACTATION REQUIRED
         {
             log_debug(logger_aux, "No se pudo crear el segmento, se necesita compactar");
-            send_compactar(client_socket, logger_aux);
+            send_status_code(client_socket, COMPACTATION_REQUIRED, logger_aux);
             break;
         }
         // SUCCESS
