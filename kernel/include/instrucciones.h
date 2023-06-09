@@ -25,6 +25,10 @@ bool execute_signal(char *recurso_solicitado, t_pcb *pcb);
 void execute_io(int tiempo, t_pcb *pcb);
 void execute_exit(t_pcb *pcb, char *motivo);
 void execute_to_ready(t_pcb *pcb);
+void execute_fread(t_instruccion *instruccion, t_pcb *pcb);
+void execute_write(t_instruccion *instruccion, t_pcb *pcb);
+
+
 
 void compactar();
 

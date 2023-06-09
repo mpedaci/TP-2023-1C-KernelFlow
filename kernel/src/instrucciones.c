@@ -1,25 +1,11 @@
 #include "instrucciones.h"
 
-//////////////// va en types
-typedef struct{
-    t_instruccion *instruccion;
-    uint32_t pid;
-} t_pid_instruccion;
-/////////////////
-
-t_pcb *find_pcb(uint32_t pid)
-{
-    for (int i = 0; i < list_size(all_pcb); i++)
-        if (((t_pcb*)list_get(all_pcb, i))->pid == pid)
-            return list_get(all_pcb, i);
-    return NULL;
-}
-
-void actualizar_tablas(t_list *tablas_actualizadas){    
+void actualizar_tablas(t_list *tablas_actualizadas)
+{    
     for(int i = 0; i< list_size(tablas_actualizadas); i++){
         t_segments_table *aux_table = list_get(tablas_actualizadas, i);
-        t_pcb *pcb_aux = find_pcb(aux_table->pid);
-        pcb_aux->segments_table = aux_table;
+        int j = find_pcb_index(all_pcb, aux_table->pid);
+        ((t_pcb *)list_get(all_pcb, j))->segments_table = aux_table;
     }
 }
 
@@ -36,10 +22,12 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
     uint32_t segment_size = atoi(list_get(instruccion->parametros,1));
     
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
+    t_status_code code = get_status_code(paquete);
 
-    switch(paquete->operation_code){
-        case EXITOSO:
-            t_address base_nuevo_segmento = get_address(paquete); // problema para castear
+    switch(code){
+        case SUCCESS: 
+            t_package *p= get_package(modules_client->memory_client_socket, logger_aux);
+            t_address base_nuevo_segmento = get_address(p); 
             t_segment* nuevo_segmento = malloc(sizeof(t_segment));
             nuevo_segmento->base_address = base_nuevo_segmento;
             nuevo_segmento->size = segment_id;
@@ -49,15 +37,16 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
             return true;
             break;
 
-        case SIN_ESPACIO:
+        case OUT_OF_MEMORY: 
             execute_exit(pcb, "OUTOFMEMORY");
             return false;
             break;
 
-        case COMPACTAR:
+        case COMPACTATION_REQUIRED:
             compactar(pcb);
             log_info(logger_main, "Se finalizo el proceso de compactacion");
-            t_list *tablas_actualizadas = get_lista_segmentos(paquete);
+            t_package *p2 = get_package(modules_client->memory_client_socket, logger_aux);
+            t_list *tablas_actualizadas = get_ltsegmentos(p2);
             actualizar_tablas(tablas_actualizadas);
             // vuelvo a ejecutar create_segment
             execute_create_segment(instruccion, pcb);
@@ -68,7 +57,7 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
 void compactar(t_pcb *pcb)
 {
     log_info(logger_main, "Compactacion: Se solicito compactacion");
-    int i = find_pcb_index(QBLOCK, pcb->pid);
+    int i = find_pcb_index(queues->BLOCK, pcb->pid);
     while(i != -1){ // esta en la cola de bloqueados
         log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
     }
@@ -77,7 +66,7 @@ void compactar(t_pcb *pcb)
 
 bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
 {
-    t_pid_instruccion * pid_instruccion = malloc(sizeof(t_pid_instruccion));
+    t_pid_instruccion *pid_instruccion = malloc(sizeof(t_pid_instruccion));
     pid_instruccion->instruccion = instruccion;
     pid_instruccion->pid = pcb->pid;
 
@@ -91,6 +80,50 @@ bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
     log_info(logger_main,"PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros,0)));
 
     return true;
+}
+
+void execute_fread(t_instruccion *instruccion, t_pcb *pcb)
+{
+    add_pcb_to_queue(QBLOCK, pcb);   
+    send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
+
+    char *archivo = list_get(instruccion->parametros,0);
+    int direccion = atoi(list_get(instruccion->parametros,1));
+    int tamanio = atoi(list_get(instruccion->parametros,2));
+
+    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero:  - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio); //FALTA PUNTERO DESPUES DE FSEEK, HAY Q HACERLO GLOBAL
+ 
+    t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
+    t_status_code code = get_status_code(paquete);
+    if(code == FILE_READED){
+        int index_pendiente = find_pcb_index(queues->BLOCK, pcb->pid);
+        pop_pcb_from_queue_by_index(QBLOCK, index_pendiente);
+        add_pcb_to_queue(QREADY, pcb);
+
+    }
+    return;
+}
+
+void execute_fwrite(t_instruccion *instruccion, t_pcb *pcb)
+{
+    add_pcb_to_queue(QBLOCK, pcb);   
+    send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
+
+    char *archivo = list_get(instruccion->parametros,0);
+    int direccion = atoi(list_get(instruccion->parametros,1));
+    int tamanio = atoi(list_get(instruccion->parametros,2));
+
+    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero:  - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio);//FALTA PUNTERO DESPUES DE FSEEK, HAY Q HACERLO GLOBAL
+  
+    t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
+    t_status_code code = get_status_code(paquete);
+    if(code == FILE_READED){
+        int index_pendiente = find_pcb_index(queues->BLOCK, pcb->pid);
+        pop_pcb_from_queue_by_index(QBLOCK, index_pendiente);
+        add_pcb_to_queue(QREADY, pcb);
+
+    }
+    return;
 }
 
 t_recurso *find_recurso(char *recurso_solicitado)
