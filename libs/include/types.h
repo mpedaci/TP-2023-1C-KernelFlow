@@ -9,6 +9,15 @@
 #include <commons/collections/list.h>
 
 /* TIPO DE DATO */
+typedef enum
+{
+    SEGMENTATION_FAULT,
+    COMPACTATION_REQUIRED,
+    OUT_OF_MEMORY,
+    FILE_READED,
+    SUCCESS
+} t_status_code;
+
 // CONSOLA
 typedef enum
 {
@@ -88,6 +97,11 @@ typedef struct
     t_list *segment_list;
 } t_segments_table;
 
+typedef struct
+{
+    uint32_t pid;
+    t_instruccion *instruccion;
+} t_pid_instruccion;
 typedef struct
 {
     uint32_t value_length;

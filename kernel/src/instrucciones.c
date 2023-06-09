@@ -27,11 +27,7 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
     switch(code){
         case SUCCESS: 
             t_package *p= get_package(modules_client->memory_client_socket, logger_aux);
-            t_address base_nuevo_segmento = get_address(p); 
-            t_segment* nuevo_segmento = malloc(sizeof(t_segment));
-            nuevo_segmento->base_address = base_nuevo_segmento;
-            nuevo_segmento->size = segment_id;
-            nuevo_segmento->id = segment_size;
+            t_segment *nuevo_segmento = get_segment(p);
             list_add(pcb->segments_table->segment_list, nuevo_segmento);
             log_info(logger_main,"PID: %d - Crear Segmento - Id: %d - Tamanio: %d", pcb->pid, segment_id, segment_size);
             return true;
