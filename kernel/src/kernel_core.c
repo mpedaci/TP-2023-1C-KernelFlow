@@ -200,7 +200,6 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_exit(pcb, "SUCCESS");
         break;
     case I_F_WRITE:
-        // CONSULTAR si juan me manda fread(archivo dirFisica bytes)
         execute_fread(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_CLOSE:

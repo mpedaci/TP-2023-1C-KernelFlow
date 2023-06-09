@@ -1,5 +1,8 @@
 #include "instrucciones.h"
 
+// agregar como variable global el puntero, lo va a modificar fseek
+int puntero;
+
 void actualizar_tablas(t_list *tablas_actualizadas)
 {    
     for(int i = 0; i< list_size(tablas_actualizadas); i++){
@@ -41,11 +44,15 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
         case COMPACTATION_REQUIRED:
             compactar(pcb);
             log_info(logger_main, "Se finalizo el proceso de compactacion");
+
             t_package *p2 = get_package(modules_client->memory_client_socket, logger_aux);
             t_list *tablas_actualizadas = get_ltsegmentos(p2);
             actualizar_tablas(tablas_actualizadas);
+
             // vuelvo a ejecutar create_segment
             execute_create_segment(instruccion, pcb);
+        default:
+        break;
     }
     return false;
 }
@@ -57,6 +64,8 @@ void compactar(t_pcb *pcb)
     while(i != -1){ // esta en la cola de bloqueados
         log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
     }
+    send_compactar(modules_client->memory_client_socket, logger_aux);
+    
     return;
 }
 
@@ -87,13 +96,12 @@ void execute_fread(t_instruccion *instruccion, t_pcb *pcb)
     int direccion = atoi(list_get(instruccion->parametros,1));
     int tamanio = atoi(list_get(instruccion->parametros,2));
 
-    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero:  - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio); //FALTA PUNTERO DESPUES DE FSEEK, HAY Q HACERLO GLOBAL
+    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: %d - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, puntero, direccion, tamanio); 
  
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
     t_status_code code = get_status_code(paquete);
     if(code == FILE_READED){
-        int index_pendiente = find_pcb_index(queues->BLOCK, pcb->pid);
-        pop_pcb_from_queue_by_index(QBLOCK, index_pendiente);
+        pop_pcb_from_queue_by_index(QBLOCK, pcb->pid);
         add_pcb_to_queue(QREADY, pcb);
 
     }
@@ -109,13 +117,32 @@ void execute_fwrite(t_instruccion *instruccion, t_pcb *pcb)
     int direccion = atoi(list_get(instruccion->parametros,1));
     int tamanio = atoi(list_get(instruccion->parametros,2));
 
-    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero:  - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio);//FALTA PUNTERO DESPUES DE FSEEK, HAY Q HACERLO GLOBAL
+    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: %s - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, puntero, direccion, tamanio);
   
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
     t_status_code code = get_status_code(paquete);
     if(code == FILE_READED){
-        int index_pendiente = find_pcb_index(queues->BLOCK, pcb->pid);
-        pop_pcb_from_queue_by_index(QBLOCK, index_pendiente);
+        pop_pcb_from_queue_by_index(QBLOCK, pcb->pid);
+        add_pcb_to_queue(QREADY, pcb);
+
+    }
+    return;
+}
+
+void execute_ftruncate(t_instruccion* instruccion, t_pcb *pcb)
+{
+    add_pcb_to_queue(QBLOCK, pcb);
+    send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
+
+    char *archivo = list_get(instruccion->parametros,0);
+    int tamanio = atoi(list_get(instruccion->parametros,1));
+
+    log_info(logger_main,"PID: %d - Archivo: %s - Tamanio: %d", pcb->pid, archivo, tamanio);
+
+    t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
+    t_status_code code = get_status_code(paquete);
+    if(code == FILE_READED){
+        pop_pcb_from_queue_by_index(QBLOCK, pcb->pid);
         add_pcb_to_queue(QREADY, pcb);
 
     }
