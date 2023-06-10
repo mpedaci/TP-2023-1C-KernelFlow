@@ -115,7 +115,6 @@ t_segments_table *create_segment_table(uint32_t pid)
 
     return segments_table;
 }
-
 t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
 {
     t_pcb *pcb = malloc(sizeof(t_pcb));
