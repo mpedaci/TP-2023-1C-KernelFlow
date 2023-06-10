@@ -200,7 +200,7 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_exit(pcb, "SUCCESS");
         break;
     case I_F_WRITE:
-        execute_fread(pcontexto_response->motivo_desalojo, pcb);
+        execute_fwrite(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_CLOSE:
         execute_exit(pcb, "NO IMPLEMENTADO");
@@ -215,7 +215,7 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_exit(pcb, "NO IMPLEMENTADO");
         break;
     case I_F_TRUNCATE:
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        execute_ftruncate(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_CREATE_SEGMENT:
         se = execute_create_segment(pcontexto_response->motivo_desalojo, pcb);

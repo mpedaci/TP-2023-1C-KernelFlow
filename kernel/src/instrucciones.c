@@ -1,8 +1,5 @@
 #include "instrucciones.h"
 
-// agregar como variable global el puntero, lo va a modificar fseek
-int puntero;
-
 void actualizar_tablas(t_list *tablas_actualizadas)
 {    
     for(int i = 0; i< list_size(tablas_actualizadas); i++){
@@ -96,7 +93,7 @@ void execute_fread(t_instruccion *instruccion, t_pcb *pcb)
     int direccion = atoi(list_get(instruccion->parametros,1));
     int tamanio = atoi(list_get(instruccion->parametros,2));
 
-    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: %d - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, puntero, direccion, tamanio); 
+    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio); 
  
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
     t_status_code code = get_status_code(paquete);
@@ -117,7 +114,7 @@ void execute_fwrite(t_instruccion *instruccion, t_pcb *pcb)
     int direccion = atoi(list_get(instruccion->parametros,1));
     int tamanio = atoi(list_get(instruccion->parametros,2));
 
-    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: %s - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, puntero, direccion, tamanio);
+    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio);
   
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
     t_status_code code = get_status_code(paquete);

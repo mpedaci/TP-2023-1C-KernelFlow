@@ -26,11 +26,11 @@ void execute_io(int tiempo, t_pcb *pcb);
 void execute_exit(t_pcb *pcb, char *motivo);
 void execute_to_ready(t_pcb *pcb);
 void execute_fread(t_instruccion *instruccion, t_pcb *pcb);
-void execute_write(t_instruccion *instruccion, t_pcb *pcb);
+void execute_fwrite(t_instruccion *instruccion, t_pcb *pcb);
+void execute_ftruncate(t_instruccion* instruccion, t_pcb *pcb);
 
-
-
-void compactar();
+void compactar(t_pcb *pcb);
+void actualizar_tablas(t_list *tablas_actualizadas);
 
 void *io(void *tiempo);
 

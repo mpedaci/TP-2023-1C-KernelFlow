@@ -20,7 +20,7 @@ pthread_t thr_core;
 
 bool core_running = true;
 
-t_list *all_pcb; 
+t_list *all_pcb = NULL; 
 
 t_list *recursos = NULL;
 
