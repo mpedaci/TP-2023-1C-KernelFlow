@@ -1,5 +1,6 @@
 #include "modulos.h"
 
+//KERNEL
 void kernel_operations(int client_socket)
 {
     bool exit = false;
@@ -69,6 +70,7 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
     // HACER UN FREE DE PIDTRUCTION POR FAVOR
 }
 
+// CPU
 void cpu_operations(int client_socket)
 {
     bool exit = false;
@@ -109,6 +111,7 @@ void cpu_operations(int client_socket)
     }
 }
 
+// FS
 void fs_operations(int client_socket)
 {
     bool exit = false;

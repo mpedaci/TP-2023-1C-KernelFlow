@@ -37,140 +37,38 @@ void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config
     free(config);
 }
 
-// SEGMENTOS
-t_segment *create_segment(int id, int size)
-{
-    if (!is_malloc_possible(size))
+// FILTROS/BUSCADORES
+t_segment *get_segment_by_id(int id){
+    for (int i = 0; i < list_size(all_segments_tables); i++)
     {
-        log_debug(logger_aux, "No hay espacio suficiente para crear el segmento");
-        return NULL;
-    }
-
-    t_segment *segment = new_segment(id, size);
-
-    return segment;
-}
-
-t_segment *new_segment(int id, int size)
-{
-    t_segment *segment = malloc(sizeof(t_segment));
-
-    segment->id = id;
-    segment->size = size;
-
-    int base_address = get_base_adress(segment);
-
-    segment->base_address = base_address;
-
-    if (base_address != -1)
-    {
-        for (int i = base_address; i < (base_address + size); i++)
+        t_segments_table *aux_table = list_get(all_segments_tables, i);
+        for (int j = 0; j < aux_table->segment_list->elements_count; j++)
         {
-            bitarray_set_bit(free_space_table, i);
-        }
-    }
-
-    return segment;
-}
-
-bool is_malloc_possible(int size)
-{
-    int free_space = 0;
-    int fst_size = bitarray_get_max_bit(free_space_table);
-
-    for (int i = 0; i < fst_size; i++)
-    {
-        if (!bitarray_test_bit(free_space_table, i))
-        {
-            free_space++;
-        }
-    }
-
-    return free_space >= size;
-}
-
-int get_base_adress(t_segment *segment)
-{
-    int base_address;
-
-    char *algorithm = string_duplicate(config->compactation_algorithm);
-
-    if (strcmp(algorithm, "FIRST") == 0)
-    {
-        base_address = FIRST_FIT(segment);
-    }
-    else if (strcmp(algorithm, "BEST") == 0)
-    {
-        base_address = BEST_FIT(segment);
-    }
-    else if (strcmp(algorithm, "WORST") == 0)
-    {
-        base_address = WORST_FIT(segment);
-    }
-    else
-    {
-        log_debug(logger_aux, "No se reconoce el algoritmo de asignacion");
-        return -1;
-    }
-
-    return base_address;
-}
-
-/*Cuando eliminas un segmento, el memory_space no sufre cambios, solo la tabla de huecos libres.
-Esta funcion, permite que se vuelva poder a escribir en el espacio que ocupaba el segmento eliminado.
-*/
-void delete_segment(int pid, int id)
-{
-    t_segments_table *segments_table = get_segments_table_by_pid(pid);
-    t_segment *segment = get_segment_by_id(segments_table, id);
-    int base_address = segment->base_address;
-
-    list_remove_element(segments_table->segment_list, segment);
-
-    for (int i = base_address; i < (base_address + segment->size); i++)
-    {
-        bitarray_clean_bit(free_space_table, i);
-    }
-
-    free(segment);
-}
-
-t_segment *get_segment_by_id(t_segments_table *segments_table, int id)
-{
-    t_segment *segment;
-    for (int i = 0; i < list_size(segments_table->segment_list); i++)
-    {
-        segment = list_get(segments_table->segment_list, i);
-        if (segment->id == id)
-        {
-            return segment;
+            t_segment* segment = list_get(aux_table->segment_list, j);
+            if (segment->id == id)
+            {
+                return segment;
+            }
         }
     }
     return NULL;
 }
 
-// TABLAS DE SEGMENTOS
-t_segments_table *create_segments_table(int pid)
+t_segment *get_segment_by_address(int address)
 {
-    t_segments_table *segments_table = malloc(sizeof(t_segments_table));
-    segments_table->pid = pid;
-    segments_table->segment_list = list_create();
-
-    list_add(segments_table->segment_list, segment_0);
-
-    list_add(all_segments_tables, segments_table);
-
-    return segments_table;
-}
-
-void add_segment_to_table(int pid, t_segment *segment)
-{
-    t_segments_table *segments_table = get_segments_table_by_pid(pid);
-    if (segments_table == NULL)
+    for (int i = 0; i < list_size(all_segments_tables); i++)
     {
-        segments_table = create_segments_table(pid);
+        t_segments_table *aux_table = list_get(all_segments_tables, i);
+        for (int j = 0; j < aux_table->segment_list->elements_count; j++)
+        {
+            t_segment *segment = list_get(aux_table->segment_list, j);
+            if (segment->base_address == address)
+            {
+                return segment;
+            }
+        }
     }
-    list_add(segments_table->segment_list, segment);
+    return NULL;
 }
 
 t_segments_table *get_segments_table_by_pid(int pid)
@@ -185,32 +83,13 @@ t_segments_table *get_segments_table_by_pid(int pid)
     return NULL;
 }
 
-void delete_segments_table(void *s_table)
+// BITARRAY
+void bitarray_clean_from_and_how_many(t_bitarray *bitmap, int from, int how_many)
 {
-    t_segments_table *segments_table = (t_segments_table *)s_table;
-    list_remove_element(all_segments_tables, segments_table);
-    // Inicio "i" en 1, ya que en 0 esta el segmento cero
-    for (int i = 1; i < list_size(segments_table->segment_list); i++)
+    for (int i = from; i < (from + how_many); i++)
     {
-        list_remove_and_destroy_element(segments_table->segment_list, i, free);
+        bitarray_clean_bit(bitmap, i);
     }
-    list_destroy(segments_table->segment_list);
-    free(segments_table);
-    free(s_table);
-}
-
-// DATOS
-t_data *create_data(char *value, int data_length)
-{
-    t_data *data = malloc(sizeof(t_data));
-    data->value = string_duplicate(value);
-    data->value_length = data_length;
-    return data;
-}
-
-void move_data(void* aux_space, int to, int from, int length)
-{
-    memcpy(aux_space + to, memory_space + from, length);
 }
 
 void bitarray_clean_all(t_bitarray *bitmap)
@@ -221,35 +100,8 @@ void bitarray_clean_all(t_bitarray *bitmap)
     }
 }
 
-// COMPACTACION
-void compact_memory()
+// DATOS
+void move_data(int to, int from, int length)
 {
-    // Setear todos los bits a 0
-    bitarray_clean_all(free_space_table);
-
-    // REALOCAR TODO:
-    // Asignar el segmento 0
-    segment_0->base_address = get_base_adress(segment_0);
-
-    // Asignar a todos los demas segmentos
-    int all_segments_tables_size = all_segments_tables->elements_count;
-    int aux_table_size;
-
-    // Creo un espacio auxiliar porque perderia los datos en la ubicacion original al mover
-    void* aux_space = malloc(config->memory_size);
-
-    for (int i = 0; i < all_segments_tables_size; i++)
-    {
-        t_segments_table *aux_table = list_get(all_segments_tables, i);
-        aux_table_size = aux_table->segment_list->elements_count;
-        for (int j = 1; j < aux_table_size; j++)
-        {
-            t_segment *aux_segment = list_get(aux_table->segment_list, j);
-            int old_address = get_base_adress(aux_segment);
-            aux_segment->base_address = get_base_adress(aux_segment);
-            move_data(aux_space,aux_segment->base_address, old_address, aux_segment->size);
-        }
-    }
-    memory_space = aux_space;
-    free(aux_space);
+    memcpy(memory_space + to, memory_space + from, length);
 }

@@ -1,7 +1,7 @@
 #ifndef ESTRUCTURAS_H
 #define ESTRUCTURAS_H
 
-#include "utils.h"
+#include "compactacion.h"
 
 void start_memory(t_config_memoria* config);
 void end_memory();
