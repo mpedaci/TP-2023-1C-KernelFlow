@@ -24,7 +24,7 @@ void add_segment_to_table(int pid, t_segment *segment);
 t_segments_table *get_segments_table_by_pid(int pid);
 void delete_segments_table(void *segments_table);
 t_data *create_data(char *base_address, int data_length);
-void move_data(int to, int from, int length);
+void move_data(void* aux_space, int to, int from, int length);
 void bitarray_clean_all(t_bitarray *bitmap);
 void compact_memory();
 

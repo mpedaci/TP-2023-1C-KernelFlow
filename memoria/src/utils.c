@@ -208,9 +208,9 @@ t_data *create_data(char *value, int data_length)
     return data;
 }
 
-void move_data(int to, int from, int length)
+void move_data(void* aux_space, int to, int from, int length)
 {
-    memcpy(memory_space + to, memory_space + from, length);
+    memcpy(aux_space + to, memory_space + from, length);
 }
 
 void bitarray_clean_all(t_bitarray *bitmap)
@@ -235,6 +235,9 @@ void compact_memory()
     int all_segments_tables_size = all_segments_tables->elements_count;
     int aux_table_size;
 
+    // Creo un espacio auxiliar porque perderia los datos en la ubicacion original al mover
+    void* aux_space = malloc(config->memory_size);
+
     for (int i = 0; i < all_segments_tables_size; i++)
     {
         t_segments_table *aux_table = list_get(all_segments_tables, i);
@@ -244,7 +247,9 @@ void compact_memory()
             t_segment *aux_segment = list_get(aux_table->segment_list, j);
             int old_address = get_base_adress(aux_segment);
             aux_segment->base_address = get_base_adress(aux_segment);
-            move_data(aux_segment->base_address, old_address, aux_segment->size);
+            move_data(aux_space,aux_segment->base_address, old_address, aux_segment->size);
         }
     }
+    memory_space = aux_space;
+    free(aux_space);
 }
