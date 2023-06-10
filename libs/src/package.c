@@ -663,15 +663,12 @@ t_list *t_lista_t_segments_create_from_buffer(t_buffer *buffer)
     memcpy(&(cant_list), buffer->stream + offset, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
-    printf("CANT LIST: %d\n", cant_list);
-
     uint32_t size_arr[cant_list];
 
     for (int i = 0; i < cant_list; i++)
     {
         memcpy(&(size_arr[i]), buffer->stream + offset, sizeof(uint32_t));
         offset += sizeof(uint32_t);
-        printf("SIZE LIST: %d\n", size_arr[i]);
     }
 
     for (int i = 0; i < cant_list; i++)
