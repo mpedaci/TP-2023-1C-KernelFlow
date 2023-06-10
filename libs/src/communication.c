@@ -203,7 +203,7 @@ bool send_segment(int socket, t_segment *segmento, t_log *logger)
 bool send_status_code(int socket, t_status_code status_code, t_log *logger)
 {
     t_buffer *buffer = t_status_code_create_buffer(status_code);
-    t_package *paquete = package_create(buffer, TSEGMENTOS);
+    t_package *paquete = package_create(buffer, STATUS_CODE);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
@@ -212,7 +212,7 @@ bool send_status_code(int socket, t_status_code status_code, t_log *logger)
 bool send_pid_instruccion(int socket, t_pid_instruccion *pid_instruccion, t_log *logger)
 {
     t_buffer *buffer = t_pid_instruccion_create_buffer(pid_instruccion);
-    t_package *paquete = package_create(buffer, TSEGMENTOS);
+    t_package *paquete = package_create(buffer, PID_INSTRUCCION);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
