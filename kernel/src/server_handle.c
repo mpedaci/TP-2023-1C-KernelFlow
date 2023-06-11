@@ -73,7 +73,7 @@ void process_client_communication(t_client_connection *conn)
         t_pcb *pcb = pcb_create(conn->pid, instrucciones);
 
         // guardo todos los pcb en una lista
-        //list_add(all_pcb, pcb); 
+        list_add(all_pcb, pcb); 
 
         pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
         // send_instruccion(modules_client->memory_client_socket, "TABLA SEGMENTOS NUEVA", logger_aux);
