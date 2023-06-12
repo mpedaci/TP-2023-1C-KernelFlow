@@ -13,6 +13,7 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
     t_instruccion *instruccionListaParaEjecutar = new_instruction(instruccionSiguiente);
 
     char *num_segmento;
+    bool seg_fault;
 
     switch (instruccionListaParaEjecutar->identificador)
     {
@@ -30,9 +31,13 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
         list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         break;
     case I_F_READ:
+        seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
+        // TODO - si hay seg_fault que le mando a kernel?
         cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
         break;
     case I_F_WRITE:
+        seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
+        // TODO - si hay seg_fault que le mando a kernel?
         cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
         break;
     default:
@@ -182,4 +187,14 @@ void cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segments, i
     list_remove(instruccion->parametros, index_parametro);
     list_add(instruccion->parametros, direccion_fisica);
     instruccion->p_length[index_parametro] = strlen(direccion_fisica) + 1;
+}
+
+bool checkear_seg_fault(t_instruccion *instruction, t_list *segments) {
+    int num_seg = get_num_segmento(list_get(instruction->parametros, 1));
+    t_segment *segment = get_by_num_segmento(num_seg, segments);
+
+    int desplazamiento = get_desplazamiento_segmento(list_get(instruction->parametros, 1));
+    int tamanio_a_leer_escribir = atoi(list_get(instruction->parametros, 2));
+
+    return tamanio_a_leer_escribir + desplazamiento > segment->size;
 }

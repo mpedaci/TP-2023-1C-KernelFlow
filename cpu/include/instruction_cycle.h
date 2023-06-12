@@ -30,4 +30,6 @@ char *get_params_string(t_instruccion *instruction);
 
 void cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segmentos, int index_parametro);
 
+bool checkear_seg_fault(t_instruccion *instruction, t_list *segments);
+
 #endif
