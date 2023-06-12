@@ -7,6 +7,7 @@
 #include "types.h"
 #include "kernel_vars.h"
 #include "kernel_structs.h"
+#include "queue_controller.h"
 
 #include "utils.h"
 #include "server.h"

@@ -82,10 +82,10 @@ void process_client_communication(t_client_connection *conn)
         if (mp < config_kernel->grado_max_multiprog)
         {
             log_info(logger_aux, "Thread con PID: %d agregado a READY", conn->pid);
-            list_add(queues->READY, pcb);
+            add_pcb_to_queue(QREADY, pcb);
         }
         else
-            list_add(queues->NEW, pcb);
+            add_pcb_to_queue(QNEW, pcb);
         break;
     case END:
         printf("Conexion Finalizada\n");

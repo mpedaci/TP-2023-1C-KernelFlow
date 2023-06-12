@@ -22,9 +22,9 @@ void *process_queues()
         // NEW -> READY (FIFO)
         while (can_move_NEW_to_READY())
         {
-            t_pcb *pcb = queue_pop(queues->NEW);
+            t_pcb *pcb = pop_pcb_from_queue(QNEW);
             pcb->tiempo_llegada_ready = temporal_create();
-            queue_push(queues->READY, pcb);
+            add_pcb_to_queue(QREADY, pcb);
         }
         // READY -> EXEC
         if (algorithm_is_FIFO() && can_execute_process())
@@ -33,7 +33,7 @@ void *process_queues()
             to_execute = HRRN(queues->READY);
         if (to_execute != NULL)
         {
-            queue_push(queues->EXEC, to_execute);
+            add_pcb_to_queue(QEXEC, to_execute);
             to_execute = NULL;
             execute();
         }
@@ -51,33 +51,6 @@ void *process_queues()
     // free(to_execute); // NO HARIA FALTA SI ESTA DENTRO DE UNA COLA
     log_info(logger_aux, "Thread Process Queues: finalizado");
     pthread_exit(0);
-}
-
-// MOVIMIENTO DE COLAS
-
-void queue_add(t_list *destiny, t_pcb *pcb)
-{
-    list_add(destiny, pcb);
-}
-
-void queue_remove(t_list *origin, t_pcb *pcb)
-{
-    list_remove_element(origin, pcb);
-}
-
-t_pcb *queue_pop(t_list *origin)
-{
-    return list_remove(origin, 0);
-}
-
-void queue_push(t_list *destiny, t_pcb *pcb)
-{
-    list_add(destiny, pcb);
-}
-
-bool queue_is_empty(t_list *queue)
-{
-    return list_is_empty(queue);
 }
 
 // CONDICIONES
@@ -101,48 +74,7 @@ bool algorithm_is_HRRN()
 
 bool can_execute_process()
 {
-    return !queue_is_empty(queues->READY) && queue_is_empty(queues->EXEC);
-}
-
-// Sincronizacion de colas y listas (VER)
-
-void agregar_pcb_a_cola(t_pcb *pcb, pthread_mutex_t mutex, t_list *cola)
-{
-    pthread_mutex_lock(&mutex);
-    queue_push(cola, pcb);
-    pthread_mutex_unlock(&mutex);
-}
-
-t_pcb *quitar_pcb_de_cola(pthread_mutex_t mutex, t_list *cola)
-{
-    pthread_mutex_lock(&mutex);
-    t_pcb *pcb = queue_pop(cola);
-    pthread_mutex_unlock(&mutex);
-    return pcb;
-}
-
-
-t_pcb *quitar_pcb_de_cola_by_index(pthread_mutex_t mutex, t_list *cola, int index)
-{
-    pthread_mutex_lock(&mutex);
-    t_pcb *pcb = list_remove(cola, index);
-    pthread_mutex_unlock(&mutex);
-    return pcb;
-}
-
-void agregar_pcb_a_lista(t_pcb *pcb, pthread_mutex_t mutex, t_list *cola)
-{
-    pthread_mutex_lock(&mutex);
-    list_add(cola, pcb);
-    pthread_mutex_unlock(&mutex);
-}
-
-t_pcb *quitar_primer_pcb_de_lista(pthread_mutex_t mutex, t_list *cola)
-{
-    pthread_mutex_lock(&mutex);
-    t_pcb *pcb = list_remove(cola, 0);
-    pthread_mutex_unlock(&mutex);
-    return pcb;
+    return !is_queue_empty(QREADY) && is_queue_empty(QEXEC);
 }
 
 void inicializar_mutex()
@@ -159,19 +91,19 @@ void inicializar_mutex()
 
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
 {
-    // ACA TALVEZ DEBA COPIAR LA MEMORIA
     t_pcontexto *pcontexto = malloc(sizeof(t_pcontexto));
     pcontexto->pid = pcb->pid;
     pcontexto->program_counter = pcb->program_counter;
-    pcontexto->registers = pcb->registers;
-    pcontexto->instructions = pcb->instrucciones;
+    pcontexto->registers = init_registers();
+    copy_registers(pcontexto->registers, pcb->registers);
+    pcontexto->instructions = copy_instructions_list(pcb->instrucciones);
     return pcontexto;
 }
 
 void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto)
 {
     pcb->program_counter = pcontexto->program_counter;
-    pcb->registers = pcontexto->registers;
+    copy_registers(pcb->registers, pcontexto->registers);
 }
 
 void cargar_recursos()
@@ -208,8 +140,9 @@ void execute()
     pcb->tiempo_salida_cpu = temporal_create();
     update_est_sig_rafaga(pcb);
 
-    free(pcontexto);
+    free_pcontexto(pcontexto);
     free_pcontexto_desalojo(pcontexto_response);
+    package_destroy(p);
 }
 
 void sexecute()
@@ -235,14 +168,14 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
 {
     char *recurso_solicitado;
     bool se = false;
-    t_pcb *pcb = quitar_primer_pcb_de_lista(mutex_running, queues->EXEC);
+    t_pcb *pcb = pop_pcb_from_queue(QEXEC);
     switch (pcontexto_response->motivo_desalojo->identificador)
     {
     case I_WAIT:
         recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
         se = execute_wait(recurso_solicitado, pcb);
         if (se) {
-            queue_add(queues->EXEC, pcb);
+            add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }
         // free(recurso_solicitado);
@@ -251,7 +184,7 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
         se = execute_signal(recurso_solicitado, pcb);
         if (se) {
-            queue_add(queues->EXEC, pcb);
+            add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }
         // free(recurso_solicitado);

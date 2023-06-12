@@ -2,7 +2,7 @@
 
 t_instruccion *fetch(t_pcontexto *contexto)
 {
-    t_instruccion *instruccionSiguiente = list_get(contexto->instructions, contexto->program_counter);    
+    t_instruccion *instruccionSiguiente = list_get(contexto->instructions, contexto->program_counter);
     contexto->program_counter++;
     return instruccionSiguiente;
 }
@@ -19,7 +19,7 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente)
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
-        sleep(atoi(config->retardo_instruccion)/1000); // Miliseconds -> Seconds
+        sleep(atoi(config->retardo_instruccion) / 1000); // Miliseconds -> Seconds
         break;
     case I_MOV_IN:
         // traduce mmu
@@ -98,11 +98,14 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
     t_instruccion *instruccionListaParaEjecutar = decode(instruccionSiguiente);
 
     // loggeo la instruccion ejecutada
-    char *params_string = get_params_string(instruccionListaParaEjecutar);
-    char *instruction_string = get_instruction_string(instruccionListaParaEjecutar->identificador);
-    log_info(logger, "PID: %d - Ejecutando: %s - %s", contexto->pid, instruction_string, params_string);
+    // char *params_string = get_params_string(instruccionListaParaEjecutar);
+    // char *instruction_string = get_instruction_string(instruccionListaParaEjecutar->identificador);
+    // log_info(logger, "PID: %d - Ejecutando: %s - %s", contexto->pid, instruction_string, params_string);
+    // free(params_string);
 
     t_pcontexto_desalojo *contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
+
+    instruction_destroyer(instruccionListaParaEjecutar);
 
     return contexto_desalojo;
 }
@@ -112,9 +115,7 @@ t_pcontexto_desalojo *execute_process(t_pcontexto *contexto)
     ejecutando = true;
     t_pcontexto_desalojo *contexto_desalojo;
     while (ejecutando)
-    {
         contexto_desalojo = execute_instruction_cycle(contexto);
-    }
     return contexto_desalojo;
 }
 
@@ -163,23 +164,13 @@ char *get_instruction_string(t_identificador id)
 char *get_params_string(t_instruccion *instruction)
 {
     if (instruction->cant_parametros == 0)
-    {
         return "Sin parametros";
-    }
-
-    uint32_t size = instruction->cant_parametros + 1;
+    char *params_string = string_new();
     for (int i = 0; i < instruction->cant_parametros; i++)
     {
-        size += instruction->p_length[i];
+        string_append(&params_string, list_get(instruction->parametros, i));
+        if (i != instruction->cant_parametros - 1)
+            string_append(&params_string, " ");
     }
-
-    char *params_string = malloc(size);
-    memcpy(params_string, list_get(instruction->parametros, 0), instruction->p_length[0]);
-    for (int i = 1; i < instruction->cant_parametros; i++)
-    {
-        strcat(params_string, " ");
-        strcat(params_string, list_get(instruction->parametros, i));
-    }
-
     return params_string;
 }

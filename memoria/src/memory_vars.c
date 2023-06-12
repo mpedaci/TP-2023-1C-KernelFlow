@@ -3,9 +3,11 @@
 t_log *logger_main;
 t_log *logger_aux;
 
-t_segment* segment_0;
-t_list* all_segments_tables;
+t_config_memoria *config;
 
-void* memory_space;
+t_segment *segment_0;
+t_list *all_segments_tables;
 
-t_bitarray* free_space_table;
+void *memory_space;
+
+t_bitarray *free_space_table;

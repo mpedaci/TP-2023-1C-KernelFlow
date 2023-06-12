@@ -3,10 +3,10 @@
 
 #include "utils.h"
 
-void *FIRST_FIT(uint32_t size);
+uint32_t FIRST_FIT(t_segment* segment);
 
-void *BEST_FIT(uint32_t size);
+uint32_t BEST_FIT(t_segment* segment);
 
-void *WORST_FIT(uint32_t size);
+uint32_t WORST_FIT(t_segment* segment);
 
 #endif /* ALGORITMOS_H */
