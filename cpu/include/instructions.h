@@ -12,11 +12,11 @@
 
 t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar);
 
-void SET(char *registro, char *valor);
+void SET(char *registro_char, char *valor_char);
 
-char *MOV_IN();
+char *MOV_IN(char *registro, char *direccion_fisica);
 
-char *MOV_OUT();
+char *MOV_OUT(char *direccion_fisica, char *registro);
 
 t_pcontexto_desalojo *I_O(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar);
 
@@ -59,5 +59,9 @@ t_list *copy_instructions_list(t_list *instructions);
 t_instruccion *new_instruction(t_instruccion *instruccion);
 
 void add_param_size_to_instruction(t_list *parametros, t_instruccion *instruccion);
+
+void add_param_size_to_instruction(t_list *parametros, t_instruccion *instruccion);
+
+t_instruccion *create_new_instruction(t_identificador identificador, t_list *parametros);
 
 #endif

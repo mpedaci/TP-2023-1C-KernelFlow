@@ -7,14 +7,10 @@ t_instruccion *fetch(t_pcontexto *contexto)
     return instruccionSiguiente;
 }
 
-t_instruccion *decode(t_instruccion *instruccionSiguiente)
+t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto)
 {
     // creando instruccion lista para ejecutar
     t_instruccion *instruccionListaParaEjecutar = new_instruction(instruccionSiguiente);
-
-    // CAMBIAR LOS PARAMETROS EN LOS LUGARES QUE SON NECESARIOS (EJ MOV_OUT)
-    // ASI COMO ESTA "instruccionListaParaEjecutar" TIENE LOS MISMOS PARAMETROS QUE LA "instruccionSiguiente"
-    // MMU
 
     switch (instruccionListaParaEjecutar->identificador)
     {
@@ -22,19 +18,20 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente)
         sleep(atoi(config->retardo_instruccion) / 1000); // Miliseconds -> Seconds
         break;
     case I_MOV_IN:
-        // traduce mmu
-        // agregarle un parametro a los parametros de la instruccion que sea el numero de segmento
+        int num_segmento = get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1));
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 1);
+        list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         break;
     case I_MOV_OUT:
-        // mmu traduce
-        // params = params traducidos por mmu
-        // agregarle un parametro a los parametros de la instruccion que sea el numero de segmento
+        int num_segmento = get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 0));
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 0);
+        list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         break;
     case I_F_READ:
-        // mmu traduce
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 1);
         break;
     case I_F_WRITE:
-        // mmu traduce
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 1);
         break;
     default:
         break;
@@ -51,13 +48,14 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
         SET(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
         break;
     case I_MOV_IN:
-        MOV_IN(list_get(instruccionListaParaEjecutar->parametros, 0), atoi(list_get(instruccionListaParaEjecutar->parametros, 1)));
-        // instruccionListaParaEjecutar va a tener un parametro mas que se le agrego en el decode
-        // ese parametro va a servir para loggear el segundo log obligatorio. Una vez utilizado ELIMINARLO. lo mismo para MOV_OUT
-        // TODO
+        char *valor = MOV_IN(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
+        log_info(logger, "PID: %d - Accion: LEER - Segmento: %d - Direccion Fisica: %s - valor: %s", contexto->pid, list_get(instruccionListaParaEjecutar->parametros, 2), list_get(instruccionListaParaEjecutar->parametros, 1), valor);
+        list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         break;
     case I_MOV_OUT:
-        MOV_OUT(atoi(list_get(instruccionListaParaEjecutar->parametros, 0)), list_get(instruccionListaParaEjecutar->parametros, 1));
+        char *valor = MOV_OUT(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
+        log_info(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %d - Direccion Fisica: %s - valor: %s", contexto->pid, list_get(instruccionListaParaEjecutar->parametros, 2), list_get(instruccionListaParaEjecutar->parametros, 0), valor);
+        list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         break;
     case I_I_O:
         return I_O(contexto, instruccionListaParaEjecutar);
@@ -95,7 +93,7 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
 t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
 {
     t_instruccion *instruccionSiguiente = fetch(contexto);
-    t_instruccion *instruccionListaParaEjecutar = decode(instruccionSiguiente);
+    t_instruccion *instruccionListaParaEjecutar = decode(instruccionSiguiente, contexto);
 
     // loggeo la instruccion ejecutada
     // char *params_string = get_params_string(instruccionListaParaEjecutar);
@@ -173,4 +171,11 @@ char *get_params_string(t_instruccion *instruction)
             string_append(&params_string, " ");
     }
     return params_string;
+}
+
+void cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segmentos, int index_parametro) {
+    char *direccion_fisica = get_direccion_fisica(list_get(instruccion->parametros, index_parametro), segmentos);
+    list_remove(instruccion->parametros, index_parametro);
+    list_add(instruccion->parametros, direccion_fisica);
+    instruccion->p_length[index_parametro] = strlen(direccion_fisica) + 1;
 }
