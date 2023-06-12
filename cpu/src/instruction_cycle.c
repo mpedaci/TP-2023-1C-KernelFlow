@@ -12,26 +12,28 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
     // creando instruccion lista para ejecutar
     t_instruccion *instruccionListaParaEjecutar = new_instruction(instruccionSiguiente);
 
+    char *num_segmento;
+
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
         sleep(atoi(config->retardo_instruccion) / 1000); // Miliseconds -> Seconds
         break;
     case I_MOV_IN:
-        int num_segmento = get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1));
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 1);
+        num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
         list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         break;
     case I_MOV_OUT:
-        int num_segmento = get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 0));
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 0);
+        num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 0);
         list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         break;
     case I_F_READ:
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 1);
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
         break;
     case I_F_WRITE:
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segmentos, 1);
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
         break;
     default:
         break;
@@ -42,19 +44,21 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
 
 t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pcontexto *contexto)
 {
+    char *valor;
+
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
         SET(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
         break;
     case I_MOV_IN:
-        char *valor = MOV_IN(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
-        log_info(logger, "PID: %d - Accion: LEER - Segmento: %d - Direccion Fisica: %s - valor: %s", contexto->pid, list_get(instruccionListaParaEjecutar->parametros, 2), list_get(instruccionListaParaEjecutar->parametros, 1), valor);
+        valor = MOV_IN(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
+        log_info(logger, "PID: %d - Accion: LEER - Segmento: %s - Direccion Fisica: %s - valor: %s", contexto->pid, (char *) list_get(instruccionListaParaEjecutar->parametros, 2), (char *) list_get(instruccionListaParaEjecutar->parametros, 1), valor);
         list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         break;
     case I_MOV_OUT:
-        char *valor = MOV_OUT(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
-        log_info(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %d - Direccion Fisica: %s - valor: %s", contexto->pid, list_get(instruccionListaParaEjecutar->parametros, 2), list_get(instruccionListaParaEjecutar->parametros, 0), valor);
+        valor = MOV_OUT(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
+        log_info(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %s - Direccion Fisica: %s - valor: %s", contexto->pid, (char *) list_get(instruccionListaParaEjecutar->parametros, 2), (char *) list_get(instruccionListaParaEjecutar->parametros, 0), valor);
         list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         break;
     case I_I_O:
@@ -173,8 +177,8 @@ char *get_params_string(t_instruccion *instruction)
     return params_string;
 }
 
-void cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segmentos, int index_parametro) {
-    char *direccion_fisica = get_direccion_fisica(list_get(instruccion->parametros, index_parametro), segmentos);
+void cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segments, int index_parametro) {
+    char *direccion_fisica = get_direccion_fisica(list_get(instruccion->parametros, index_parametro), segments);
     list_remove(instruccion->parametros, index_parametro);
     list_add(instruccion->parametros, direccion_fisica);
     instruccion->p_length[index_parametro] = strlen(direccion_fisica) + 1;

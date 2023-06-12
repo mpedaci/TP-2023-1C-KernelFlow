@@ -71,6 +71,7 @@ typedef struct
     t_list *instructions;
     uint32_t program_counter;
     t_registers *registers;
+    t_list *segments;
 } t_pcontexto;
 
 typedef struct

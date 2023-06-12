@@ -97,3 +97,22 @@ void registers_destroy(t_registers *registers) {
 
     free(registers);
 }
+
+int get_sizeof_register(char *reg) {
+    if (strcmp(reg, "AX") == 0 || strcmp(reg, "BX") == 0 || strcmp(reg, "CX") == 0 || strcmp(reg, "DX") == 0)
+    {
+        return 4;
+    }
+    else if (strcmp(reg, "EAX") == 0 || strcmp(reg, "EBX") == 0 || strcmp(reg, "ECX") == 0 || strcmp(reg, "EDX") == 0)
+    {
+        return 8;
+    }
+    else if (strcmp(reg, "RAX") == 0 || strcmp(reg, "RBX") == 0 || strcmp(reg, "RCX") == 0 || strcmp(reg, "RDX") == 0)
+    {
+        return 16;
+    }
+    else
+    {
+        return -1;
+    }
+}

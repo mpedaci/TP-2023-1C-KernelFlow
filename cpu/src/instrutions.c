@@ -24,7 +24,7 @@ char *MOV_IN(char *registro, char *direccion_fisica)
     list_add(params, direccion_fisica);
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_IN, params);
-    bool res = send_instruccion(instruccion_a_mandar, socket_client_memoria, logger_aux);
+    bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_IN a memoria");
     
@@ -39,9 +39,9 @@ char *MOV_IN(char *registro, char *direccion_fisica)
         log_error(logger_aux, "No se pudo obtener el valor de memoria en el MOV_IN");
     }
 
-    free_package(package);
+    package_destroy(package);
 
-    memcpy(reg, data->value, sizeof(reg)); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
+    memcpy(reg, data->value, get_sizeof_register(registro)); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
 
     return data->value;
 }
@@ -52,11 +52,16 @@ char *MOV_OUT(char *direccion_fisica, char *registro)
 {
     void *reg = get_register(registro);
 
+    char *valor_reg = NULL; // puede que haya que hacer un malloc, por ahora no tira error en el make - CHECKEAR
+
+    memcpy(valor_reg, reg, get_sizeof_register(registro));
+
     t_list *params = list_create();
     list_add(params, direccion_fisica);
+    list_add(params, valor_reg);
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_OUT, params);
-    bool res = send_instruccion(instruccion_a_mandar, socket_client_memoria, logger_aux);
+    bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_OUT a memoria");
     
@@ -71,7 +76,7 @@ char *MOV_OUT(char *direccion_fisica, char *registro)
         log_error(logger_aux, "No se pudo obtener el valor de memoria en el MOV_OUT");
     }
 
-    free_package(package);
+    package_destroy(package);
 
     if(strcmp(data->value, "OK") != 0)
         log_error(logger_aux, "No se pudo escribir en memoria en el MOV_OUT (no se recibio OK)");
