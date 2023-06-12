@@ -8,7 +8,7 @@ int get_num_segmento(char *dir_logica)
     // int tam_max_segmento = atoi(config->tam_max_segmento);
     // return (int)floor(atoi(dir_logica) / tam_max_segmento);
 
-    /*
+    /* 1234
         esto deberia ser asi
 
         seteamos como default que los dos primeros n numeros de la direccion logica son el numero de segmento

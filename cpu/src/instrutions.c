@@ -1,10 +1,11 @@
 #include "instructions.h"
 
-t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
+t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar, t_status_code status_code)
 {
     ejecutando = false;
     t_pcontexto_desalojo *contexto_desalojo = copy_pcontexto(contexto);
     contexto_desalojo->motivo_desalojo = new_instruction(instruccionListaParaEjecutar);
+    contexto_desalojo->status_code = status_code;
     return contexto_desalojo;
 }
 
@@ -16,7 +17,7 @@ void SET(char *registro_char, char *valor_char)
 
 // mem -> reg -- lectura
 // Lee el valor de memoria correspondiente a la Dirección Lógica y lo almacena en el Registro
-char *MOV_IN(char *registro, char *direccion_fisica)
+void MOV_IN(char *registro, char *direccion_fisica)
 {
     void *reg = get_register(registro);
 
@@ -43,12 +44,13 @@ char *MOV_IN(char *registro, char *direccion_fisica)
 
     memcpy(reg, data->value, get_sizeof_register(registro)); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
 
-    return data->value;
+    free(data->value);
+    free(data);
 }
 
 // reg -> mem -- escritura
 // Lee el valor del Registro y lo escribe en la dirección física de memoria obtenida a partir de la Dirección Lógica
-char *MOV_OUT(char *direccion_fisica, char *registro)
+void MOV_OUT(char *direccion_fisica, char *registro)
 {
     void *reg = get_register(registro);
 
@@ -69,84 +71,84 @@ char *MOV_OUT(char *direccion_fisica, char *registro)
 
     t_package *package = get_package(socket_client_memoria, logger);
 
-    t_data *data;
-    if(package->operation_code == DATA) {
-        data = get_data(package);
+    t_status_code status_code;
+    if(package->operation_code == STATUS_CODE) {
+        status_code = get_status_code(package);
+        if(status_code == SUCCESS) {
+            log_info(logger_aux, "Se pudo escribir en memoria en el MOV_OUT");
+        } else {
+            log_error(logger_aux, "No se pudo escribir en memoria en el MOV_OUT");
+        }
     } else {
-        log_error(logger_aux, "No se pudo obtener el valor de memoria en el MOV_OUT");
+        log_error(logger_aux, "No se pudo obtener el OK de memoria en el MOV_OUT");
     }
 
     package_destroy(package);
-
-    if(strcmp(data->value, "OK") != 0)
-        log_error(logger_aux, "No se pudo escribir en memoria en el MOV_OUT (no se recibio OK)");
-
-    return data->value;
 }
 
 t_pcontexto_desalojo *I_O(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *F_OPEN(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *F_CLOSE(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *F_SEEK(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *F_READ(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *F_WRITE(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *F_TRUNCATE(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *WAIT(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *SIGNAL(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *CREATE_SEGMENT(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *DELETE_SEGMENT(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 {
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *YIELD(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 { // desaloja voluntariamente el proceso de la CPU
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 t_pcontexto_desalojo *EXIT(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)
 { // instruccion de finalizacion de proceso
-    return stop_exec(contexto, instruccionListaParaEjecutar);
+    return stop_exec(contexto, instruccionListaParaEjecutar, SUCCESS);
 }
 
 // aux

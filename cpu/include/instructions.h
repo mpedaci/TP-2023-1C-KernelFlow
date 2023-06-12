@@ -10,13 +10,13 @@
 #include "client_handle.h"
 
 
-t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar);
+t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar, t_status_code status_code);
 
 void SET(char *registro_char, char *valor_char);
 
-char *MOV_IN(char *registro, char *direccion_fisica);
+void MOV_IN(char *registro, char *direccion_fisica);
 
-char *MOV_OUT(char *direccion_fisica, char *registro);
+void MOV_OUT(char *direccion_fisica, char *registro);
 
 t_pcontexto_desalojo *I_O(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar);
 

@@ -104,12 +104,9 @@ void cpu_operations(int client_socket)
                 
                 // falta la parte de escribir en memoria TODO
 
-                data->value = "OK";
-                data->value_length = strlen(data->value);
-                res = send_data(client_socket, data, logger_aux);
+                res = send_status_code(client_socket, SUCCESS, logger_aux);
                 if(!res)
                     log_error(logger_aux, "No se pudo enviar el OK a CPU (MOV_OUT)");
-                free(data);
                 break;
             default:
                 printf("Instruccion desconocida\n");
