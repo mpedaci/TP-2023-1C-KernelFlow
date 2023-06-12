@@ -81,23 +81,42 @@ void cpu_operations(int client_socket)
         {
         case INSTRUCCION:
             t_instruccion *instruccion = get_instruccion(package);
-            t_address address;
+            t_data *data = malloc(sizeof(t_data));
+            bool res;
+            int direccion_fisica;
             switch (instruccion->identificador)
             {
-            case I_MOV_IN:
-                address = 1;
-                send_address(client_socket, address, logger_aux);
+            case I_MOV_IN: // lee de memoria y pasa valor leido
+                direccion_fisica = atoi((char*)list_get(instruccion->parametros, 0));
+                
+                // falta la parte de leer de memoria TODO
+
+                data->value = "valor_leido"; // no se si hay que hacer un malloc aca - CHECKEAR
+                data->value_length = strlen(data->value);
+                res = send_data(client_socket, data, logger_aux);
+                if(!res)
+                    log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
+                free(data);
                 break;
-            case I_MOV_OUT:
-                address = 1;
-                send_address(client_socket, address, logger_aux);
+            case I_MOV_OUT: // escribe en memoria y pasa OK
+                direccion_fisica = atoi((char*)list_get(instruccion->parametros, 0));
+                char *valor_a_escribir = (char*)list_get(instruccion->parametros, 1);
+                
+                // falta la parte de escribir en memoria TODO
+
+                data->value = "OK";
+                data->value_length = strlen(data->value);
+                res = send_data(client_socket, data, logger_aux);
+                if(!res)
+                    log_error(logger_aux, "No se pudo enviar el OK a CPU (MOV_OUT)");
+                free(data);
                 break;
             default:
                 printf("Instruccion desconocida\n");
                 exit = true;
                 break;
             }
-            // hay que hacer un free de la intruccion :)
+            instruction_destroyer(instruccion);
         case END:
             printf("Conexion Finalizada\n");
             exit = true;
@@ -131,4 +150,10 @@ void fs_operations(int client_socket)
         }
         package_destroy(package);
     }
+}
+
+void instruction_destroyer(t_instruccion *instruccion)
+{
+    list_destroy_and_destroy_elements(instruccion->parametros, free);
+    free(instruccion);
 }

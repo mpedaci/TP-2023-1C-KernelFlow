@@ -8,4 +8,6 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction);
 void cpu_operations(int client_socket);
 void fs_operations(int client_socket);
 
+void instruction_destroyer(t_instruccion *instruccion);
+
 #endif /* MODULOS_H */
