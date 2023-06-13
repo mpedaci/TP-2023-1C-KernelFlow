@@ -248,8 +248,9 @@ t_buffer *t_open_files_create_buffer(t_open_files *open_files)
 t_buffer *null_buffer()
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
-    buffer->size = 0;
-    buffer->stream = NULL;
+    buffer->size = 1;
+    buffer->stream = malloc(buffer->size);
+    memcpy(buffer->stream, "", buffer->size);
     return buffer;
 }
 

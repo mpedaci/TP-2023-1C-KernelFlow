@@ -4,23 +4,20 @@
 void kernel_operations(int client_socket)
 {
     bool exit = false;
-    while (exit == false)
+    while (!exit)
     {
-        log_warning(logger_aux, "Esperando operacion");
         t_package *package = get_package(client_socket, logger_aux);
-        log_info(logger_aux,"Operacion recibida: %d", package->operation_code);
         switch (package->operation_code)
         {
-        case PID_INSTRUCCION:
-            t_pid_instruccion *pidtruction = get_pid_instruccion(package);
-            handle_pid_instruction(client_socket, pidtruction);
-            break;
         case COMPACTAR:
-            log_info(logger_main, "HOLA PUTA");
             compact_memory();
             log_info(logger_main, "RESULTADO DE LA COMPACTACION");
             print_all_segments_tables();
             send_ltsegmentos(client_socket, all_segments_tables, logger_aux);
+            break;
+        case PID_INSTRUCCION:
+            t_pid_instruccion *pidtruction = get_pid_instruccion(package);
+            handle_pid_instruction(client_socket, pidtruction);
             break;
         case END:
             log_info(logger_aux, "Conexion Finalizada");
@@ -47,25 +44,26 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
     case I_CREATE_SEGMENT:
         int size = atoi((char *)list_get(instruccion->parametros, 1));
         t_segment *segment = create_segment(id, size);
-        // OUT OF MEMORY
         if (segment == NULL)
         {
+            // OUT OF MEMORY
             send_status_code(client_socket, OUT_OF_MEMORY, logger_aux);
             break;
         }
         else if (segment->base_address == -1)
-        // COMPACTATION REQUIRED
         {
+            // COMPACTATION REQUIRED
             log_info(logger_main, "Solicitud de Compactacion");
             send_status_code(client_socket, COMPACTATION_REQUIRED, logger_aux);
             break;
         }
-        // SUCCESS
-        add_segment_to_table(pid, segment);
-        log_info(logger_main, "PID: %d - Crear Segmento: %d - Base: %d - Tamanio: %d", pid, id, segment->base_address, size);
-        // Esto no me gusta (Para mi deberia ser un unico paquete)
-        send_status_code(client_socket, SUCCESS, logger_aux);
-        send_segment(client_socket, segment, logger_aux);
+        else
+        {
+            // SUCCESS
+            add_segment_to_table(pid, segment);
+            log_info(logger_main, "PID: %d - Crear Segmento: %d - Base: %d - Tamanio: %d", pid, id, segment->base_address, size);
+            send_segment(client_socket, segment, logger_aux);
+        }
         break;
     case I_DELETE_SEGMENT:
         t_segment *sgmnt = get_segment_by_id(id);

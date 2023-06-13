@@ -29,7 +29,7 @@ void execute_fread(t_instruccion *instruccion, t_pcb *pcb);
 void execute_fwrite(t_instruccion *instruccion, t_pcb *pcb);
 void execute_ftruncate(t_instruccion* instruccion, t_pcb *pcb);
 
-void compactar(t_pcb *pcb);
+void compactar();
 void actualizar_tablas(t_list *tablas_actualizadas);
 
 void *io(void *tiempo);

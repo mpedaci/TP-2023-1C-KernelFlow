@@ -1,8 +1,9 @@
 #include "instrucciones.h"
 
 void actualizar_tablas(t_list *tablas_actualizadas)
-{    
-    for(int i = 0; i< list_size(tablas_actualizadas); i++){
+{
+    for (int i = 0; i < list_size(tablas_actualizadas); i++)
+    {
         t_segments_table *aux_table = list_get(tablas_actualizadas, i);
         int j = find_pcb_index(all_pcb, aux_table->pid);
         ((t_pcb *)list_get(all_pcb, j))->segments_table = aux_table;
@@ -10,60 +11,64 @@ void actualizar_tablas(t_list *tablas_actualizadas)
 }
 
 bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
-{   
-    t_pid_instruccion * p = malloc(sizeof(t_pid_instruccion));
+{
+    bool status = false;
+    t_pid_instruccion *p = malloc(sizeof(t_pid_instruccion));
     p->instruccion = instruccion;
     p->pid = pcb->pid;
 
     // Envio a memoria instruccion y pid
     send_pid_instruccion(modules_client->memory_client_socket, p, logger_aux);
 
-    uint32_t segment_id = atoi(list_get(instruccion->parametros,0));
-    uint32_t segment_size = atoi(list_get(instruccion->parametros,1));
-    
+    uint32_t segment_id = atoi(list_get(instruccion->parametros, 0));
+    uint32_t segment_size = atoi(list_get(instruccion->parametros, 1));
+
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
-    t_status_code code = get_status_code(paquete);
 
-    switch(code){
-        case SUCCESS: 
-            t_package *p= get_package(modules_client->memory_client_socket, logger_aux);
-            t_segment *nuevo_segmento = get_segment(p);
-            list_add(pcb->segments_table->segment_list, nuevo_segmento);
-            log_info(logger_main,"PID: %d - Crear Segmento - Id: %d - Tamanio: %d", pcb->pid, segment_id, segment_size);
-            return true;
-            break;
-
-        case OUT_OF_MEMORY: 
+    switch (paquete->operation_code)
+    {
+    case STATUS_CODE:
+        t_status_code code = get_status_code(paquete);
+        if (code == OUT_OF_MEMORY){
             execute_exit(pcb, "OUTOFMEMORY");
-            return false;
-            break;
-
-        case COMPACTATION_REQUIRED:
-            compactar(pcb);
-
-            t_package *p2 = get_package(modules_client->memory_client_socket, logger_aux);
-            t_list *tablas_actualizadas = get_ltsegmentos(p2);
-            actualizar_tablas(tablas_actualizadas);
-
-            log_info(logger_main, "Se finalizo el proceso de compactacion");
-
+        }
+        else if (code == COMPACTATION_REQUIRED){
+            int i = find_pcb_index(queues->BLOCK, pcb->pid);
+            if (i != -1)
+            {
+                log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
+                while (i != -1)
+                    i = find_pcb_index(queues->BLOCK, pcb->pid);
+            }
+            compactar();
             // vuelvo a ejecutar create_segment
-            execute_create_segment(instruccion, pcb);
-        default:
+            status = execute_create_segment(instruccion, pcb);
+        }
+        break;
+    case SEGMENTO:
+        t_segment *nuevo_segmento = get_segment(paquete);
+        list_add(pcb->segments_table->segment_list, nuevo_segmento);
+        log_info(logger_main, "PID: %d - Crear Segmento - Id: %d - Tamanio: %d", pcb->pid, segment_id, segment_size);
+        status = true;
+        break;
+    default:
+        log_error(logger_main, "Error al crear segmento");
         break;
     }
-    return false;
+    package_destroy(paquete);
+    return status;
 }
 
-void compactar(t_pcb *pcb)
+void compactar()
 {
     log_info(logger_main, "Compactacion: Se solicito compactacion");
-    int i = find_pcb_index(queues->BLOCK, pcb->pid);
-    while(i != -1){ // esta en la cola de bloqueados
-        log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
-    }
     send_compactar(modules_client->memory_client_socket, logger_aux);
-    
+    t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
+    log_warning(logger_aux, "Compactacion: Se recibio paquete code op %d", paquete->operation_code);
+    t_list *tablas_actualizadas = get_ltsegmentos(paquete);
+    actualizar_tablas(tablas_actualizadas);
+    log_info(logger_main, "Se finalizo el proceso de compactacion");
+
     return;
 }
 
@@ -76,73 +81,73 @@ bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
     // Envio a memoria instruccion y pid
     send_pid_instruccion(modules_client->memory_client_socket, pid_instruccion, logger_aux);
 
-    t_package* p = get_package(modules_client->memory_client_socket, logger_aux);
+    t_package *p = get_package(modules_client->memory_client_socket, logger_aux);
     t_segments_table *tabla_actualizada = get_tsegmento(p);
     pcb->segments_table = tabla_actualizada;
 
-    log_info(logger_main,"PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros,0)));
+    log_info(logger_main, "PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros, 0)));
 
     return true;
 }
 
 void execute_fread(t_instruccion *instruccion, t_pcb *pcb)
 {
-    add_pcb_to_queue(QBLOCK, pcb);   
+    add_pcb_to_queue(QBLOCK, pcb);
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
 
-    char *archivo = list_get(instruccion->parametros,0);
-    int direccion = atoi(list_get(instruccion->parametros,1));
-    int tamanio = atoi(list_get(instruccion->parametros,2));
+    char *archivo = list_get(instruccion->parametros, 0);
+    int direccion = atoi(list_get(instruccion->parametros, 1));
+    int tamanio = atoi(list_get(instruccion->parametros, 2));
 
-    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio); 
- 
+    log_info(logger_main, "PID: %d - Leer Archivo: %s - Puntero: - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio);
+
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
     t_status_code code = get_status_code(paquete);
-    if(code == FILE_READED){
+    if (code == FILE_READED)
+    {
         pop_pcb_from_queue_by_index(QBLOCK, pcb->pid);
         add_pcb_to_queue(QREADY, pcb);
-
     }
     return;
 }
 
 void execute_fwrite(t_instruccion *instruccion, t_pcb *pcb)
 {
-    add_pcb_to_queue(QBLOCK, pcb);   
+    add_pcb_to_queue(QBLOCK, pcb);
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
 
-    char *archivo = list_get(instruccion->parametros,0);
-    int direccion = atoi(list_get(instruccion->parametros,1));
-    int tamanio = atoi(list_get(instruccion->parametros,2));
+    char *archivo = list_get(instruccion->parametros, 0);
+    int direccion = atoi(list_get(instruccion->parametros, 1));
+    int tamanio = atoi(list_get(instruccion->parametros, 2));
 
-    log_info(logger_main,"PID: %d - Leer Archivo: %s - Puntero: - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio);
-  
+    log_info(logger_main, "PID: %d - Leer Archivo: %s - Puntero: - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, direccion, tamanio);
+
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
     t_status_code code = get_status_code(paquete);
-    if(code == FILE_READED){
+    if (code == FILE_READED)
+    {
         pop_pcb_from_queue_by_index(QBLOCK, pcb->pid);
         add_pcb_to_queue(QREADY, pcb);
-
     }
     return;
 }
 
-void execute_ftruncate(t_instruccion* instruccion, t_pcb *pcb)
+void execute_ftruncate(t_instruccion *instruccion, t_pcb *pcb)
 {
     add_pcb_to_queue(QBLOCK, pcb);
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
 
-    char *archivo = list_get(instruccion->parametros,0);
-    int tamanio = atoi(list_get(instruccion->parametros,1));
+    char *archivo = list_get(instruccion->parametros, 0);
+    int tamanio = atoi(list_get(instruccion->parametros, 1));
 
-    log_info(logger_main,"PID: %d - Archivo: %s - Tamanio: %d", pcb->pid, archivo, tamanio);
+    log_info(logger_main, "PID: %d - Archivo: %s - Tamanio: %d", pcb->pid, archivo, tamanio);
 
     t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
     t_status_code code = get_status_code(paquete);
-    if(code == FILE_READED){
+    if (code == FILE_READED)
+    {
         pop_pcb_from_queue_by_index(QBLOCK, pcb->pid);
         add_pcb_to_queue(QREADY, pcb);
-
     }
     return;
 }
