@@ -23,6 +23,10 @@ extern t_log *logger_aux;
 // Config
 extern t_config_memoria *config;
 
+// Servidor
+extern bool accept_connections;
+extern pthread_t connection;
+
 // Estructuras
 extern void *memory_space;
 extern t_bitarray *free_space_table;
