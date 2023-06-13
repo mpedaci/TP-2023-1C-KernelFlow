@@ -14,9 +14,9 @@ void wait_clients(int server_fd)
    while (server_fd != -1)
    { // No estoy muy seguro de esta condicion
       char *socket_client = string_itoa(client_wait(server_fd, logger_aux));
-      pthread_t conection;
-      pthread_create(&conection, 0, handle_client, (void *)socket_client);
-      pthread_detach(conection);
+      pthread_t connection;
+      pthread_create(&connection, 0, handle_client, (void *)socket_client);
+      pthread_detach(connection);
    }
 }
 

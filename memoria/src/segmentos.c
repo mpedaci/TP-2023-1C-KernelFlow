@@ -5,7 +5,7 @@ t_segment *create_segment(int id, int size)
 {
     if (!is_malloc_possible(size))
     {
-        log_debug(logger_aux, "No hay espacio suficiente para crear el segmento");
+        log_error(logger_aux, "No hay espacio suficiente para crear el segmento");
         return NULL;
     }
 
@@ -29,15 +29,14 @@ t_segment *new_segment(int id, int size)
 /*Cuando eliminas un segmento, el memory_space no sufre cambios, solo la tabla de huecos libres.
 Esta funcion, permite que se vuelva poder a escribir en el espacio que ocupaba el segmento eliminado.
 */
-void delete_segment(int pid, int id)
+void delete_segment(int pid, t_segment *segment)
 {
     t_segments_table *segments_table = get_segments_table_by_pid(pid);
-    t_segment *segment = get_segment_by_id(id);
     int base_address = segment->base_address;
 
     list_remove_element(segments_table->segment_list, segment);
 
-    //Si la tabla de segmentos queda vacia (solo con el segmento 0), la elimino
+    // Si la tabla de segmentos queda vacia (solo con el segmento 0), la elimino
     if (list_size(segments_table->segment_list) == 1)
     {
         delete_segments_table(segments_table);
@@ -84,7 +83,7 @@ int get_base_adress(t_segment *segment)
     }
     else
     {
-        log_debug(logger_aux, "No se reconoce el algoritmo de asignacion");
+        log_warning(logger_aux, "No se reconoce el algoritmo de asignacion");
         base_address = -1;
     }
 
@@ -109,6 +108,8 @@ t_segments_table *create_segments_table(int pid)
     list_add(segments_table->segment_list, segment_0);
 
     list_add(all_segments_tables, segments_table);
+
+    log_info(logger_main, "Creacion de Proceso PID: %d", pid);
 
     return segments_table;
 }
@@ -139,5 +140,4 @@ void delete_segments_table(void *s_table)
 
     list_destroy(segments_table->segment_list);
     free(segments_table);
-    free(s_table);
 }

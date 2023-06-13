@@ -5,7 +5,8 @@
 #include <commons/config.h>
 #include "server.h"
 
-typedef struct{
+typedef struct
+{
 	char *port;
 	size_t memory_size;
 	size_t segment_zero_size;

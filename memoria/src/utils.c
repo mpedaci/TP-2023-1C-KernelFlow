@@ -38,13 +38,14 @@ void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config
 }
 
 // FILTROS/BUSCADORES
-t_segment *get_segment_by_id(int id){
+t_segment *get_segment_by_id(int id)
+{
     for (int i = 0; i < list_size(all_segments_tables); i++)
     {
         t_segments_table *aux_table = list_get(all_segments_tables, i);
         for (int j = 0; j < aux_table->segment_list->elements_count; j++)
         {
-            t_segment* segment = list_get(aux_table->segment_list, j);
+            t_segment *segment = list_get(aux_table->segment_list, j);
             if (segment->id == id)
             {
                 return segment;
@@ -101,7 +102,39 @@ void bitarray_clean_all(t_bitarray *bitmap)
 }
 
 // DATOS
+void *read_memory(int base_address, int size)
+{
+    void *data = malloc(size);
+    memcpy(data, memory_space + base_address, size);
+    return data;
+}
+
+bool write_memory(int base_address, int size, void *data)
+{
+    if (base_address + size > config->memory_size)
+    {
+        log_error(logger_aux, "Se intento escribir fuera de la memoria");
+        return false;
+    }
+    memcpy(memory_space + base_address, data, size);
+    return true;
+}
+
 void move_data(int to, int from, int length)
 {
     memcpy(memory_space + to, memory_space + from, length);
+}
+
+// IMPRESION DE SEGMENTOS
+void print_all_segments_tables()
+{
+    for (int i = 0; i < list_size(all_segments_tables); i++)
+    {
+        t_segments_table *aux_table = list_get(all_segments_tables, i);
+        for (int j = 0; j < aux_table->segment_list->elements_count; j++)
+        {
+            t_segment *segment = list_get(aux_table->segment_list, j);
+            log_info(logger_main, "PID: %d - Segmento: %d - Base: %d - Tamanio: %d\n", aux_table->pid, segment->id, segment->base_address, segment->size);
+        }
+    }
 }

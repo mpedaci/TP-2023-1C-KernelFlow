@@ -24,6 +24,10 @@ t_segments_table *get_segments_table_by_pid(int pid);
 void bitarray_clean_from_and_how_many(t_bitarray *bitmap, int from, int how_many);
 void bitarray_clean_all(t_bitarray *bitmap);
 
+void *read_memory(int base_address, int size);
+bool write_memory(int base_address, int size, void *data);
 void move_data(int to, int from, int length);
+
+void print_all_segments_tables();
 
 #endif /* UTILS_H */

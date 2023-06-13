@@ -5,7 +5,7 @@
 
 t_segment *create_segment(int id, int size);
 t_segment *new_segment(int id, int size);
-void delete_segment(int pid, int id);
+void delete_segment(int pid, t_segment *segment);
 bool is_malloc_possible(int size);
 int get_base_adress(t_segment *segment);
 

@@ -9,9 +9,10 @@ void start_memory(t_config_memoria *config)
     segment_0 = create_segment(0, config->segment_zero_size);
     if (segment_0->base_address == -1)
     {
-        log_debug(logger_aux, "No se pudo crear el segmento 0, memoria insuficiente\n");
+        log_error(logger_aux, "No se pudo crear el segmento 0, memoria insuficiente");
         return;
     }
+    log_info(logger_aux, "Segmento 0 creado correctamente");
 
     all_segments_tables = list_create();
 }
