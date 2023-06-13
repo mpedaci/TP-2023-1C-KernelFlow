@@ -161,6 +161,7 @@ void cpu_and_fs_operations(int client_socket,char *module)
             }
             else{
                 log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: %s ", info_write->pid, info_write->base_address, info_write->size, module);
+                send_status_code(client_socket, SUCCESS, logger_aux);
             }
             //HACER UN FREE DE INFO_WRITE POR FAVOR
             break;
@@ -188,5 +189,6 @@ void cpu_and_fs_operations(int client_socket,char *module)
         }
         package_destroy(package);
     }
+    free(module);
 }
 */
