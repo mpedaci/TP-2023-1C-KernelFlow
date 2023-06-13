@@ -64,7 +64,6 @@ void MOV_OUT(char *direccion_fisica, char *registro)
     t_list *params = list_create();
     list_add(params, direccion_fisica);
     list_add(params, valor_reg);
-    list_add(params, string_itoa(tam_reg));
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_OUT, params);
     bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
