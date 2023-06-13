@@ -31,6 +31,8 @@ extern pthread_t thr_core;
 
 extern bool core_running;
 
+extern t_list *all_pcb;
+
 // RECURSOS
 extern t_list *recursos;
 extern t_list *sem_recursos; // Semaforos para las instancias de los recuros - CONTADOR

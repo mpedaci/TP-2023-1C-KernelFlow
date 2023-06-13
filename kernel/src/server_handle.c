@@ -71,6 +71,10 @@ void process_client_communication(t_client_connection *conn)
         log_info(logger_aux, "Thread con PID: %d instrucciones recibidas", conn->pid);
         t_list *instrucciones = get_instrucciones(package); // 800
         t_pcb *pcb = pcb_create(conn->pid, instrucciones);
+
+        // guardo todos los pcb en una lista
+        list_add(all_pcb, pcb); 
+
         pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
         // send_instruccion(modules_client->memory_client_socket, "TABLA SEGMENTOS NUEVA", logger_aux);
         // t_package *package = get_package(modules_client->memory_client_socket, logger_aux);

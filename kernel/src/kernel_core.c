@@ -200,7 +200,7 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_exit(pcb, "SUCCESS");
         break;
     case I_F_WRITE:
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        execute_fwrite(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_CLOSE:
         execute_exit(pcb, "NO IMPLEMENTADO");
@@ -209,24 +209,27 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_exit(pcb, "NO IMPLEMENTADO");
         break;
     case I_F_READ:
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        execute_fread(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_SEEK:
         execute_exit(pcb, "NO IMPLEMENTADO");
         break;
     case I_F_TRUNCATE:
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        execute_ftruncate(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_CREATE_SEGMENT:
-        // uint32_t tamanio_solicitado = atoi(list_get(instruccion_desalojo->parametros, 1));
-        // uint32_t id_solicitado = atoi(list_get(instruccion_desalojo->parametros, 2));
-        // execute_create_segment(tamanio_solicitado, id_solicitado, pcb);
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        se = execute_create_segment(pcontexto_response->motivo_desalojo, pcb);
+        if (se) {
+            add_pcb_to_queue(QEXEC, pcb);
+            sexecute();
+        }
         break;
     case I_DELETE_SEGMENT:
-        // uint32_t id = atoi(list_get(instruccion_desalojo->parametros, 0));
-        // execute_delete_segment(id, pcb);
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        se = execute_delete_segment(pcontexto_response->motivo_desalojo, pcb);
+        if (se) {
+            add_pcb_to_queue(QEXEC, pcb);
+            sexecute();
+        }
         break;
     default:
         break;

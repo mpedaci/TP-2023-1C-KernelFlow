@@ -6,7 +6,9 @@ void kernel_operations(int client_socket)
     bool exit = false;
     while (exit == false)
     {
+        log_warning(logger_aux, "Esperando operacion");
         t_package *package = get_package(client_socket, logger_aux);
+        log_info(logger_aux,"Operacion recibida: %d", package->operation_code);
         switch (package->operation_code)
         {
         case PID_INSTRUCCION:
@@ -14,17 +16,21 @@ void kernel_operations(int client_socket)
             handle_pid_instruction(client_socket, pidtruction);
             break;
         case COMPACTAR:
+            log_info(logger_main, "HOLA PUTA");
             compact_memory();
             log_info(logger_main, "RESULTADO DE LA COMPACTACION");
+            print_all_segments_tables();
             send_ltsegmentos(client_socket, all_segments_tables, logger_aux);
             break;
         case END:
             log_info(logger_aux, "Conexion Finalizada");
             exit = true;
+            accept_connections = false;
             break;
         default:
             log_warning(logger_aux, "Operacion desconocida");
             exit = true;
+            accept_connections = false;
             break;
         }
         package_destroy(package);
