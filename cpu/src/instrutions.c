@@ -20,9 +20,11 @@ void SET(char *registro_char, char *valor_char)
 void MOV_IN(char *registro, char *direccion_fisica)
 {
     void *reg = get_register(registro);
+    int tam_reg = get_sizeof_register(registro);
 
     t_list *params = list_create();
     list_add(params, direccion_fisica);
+    list_add(params, string_itoa(tam_reg));
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_IN, params);
     bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
@@ -42,7 +44,7 @@ void MOV_IN(char *registro, char *direccion_fisica)
 
     package_destroy(package);
 
-    memcpy(reg, data->value, get_sizeof_register(registro)); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
+    memcpy(reg, data->value, tam_reg); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
 
     free(data->value);
     free(data);
@@ -53,14 +55,16 @@ void MOV_IN(char *registro, char *direccion_fisica)
 void MOV_OUT(char *direccion_fisica, char *registro)
 {
     void *reg = get_register(registro);
+    int tam_reg = get_sizeof_register(registro);
 
-    char *valor_reg = NULL; // puede que haya que hacer un malloc, por ahora no tira error en el make - CHECKEAR
+    char *valor_reg = malloc(tam_reg + 1);
 
-    memcpy(valor_reg, reg, get_sizeof_register(registro));
+    memcpy(valor_reg, reg, tam_reg);
 
     t_list *params = list_create();
     list_add(params, direccion_fisica);
     list_add(params, valor_reg);
+    list_add(params, string_itoa(tam_reg));
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_OUT, params);
     bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
