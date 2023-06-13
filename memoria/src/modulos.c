@@ -62,9 +62,9 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
         send_segment(client_socket, segment, logger_aux);
         break;
     case I_DELETE_SEGMENT:
-        t_segment *segment = get_segment_by_id(id);
-        log_info(logger_main, "PID: %d - Eliminar Segmento: %d - Base: %d - Tamanio: %d", pid, id, segment->base_address, segment->size);
-        delete_segment(pid, segment);
+        t_segment *sgmnt = get_segment_by_id(id);
+        log_info(logger_main, "PID: %d - Eliminar Segmento: %d - Base: %d - Tamanio: %d", pid, id, sgmnt->base_address, sgmnt->size);
+        delete_segment(pid, sgmnt);
         // ¿¿¿¿¿QUE PASA SI LA TABLA SE ELIMINÓ?????
         t_segments_table *segments_table = get_segments_table_by_pid(pid);
         send_tsegmento(client_socket, segments_table, logger_aux);

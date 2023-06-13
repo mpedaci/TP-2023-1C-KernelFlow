@@ -33,7 +33,6 @@ void wait_clients(int server_fd)
       }
    }
    pthread_join(connection, NULL);
-   free(connection);
 }
 
 void *handle_client(void *socket_client)
