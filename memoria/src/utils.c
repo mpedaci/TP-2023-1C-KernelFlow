@@ -102,22 +102,42 @@ void bitarray_clean_all(t_bitarray *bitmap)
 }
 
 // DATOS
-void *read_memory(int base_address, int size)
+/*
+t_info *read_memory(int base_address, int size)
 {
-    void *data = malloc(size);
-    memcpy(data, memory_space + base_address, size);
-    return data;
+    sleep(config->memory_time_delay / 1000);
+
+    t_info *info = malloc(sizeof(t_info));
+    info->data = malloc(size);
+    info->size = size;
+
+    if (base_address + size > config->memory_size)
+    {
+        log_error(logger_aux, "Se intento leer fuera de la memoria");
+        return NULL;
+    }
+    else
+    {
+        memcpy(info->data, memory_space + base_address, size);
+        return info;
+    }
 }
+*/
 
 bool write_memory(int base_address, int size, void *data)
 {
+    sleep(config->memory_time_delay / 1000);
+
     if (base_address + size > config->memory_size)
     {
         log_error(logger_aux, "Se intento escribir fuera de la memoria");
         return false;
     }
-    memcpy(memory_space + base_address, data, size);
-    return true;
+    else
+    {
+        memcpy(memory_space + base_address, data, size);
+        return true;
+    }
 }
 
 void move_data(int to, int from, int length)

@@ -58,7 +58,7 @@ void *handle_client(void *socket_client)
       log_warning(logger_aux, "Cliente desconocido");
       break;
    }
-   free(socket_client);
+   //free(socket_client);
    socket_destroy(socket);
    pthread_exit(0);
 }

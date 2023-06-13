@@ -65,9 +65,13 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
         t_segment *sgmnt = get_segment_by_id(id);
         log_info(logger_main, "PID: %d - Eliminar Segmento: %d - Base: %d - Tamanio: %d", pid, id, sgmnt->base_address, sgmnt->size);
         delete_segment(pid, sgmnt);
-        // ¿¿¿¿¿QUE PASA SI LA TABLA SE ELIMINÓ?????
         t_segments_table *segments_table = get_segments_table_by_pid(pid);
         send_tsegmento(client_socket, segments_table, logger_aux);
+        break;
+    case I_EXIT:
+        log_info(logger_main, "PID: %d - Finalizar Proceso", pid);
+        delete_segments_table(get_segments_table_by_pid(pid));
+        send_status_code(client_socket, SUCCESS, logger_aux);
         break;
     default:
         log_warning(logger_aux, "Instruccion desconocida");
@@ -138,3 +142,51 @@ void fs_operations(int client_socket)
         package_destroy(package);
     }
 }
+
+/*
+void cpu_and_fs_operations(int client_socket,char *module)
+{
+    bool exit = false;
+    while (exit == false)
+    {
+        t_package *package = get_package(client_socket, logger_aux);
+        switch (package->operation_code)
+        {
+        case INFO_WRITE:
+            t_info_write *info_write = get_info_write(package);
+            bool res = write_memory(info_write->base_address, info_write->info->size, info_write->info->data);
+            if(!res){
+                log_error(logger_aux, "Direccion de escritura en memoria invalida");
+                exit = true;
+            }
+            else{
+                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: %s ", info_write->pid, info_write->base_address, info_write->size, module);
+            }
+            //HACER UN FREE DE INFO_WRITE POR FAVOR
+            break;
+        case INFO_READ:
+            t_info_read *info_read = get_info_read(package);
+            t_info *info = read_memory(info_read->base_address, info_read->length);
+            if(info->data == NULL){
+                log_error(logger_aux, "Direccion de lectura en memoria invalida");
+                exit = true;
+            }
+            else{
+                log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s ", info_read->pid, info_read->base_address, info_read->size, module);
+                send_info(client_socket, info, logger_aux);
+            }
+            //HACER UN FREE DE INFO_READ POR FAVOR
+            break;
+        case END:
+            log_info(logger_aux, "Conexion Finalizada");
+            exit = true;
+            break;
+        default:
+            log_warning(logger_aux, "Operacion desconocida");
+            exit = true;
+            break;
+        }
+        package_destroy(package);
+    }
+}
+*/

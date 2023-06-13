@@ -7,6 +7,8 @@ void compact_memory()
 
     free_gaps_info(&first_zero, &last_one, &first_one_after_first_zero);
 
+    sleep(config->compactation_time_delay/1000);
+
     while (first_zero < last_one)
     {
         t_segment *segment = get_segment_by_address(first_one_after_first_zero);

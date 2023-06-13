@@ -36,12 +36,6 @@ void delete_segment(int pid, t_segment *segment)
 
     list_remove_element(segments_table->segment_list, segment);
 
-    // Si la tabla de segmentos queda vacia (solo con el segmento 0), la elimino
-    if (list_size(segments_table->segment_list) == 1)
-    {
-        delete_segments_table(segments_table);
-    }
-
     bitarray_clean_from_and_how_many(free_space_table, base_address, segment->size);
 
     free(segment);
