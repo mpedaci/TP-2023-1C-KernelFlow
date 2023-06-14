@@ -88,36 +88,54 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
 void cpu_operations(int client_socket)
 {
     bool exit = false;
-    while (exit == false)
+    while (!exit)
     {
         t_package *package = get_package(client_socket, logger_aux);
         switch (package->operation_code)
         {
         case INSTRUCCION:
-            t_instruccion *instruccion = get_instruccion(package);
-            t_address address;
-            switch (instruccion->identificador)
+            t_instruccion *instruction = get_instruccion(package);
+            bool res;
+            int base_address;
+            int length;
+            switch (instruction->identificador)
             {
-            case I_MOV_IN:
-                address = 1;
-                send_address(client_socket, address, logger_aux);
+            case I_MOV_IN: // lee de memoria y pasa valor leido
+                base_address = atoi((char*)list_get(instruction->parametros, 0));
+                length = atoi((char*)list_get(instruction->parametros, 1));
+
+                // t_info *info = read_memory(base_address, length);
+
+                // res = send_info(client_socket, info, logger_aux);
+                // if(!res)
+                    // log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
+                //HACER UN FREE DE INFO POR FAVOR
                 break;
-            case I_MOV_OUT:
-                address = 1;
-                send_address(client_socket, address, logger_aux);
+            case I_MOV_OUT: // escribe en memoria y pasa OK
+                base_address = atoi((char*)list_get(instruction->parametros, 0));
+                char *valor_a_escribir = (char*)list_get(instruction->parametros, 1);
+                length = instruction->p_length[1];
+                
+                bool result = write_memory(base_address, length, valor_a_escribir);
+                if(!result)
+                    log_error(logger_aux, "No se pudo escribir en memoria (MOV_OUT)");
+
+                res = send_status_code(client_socket, SUCCESS, logger_aux);
+                if(!res)
+                    log_error(logger_aux, "No se pudo enviar el OK a CPU (MOV_OUT)");
                 break;
             default:
                 log_warning(logger_aux, "Instruccion desconocida");
                 exit = true;
                 break;
             }
-            // hay que hacer un free de la intruccion :)
+            //HACER UN FREE DE INSTRUCCION POR FAVOR
         case END:
-            log_warning(logger_aux, "Conexion Finalizada");
+            log_info(logger_aux,"Conexion Finalizada");
             exit = true;
             break;
         default:
-            log_warning(logger_aux, "Operacion desconocida");
+            log_warning(logger_aux,"Operacion desconocida\n");
             exit = true;
             break;
         }
