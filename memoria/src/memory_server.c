@@ -125,6 +125,6 @@ void *handle_client(void *conn_info)
         break;
     }
     // free(socket_client);
-    destroy_connection_info(connection_info);
+    destroy_connection_info(conn);
     pthread_exit(0);
 }
