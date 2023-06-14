@@ -105,10 +105,9 @@ void cpu_operations(int client_socket)
                 length = atoi((char*)list_get(instruction->parametros, 1));
 
                 // t_info *info = read_memory(base_address, length);
-
                 // res = send_info(client_socket, info, logger_aux);
                 // if(!res)
-                    // log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
+                //     log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
                 //HACER UN FREE DE INFO POR FAVOR
                 break;
             case I_MOV_OUT: // escribe en memoria y pasa OK

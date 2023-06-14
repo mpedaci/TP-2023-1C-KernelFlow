@@ -11,7 +11,7 @@
 t_instruccion* fetch(t_pcontexto* contexto);
 
 // Interpreta la instruccion y traduce con MMU de ser necesario. Si la instruccion es SET tiene que hacer un RETARDO_INSTRUCCION
-t_instruccion* decode(t_instruccion* instruccionSiguiente);
+t_instruccion* decode(t_instruccion* instruccionSiguiente, t_pcontexto *contexto);
 
 // Ejecuta la instruccion
 t_pcontexto_desalojo *execute(t_instruccion* instruccionListaParaEjecutar, t_pcontexto *contexto);
@@ -27,5 +27,9 @@ t_pcontexto_desalojo * execute_process(t_pcontexto* contexto);
 char *get_instruction_string(t_identificador id);
 
 char *get_params_string(t_instruccion *instruction);
+
+void cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segmentos, int index_parametro);
+
+bool checkear_seg_fault(t_instruccion *instruction, t_list *segments);
 
 #endif

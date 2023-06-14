@@ -9,4 +9,6 @@ void cpu_operations(int client_socket);
 void fs_operations(int client_socket);
 //void cpu_and_fs_operations(int client_socket,char *module);
 
+void instruction_destroyer(t_instruccion *instruccion);
+
 #endif /* MODULOS_H */
