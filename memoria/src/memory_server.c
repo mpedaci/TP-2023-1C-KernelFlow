@@ -65,39 +65,13 @@ void destroy_connection_info(t_client_connection *connection_info)
 
 void wait_clients(int server_fd)
 {
-    bool close = false;
-
-    while (accept_connections)
-    { // No estoy muy seguro de esta condicion
-        if (!fs_connected || !cpu_connected || !kernel_connected)
-        {
-            connection_info = (t_client_connection *)malloc(sizeof(t_client_connection));
-            connection_info->socket = client_wait(server_fd, logger_aux);
-            if (connection_info->socket != -1)
-            {
-                connection_info->HS_module = hs_server_to_module_get_type(connection_info->socket, HSMEMORIA, logger_aux);
-                if (accept_new_module_connnection(connection_info))
-                {
-                    close = verify_existence_module();
-                    if (!close)
-                        pthread_create(&connection, 0, handle_client, (void *)connection_info);
-                    else
-                    {
-                        close = false;
-                        destroy_connection_info(connection_info);
-                    }
-                }
-                else
-                {
-                    log_warning(logger_aux, "Cliente desconocido");
-                    destroy_connection_info(connection_info);
-                }
-            }
-            else
-                free(connection_info);
-        }
-    }
-    pthread_join(connection, NULL);
+   while (server_fd != -1)
+   { // No estoy muy seguro de esta condicion
+      char *socket_client = string_itoa(client_wait(server_fd, logger_aux));
+      pthread_t conection;
+      pthread_create(&conection, 0, handle_client, (void *)socket_client);
+      pthread_detach(conection);
+   }
 }
 
 void *handle_client(void *conn_info)

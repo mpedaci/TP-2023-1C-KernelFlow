@@ -1,6 +1,7 @@
 #ifndef MEMORIA_H
 #define MEMORIA_H
 
+#include "utils.h"
 #include "estructuras.h"
 #include "memory_server.h"
 
