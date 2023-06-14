@@ -89,6 +89,7 @@ int get_base_adress(t_segment *segment)
         }
     }
 
+    free(algorithm);
     return base_address;
 }
 

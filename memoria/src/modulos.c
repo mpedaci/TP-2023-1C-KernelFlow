@@ -148,10 +148,10 @@ void fs_operations(int client_socket)
 }
 
 /*
-void cpu_and_fs_operations(int client_socket,char *module)
+void fs_operations(int client_socket)
 {
     bool exit = false;
-    while (exit == false)
+    while (!exit)
     {
         t_package *package = get_package(client_socket, logger_aux);
         switch (package->operation_code)
@@ -164,7 +164,7 @@ void cpu_and_fs_operations(int client_socket,char *module)
                 exit = true;
             }
             else{
-                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: %s ", info_write->pid, info_write->base_address, info_write->size, module);
+                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: FS ", info_write->pid, info_write->base_address, info_write->size);
                 send_status_code(client_socket, SUCCESS, logger_aux);
             }
             //HACER UN FREE DE INFO_WRITE POR FAVOR
@@ -177,7 +177,7 @@ void cpu_and_fs_operations(int client_socket,char *module)
                 exit = true;
             }
             else{
-                log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s ", info_read->pid, info_read->base_address, info_read->size, module);
+                log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: FS ", info_read->pid, info_read->base_address, info_read->size);
                 send_info(client_socket, info, logger_aux);
             }
             //HACER UN FREE DE INFO_READ POR FAVOR

@@ -3,19 +3,14 @@
 // COMPACTACION
 void compact_memory()
 {
-    int first_zero, last_one, first_one_after_first_zero;
-
-    log_info(logger_main, "ENTRO EN FREE GAPS INFO");
+    int first_zero = 0, last_one = 0, first_one_after_first_zero = 0;
 
     free_gaps_info(&first_zero, &last_one, &first_one_after_first_zero);
-
-    log_info(logger_main, "SALGO DE FREE GAPS INFO");
 
     //sleep(config->compactation_time_delay/1000);
 
     while (first_zero < last_one)
     {
-        log_info(logger_aux, "SE EJECUTA EL CICLO OTRA VEZ LPM");
         t_segment *segment = get_segment_by_address(first_one_after_first_zero);
         int old_address = segment->base_address;
         bitarray_clean_from_and_how_many(free_space_table, old_address, segment->size);
@@ -23,7 +18,6 @@ void compact_memory()
         move_data(segment->base_address, old_address, segment->size);
         free_gaps_info(&first_zero, &last_one, &first_one_after_first_zero);
     }
-    log_info(logger_main, "Se finalizo el proceso de compactacion");
 }
 
 void free_gaps_info(int *first_zero, int *last_one, int *first_one_after_first_zero)

@@ -33,6 +33,7 @@ void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config
     log_destroy(logger_main);
     log_destroy(logger_aux);
     // Memoria Config destroy
+    free(config->port);
     free(config->compactation_algorithm);
     free(config);
 }
