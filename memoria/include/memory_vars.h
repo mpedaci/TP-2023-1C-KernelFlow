@@ -1,9 +1,8 @@
 #ifndef MEMORY_VARS_H
 #define MEMORY_VARS_H
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <commons/log.h>
+#include <commons/config.h>
 #include "server.h"
 
 typedef struct
@@ -27,9 +26,8 @@ typedef struct
 extern t_log *logger_main;
 extern t_log *logger_aux;
 
-//Estructuras
-extern void* memory_space;
-extern t_bitarray* free_space_table;
+// Config
+extern t_config_memoria *config;
 
 // Servidor
 extern bool accept_connections;
