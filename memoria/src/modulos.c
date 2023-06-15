@@ -1,5 +1,11 @@
 #include "modulos.h"
 
+void instruction_destroyer(t_instruccion *instruccion)
+{
+    list_destroy_and_destroy_elements(instruccion->parametros, free);
+    free(instruccion);
+}
+
 // KERNEL
 void kernel_operations(int client_socket)
 {
@@ -18,6 +24,8 @@ void kernel_operations(int client_socket)
         case PID_INSTRUCCION:
             t_pid_instruccion *pidtruction = get_pid_instruccion(package);
             handle_pid_instruction(client_socket, pidtruction);
+            instruction_destroyer(pidtruction->instruccion);
+            free(pidtruction);
             break;
         case END:
             log_info(logger_aux, "Conexion Finalizada");
@@ -44,25 +52,22 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
     case I_CREATE_SEGMENT:
         int size = atoi((char *)list_get(instruccion->parametros, 1));
         t_segment *segment = create_segment(id, size);
-        if (segment == NULL)
-        {
-            // OUT OF MEMORY
-            send_status_code(client_socket, OUT_OF_MEMORY, logger_aux);
-            break;
-        }
-        else if (segment->base_address == -1)
-        {
-            // COMPACTATION REQUIRED
-            log_info(logger_main, "Solicitud de Compactacion");
-            send_status_code(client_socket, COMPACTATION_REQUIRED, logger_aux);
-            break;
-        }
-        else
+        if (segment != NULL && segment->base_address != -1)
         {
             // SUCCESS
             add_segment_to_table(pid, segment);
             log_info(logger_main, "PID: %d - Crear Segmento: %d - Base: %d - Tamanio: %d", pid, id, segment->base_address, size);
             send_segment(client_socket, segment, logger_aux);
+        } else {
+            if (segment == NULL) // OUT OF MEMORY
+                send_status_code(client_socket, OUT_OF_MEMORY, logger_aux);
+            else
+            {
+                // COMPACTATION REQUIRED
+                log_info(logger_main, "Solicitud de Compactacion");
+                send_status_code(client_socket, COMPACTATION_REQUIRED, logger_aux);
+            }
+            free(segment);
         }
         break;
     case I_DELETE_SEGMENT:

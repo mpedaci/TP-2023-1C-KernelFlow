@@ -19,7 +19,7 @@ int main(void)
 
 	// INICIALIZO SERVIDOR
 	start_memory_server(config->port);
-
+	end_memory();
 	end_program(logger_main, logger_aux, config);
 
 	return EXIT_SUCCESS;

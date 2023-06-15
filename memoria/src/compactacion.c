@@ -7,7 +7,7 @@ void compact_memory()
 
     free_gaps_info(&first_zero, &last_one, &first_one_after_first_zero);
 
-    //sleep(config->compactation_time_delay/1000);
+    // sleep(config->compactation_time_delay/1000);
 
     while (first_zero < last_one)
     {
@@ -30,13 +30,11 @@ void free_gaps_info(int *first_zero, int *last_one, int *first_one_after_first_z
 int find_first_zero()
 {
     int fst_size = bitarray_get_max_bit(free_space_table);
-
     for (int i = 0; i < fst_size; i++)
     {
-        if (!bitarray_test_bit(free_space_table, i))
-        {
+        bool status = bitarray_test_bit(free_space_table, i);
+        if (!status)
             return i;
-        }
     }
     return -1;
 }
@@ -44,13 +42,11 @@ int find_first_zero()
 int find_last_one()
 {
     int fst_size = bitarray_get_max_bit(free_space_table);
-
     for (int i = fst_size; i > 0; i--)
     {
-        if (bitarray_test_bit(free_space_table, i))
-        {
+        bool status = bitarray_test_bit(free_space_table, i);
+        if (status)
             return i;
-        }
     }
     return -1;
 }
@@ -59,14 +55,11 @@ int find_first_one_after_first_zero(int *fst_zero)
 {
     int fst_size = bitarray_get_max_bit(free_space_table);
     int first_zero = *fst_zero;
-    printf("first_zero: %d, fst_zero: %d \n", first_zero, *fst_zero);
-
     for (int i = first_zero; i < fst_size; i++)
     {
-        if (bitarray_test_bit(free_space_table, i))
-        {
+        bool status = bitarray_test_bit(free_space_table, i);
+        if (status)
             return i;
-        }
     }
     return -1;
 }

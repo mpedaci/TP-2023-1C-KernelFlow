@@ -197,14 +197,16 @@ char *get_instruction_string(t_identificador id)
 
 char *get_params_string(t_instruccion *instruction)
 {
-    if (instruction->cant_parametros == 0)
-        return "Sin parametros";
     char *params_string = string_new();
-    for (int i = 0; i < instruction->cant_parametros; i++)
-    {
-        string_append(&params_string, list_get(instruction->parametros, i));
-        if (i != instruction->cant_parametros - 1)
-            string_append(&params_string, " ");
+    if (instruction->cant_parametros == 0){
+        string_append(&params_string, "Sin parametros");
+    }else {
+        for (int i = 0; i < instruction->cant_parametros; i++)
+        {
+            string_append(&params_string, list_get(instruction->parametros, i));
+            if (i != instruction->cant_parametros - 1)
+                string_append(&params_string, " ");
+        }
     }
     return params_string;
 }
