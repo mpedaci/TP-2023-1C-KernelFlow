@@ -17,7 +17,7 @@ void SET(char *registro_char, char *valor_char)
 
 // mem -> reg -- lectura
 // Lee el valor de memoria correspondiente a la Dirección Lógica y lo almacena en el Registro
-void MOV_IN(char *registro, char *direccion_fisica)
+void MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
 {
     void *reg = get_register(registro);
     int tam_reg = get_sizeof_register(registro);
@@ -27,32 +27,34 @@ void MOV_IN(char *registro, char *direccion_fisica)
     list_add(params, string_itoa(tam_reg));
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_IN, params);
-    bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
+    t_pid_instruccion *pid_instruccion = malloc(sizeof(t_pid_instruccion));
+    pid_instruccion->pid = pid;
+    pid_instruccion->instruccion = instruccion_a_mandar;
+    bool res = send_pid_instruccion(socket_client_memoria, pid_instruccion, logger_aux);
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_IN a memoria");
     
     instruction_destroyer(instruccion_a_mandar);
+    free(pid_instruccion);
 
     t_package *package = get_package(socket_client_memoria, logger);
 
     t_data *data;
     if(package->operation_code == DATA) {
         data = get_data(package);
+        memcpy(reg, data->value, tam_reg); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
+        free(data->value);
+        free(data);
     } else {
         log_error(logger_aux, "No se pudo obtener el valor de memoria en el MOV_IN");
     }
 
     package_destroy(package);
-
-    memcpy(reg, data->value, tam_reg); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
-
-    free(data->value);
-    free(data);
 }
 
 // reg -> mem -- escritura
 // Lee el valor del Registro y lo escribe en la dirección física de memoria obtenida a partir de la Dirección Lógica
-void MOV_OUT(char *direccion_fisica, char *registro)
+void MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
 {
     void *reg = get_register(registro);
     int tam_reg = get_sizeof_register(registro);
@@ -66,11 +68,15 @@ void MOV_OUT(char *direccion_fisica, char *registro)
     list_add(params, valor_reg);
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_OUT, params);
-    bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
+    t_pid_instruccion *pid_instruccion = malloc(sizeof(t_pid_instruccion));
+    pid_instruccion->pid = pid;
+    pid_instruccion->instruccion = instruccion_a_mandar;
+    bool res = send_pid_instruccion(socket_client_memoria, pid_instruccion, logger_aux);
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_OUT a memoria");
     
     instruction_destroyer(instruccion_a_mandar);
+    free(pid_instruccion);
 
     t_package *package = get_package(socket_client_memoria, logger);
 

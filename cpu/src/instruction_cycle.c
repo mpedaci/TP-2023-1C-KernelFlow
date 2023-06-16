@@ -65,7 +65,7 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
         SET((char*)list_get(instruccionListaParaEjecutar->parametros, 0), (char*)list_get(instruccionListaParaEjecutar->parametros, 1));
         break;
     case I_MOV_IN:
-        MOV_IN((char*)list_get(instruccionListaParaEjecutar->parametros, 0), (char*)list_get(instruccionListaParaEjecutar->parametros, 1));
+        MOV_IN((char*)list_get(instruccionListaParaEjecutar->parametros, 0), (char*)list_get(instruccionListaParaEjecutar->parametros, 1), contexto->pid);
         reg = get_register((char*)list_get(instruccionListaParaEjecutar->parametros, 0));
         reg_size = get_sizeof_register((char*)list_get(instruccionListaParaEjecutar->parametros, 0));
         valor = malloc(reg_size);
@@ -74,7 +74,7 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
         list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         break;
     case I_MOV_OUT:
-        MOV_OUT(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1));
+        MOV_OUT(list_get(instruccionListaParaEjecutar->parametros, 0), list_get(instruccionListaParaEjecutar->parametros, 1), contexto->pid);
         reg = get_register((char*)list_get(instruccionListaParaEjecutar->parametros, 1));
         reg_size = get_sizeof_register((char*)list_get(instruccionListaParaEjecutar->parametros, 1));
         valor = malloc(reg_size);

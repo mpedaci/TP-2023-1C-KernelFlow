@@ -14,9 +14,9 @@ t_pcontexto_desalojo *stop_exec(t_pcontexto *contexto, t_instruccion* instruccio
 
 void SET(char *registro_char, char *valor_char);
 
-void MOV_IN(char *registro, char *direccion_fisica);
+void MOV_IN(char *registro, char *direccion_fisica, uint32_t pid);
 
-void MOV_OUT(char *direccion_fisica, char *registro);
+void MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid);
 
 t_pcontexto_desalojo *I_O(t_pcontexto *contexto, t_instruccion* instruccionListaParaEjecutar);
 
