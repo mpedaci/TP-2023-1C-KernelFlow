@@ -40,6 +40,7 @@ void end_kernel_server()
 {
     accept_connections = false;
     pthread_join(thr_server_conn, NULL);
+    pthread_join(thr_server, NULL);
     socket_destroy(server_socket);
     free(connection);
     log_info(logger_aux, "Thread Kernel Server: finalizado");

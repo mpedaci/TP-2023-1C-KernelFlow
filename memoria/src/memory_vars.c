@@ -5,11 +5,16 @@ t_log *logger_aux = NULL;
 
 t_config_memoria *config = NULL;
 
-bool accept_connections = false;
-pthread_t connection;
+bool end_program_flag = false;
 
-t_segment *segment_0 = NULL;
+int server_socket = -1;
+bool accept_connections = true;
+
+pthread_t thr_server;
+pthread_t thr_server_conn;
+
 t_list *all_segments_tables = NULL;
+t_segment *segment_0 = NULL;
 
 void *memory_space = NULL;
 

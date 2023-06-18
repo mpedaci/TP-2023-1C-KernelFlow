@@ -58,7 +58,9 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
             add_segment_to_table(pid, segment);
             log_info(logger_main, "PID: %d - Crear Segmento: %d - Base: %d - Tamanio: %d", pid, id, segment->base_address, size);
             send_segment(client_socket, segment, logger_aux);
-        } else {
+        }
+        else
+        {
             if (segment == NULL) // OUT OF MEMORY
                 send_status_code(client_socket, OUT_OF_MEMORY, logger_aux);
             else
@@ -106,26 +108,26 @@ void cpu_operations(int client_socket)
             switch (instruction->identificador)
             {
             case I_MOV_IN: // lee de memoria y pasa valor leido
-                base_address = atoi((char*)list_get(instruction->parametros, 0));
-                length = atoi((char*)list_get(instruction->parametros, 1));
+                base_address = atoi((char *)list_get(instruction->parametros, 0));
+                length = atoi((char *)list_get(instruction->parametros, 1));
 
                 // t_info *info = read_memory(base_address, length);
                 // res = send_info(client_socket, info, logger_aux);
                 // if(!res)
                 //     log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
-                //HACER UN FREE DE INFO POR FAVOR
+                // HACER UN FREE DE INFO POR FAVOR
                 break;
             case I_MOV_OUT: // escribe en memoria y pasa OK
-                base_address = atoi((char*)list_get(instruction->parametros, 0));
-                char *valor_a_escribir = (char*)list_get(instruction->parametros, 1);
+                base_address = atoi((char *)list_get(instruction->parametros, 0));
+                char *valor_a_escribir = (char *)list_get(instruction->parametros, 1);
                 length = instruction->p_length[1];
-                
+
                 bool result = write_memory(base_address, length, valor_a_escribir);
-                if(!result)
+                if (!result)
                     log_error(logger_aux, "No se pudo escribir en memoria (MOV_OUT)");
 
                 res = send_status_code(client_socket, SUCCESS, logger_aux);
-                if(!res)
+                if (!res)
                     log_error(logger_aux, "No se pudo enviar el OK a CPU (MOV_OUT)");
                 break;
             default:
@@ -133,13 +135,13 @@ void cpu_operations(int client_socket)
                 exit = true;
                 break;
             }
-            //HACER UN FREE DE INSTRUCCION POR FAVOR
+            // HACER UN FREE DE INSTRUCCION POR FAVOR
         case END:
-            log_info(logger_aux,"Conexion Finalizada");
+            log_info(logger_aux, "Conexion Finalizada");
             exit = true;
             break;
         default:
-            log_warning(logger_aux,"Operacion desconocida\n");
+            log_warning(logger_aux, "Operacion desconocida\n");
             exit = true;
             break;
         }

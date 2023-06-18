@@ -1,8 +1,11 @@
 #ifndef MEMORY_VARS_H
 #define MEMORY_VARS_H
 
+#include <pthread.h>
+
 #include <commons/log.h>
 #include <commons/config.h>
+
 #include "server.h"
 
 typedef struct
@@ -29,9 +32,14 @@ extern t_log *logger_aux;
 // Config
 extern t_config_memoria *config;
 
+// Estado del programa
+extern bool end_program_flag;
+
 // Servidor
+extern int server_socket;
 extern bool accept_connections;
-extern pthread_t connection;
+extern pthread_t thr_server;
+extern pthread_t thr_server_conn;
 
 // Estructuras
 extern void *memory_space;

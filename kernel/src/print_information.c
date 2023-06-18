@@ -4,7 +4,10 @@
 
 void print_menu()
 {
-    char *input;
+    
+    char line[2048];
+    int i;
+    int input = -1;
     printf("\n\nMenu:\n");
     printf("1. Mostrar config\n");
     printf("2. Mostrar colas\n");
@@ -12,9 +15,13 @@ void print_menu()
     printf("4. Mostrar PCB\n");
     printf("5. Mostrar recursos\n");
     printf("6. Salir\n");
-    input = readline("Ingrese una opcion: ");
+    if (fgets(line, sizeof(line), stdin)) {
+        if (1 == sscanf(line, "%d", &i)) {
+            input = i;
+        }
+    }
     printf("\n\n");
-    switch (atoi(input))
+    switch (input)
     {
     case 1:
         print_config();
@@ -45,7 +52,6 @@ void print_menu()
         break;
     }
     sleep(1);
-    free(input);
 }
 
 t_pcb *get_pcb_by_pid(int pid)

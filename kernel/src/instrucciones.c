@@ -56,6 +56,8 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
         break;
     }
     package_destroy(paquete);
+    free_instruccion(p->instruccion);
+    free(p);
     return status;
 }
 
@@ -68,7 +70,7 @@ void compactar()
     t_list *tablas_actualizadas = get_ltsegmentos(paquete);
     actualizar_tablas(tablas_actualizadas);
     log_info(logger_main, "Se finalizo el proceso de compactacion");
-
+    package_destroy(paquete);
     return;
 }
 
@@ -86,6 +88,10 @@ bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
     pcb->segments_table = tabla_actualizada;
 
     log_info(logger_main, "PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros, 0)));
+
+    free_instruccion(pid_instruccion->instruccion);
+    free(pid_instruccion);
+    package_destroy(p);
 
     return true;
 }

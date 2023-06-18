@@ -54,6 +54,7 @@ int main()
     // 6. Cerrar servidor - OK
     end_kernel_server();
     end_kernel_core();
+    destroy_mutex();
     // 7. Limpiar estructuras - OK
     end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
     return EXIT_SUCCESS;
@@ -64,6 +65,7 @@ void sigintHandler(int signum)
     printf("\nIniciando fin del modulo por signal: %d\n", signum);
     end_kernel_server();
     end_kernel_core();
+    destroy_mutex();
     end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
     exit(signum);
 }

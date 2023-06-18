@@ -39,6 +39,7 @@ bool can_execute_process();
 // sincronizacion de colas
 
 void inicializar_mutex();
+void destroy_mutex();
 
 // PCB
 

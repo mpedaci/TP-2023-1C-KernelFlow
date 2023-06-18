@@ -87,6 +87,15 @@ void inicializar_mutex()
     pthread_mutex_init(&mutex_pid, NULL);
 }
 
+void destroy_mutex()
+{
+    pthread_mutex_destroy(&mutex_new);
+    pthread_mutex_destroy(&mutex_ready);
+    pthread_mutex_destroy(&mutex_running);
+    pthread_mutex_destroy(&mutex_blocked);
+    pthread_mutex_destroy(&mutex_exit);
+    pthread_mutex_destroy(&mutex_pid);
+}
 // PCB
 
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
@@ -160,8 +169,9 @@ void sexecute()
     log_info(logger_aux, "PID: %d | Procesando motivo de desalojo: %d", pcontexto->pid, pcontexto_response->motivo_desalojo->identificador);
     procesar_motivo_desalojo(pcontexto_response);
 
-    free(pcontexto);
+    free_pcontexto(pcontexto);
     free_pcontexto_desalojo(pcontexto_response);
+    package_destroy(p);
 }
 
 void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)

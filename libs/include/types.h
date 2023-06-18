@@ -130,7 +130,8 @@ typedef struct
 
 typedef struct
 {
-    char **archivos_abiertos;
+    char *nombre_archivo;
+    uint32_t puntero_archivo;
 } t_open_files;
 
 // KERNEL

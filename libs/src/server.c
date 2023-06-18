@@ -11,14 +11,29 @@ int server_start(char *port, t_log *logger)
     getaddrinfo(NULL, port, &hints, &servinfo);
     // Creamos el socket de escucha del servidor
     server_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+    // Set the socket to non-blocking mode
+    int flags = fcntl(server_socket, F_GETFL, 0);
+    if (flags == -1)
+    {
+        perror("Error getting socket flags");
+        exit(1);
+    }
+    flags |= O_NONBLOCK;
+    if (fcntl(server_socket, F_SETFL, flags) == -1)
+    {
+        perror("Error setting socket to non-blocking");
+        exit(1);
+    }
     // Asociamos el socket a un puerto
-    if (bind(server_socket, servinfo->ai_addr, servinfo->ai_addrlen) < 0) {
+    if (bind(server_socket, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
+    {
         log_error(logger, "Error al asignar una direccion al socket");
         freeaddrinfo(servinfo);
         return -1;
     }
     // Escuchamos las conexiones entrantes
-    if (listen(server_socket, SOMAXCONN) < 0) {
+    if (listen(server_socket, SOMAXCONN) < 0)
+    {
         log_error(logger, "Error al escuchar conexiones entrantes");
         freeaddrinfo(servinfo);
         return -1;
@@ -32,10 +47,19 @@ int client_wait(int server_socket, t_log *logger)
 {
     // Aceptamos un nuevo cliente
     int client_socket;
-    client_socket = accept(server_socket, NULL, NULL);
-    if (client_socket < 0) {
-        log_error(logger, "Error al aceptar un nuevo cliente");
-        return -1;
+    int timeout = 2; // En segundos
+    for (int i = 0; i < timeout; i++)
+    {
+        client_socket = accept(server_socket, NULL, NULL);
+        if (client_socket < 0)
+        {
+            sleep(1);
+            continue;
+        }
+        else
+            break;
     }
+    if (client_socket < 0)
+        return -1;
     return client_socket;
 }

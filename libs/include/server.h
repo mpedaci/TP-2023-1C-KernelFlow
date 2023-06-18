@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <fcntl.h>
 
 #include <commons/log.h>
 #include <commons/collections/list.h>
