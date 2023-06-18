@@ -1,6 +1,7 @@
 #include "segmentos.h"
 
 // SEGMENTOS
+
 t_segment *create_segment(int id, int size)
 {
     if (!is_malloc_possible(size))
@@ -37,16 +38,13 @@ void delete_segment(int pid, t_segment *segment)
 bool is_malloc_possible(int size)
 {
     int free_space = 0;
-    int fst_size = bitarray_get_max_bit(free_space_table);
-
-    for (int i = 0; i < fst_size; i++)
+    for (int i = 0; i < free_space_table->size; i++)
     {
-        if (!bitarray_test_bit(free_space_table, i))
+        if (!bitarray_get(free_space_table, i))
         {
             free_space++;
         }
     }
-
     return free_space >= size;
 }
 
@@ -64,7 +62,7 @@ int get_base_adress(t_segment *segment)
         log_warning(logger_aux, "No se reconoce el algoritmo de asignacion");
     if (base_address != -1)
         for (int i = base_address; i < (base_address + segment->size); i++)
-            bitarray_set_bit(free_space_table, i);
+            bitarray_set(free_space_table, i, true);
     free(algorithm);
     return base_address;
 }
@@ -89,9 +87,7 @@ void add_segment_to_table(int pid, t_segment *segment)
 {
     t_segments_table *segments_table = get_segments_table_by_pid(pid);
     if (segments_table == NULL)
-    {
         segments_table = create_segments_table(pid);
-    }
     list_add(segments_table->segment_list, segment);
 }
 

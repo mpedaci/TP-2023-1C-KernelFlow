@@ -40,7 +40,7 @@ void end_program(
 t_registers *init_registers();
 
 void free_config_kernel(t_config_kernel *config);
-void free_modules_client(t_modules_client *modules_client);
+void free_modules_client(t_modules_client *modules_client, t_log *logger);
 void free_registers(t_registers *registers);
 void free_pcb(t_pcb *pcb);
 void free_queues(t_queues *queues);

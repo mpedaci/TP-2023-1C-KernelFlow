@@ -44,6 +44,7 @@ void *start_server_listen(void *listen_port)
             }
         }
     }
+    socket_destroy(server_socket);
     pthread_exit(0);
 }
 
@@ -52,7 +53,6 @@ void end_memory_server()
     accept_connections = false;
     pthread_join(thr_server_conn, NULL);
     pthread_join(thr_server, NULL);
-    socket_destroy(server_socket);
     log_info(logger_aux, "Thread Memory Server: finalizado");
 }
 
@@ -66,14 +66,17 @@ void *process_client_entry(void *ptr)
     case HSKERNEL:
         log_info(logger_aux, "Thread Memory Client: Se conecto el modulo Kernel");
         kernel_operations(conn->socket);
+        log_info(logger_aux, "Thread Memory Client: Se desconectara el modulo Kernel");
         break;
     case HSCPU:
         log_info(logger_aux, "Thread Memory Client: Se conecto el modulo CPU");
         cpu_operations(conn->socket);
+        log_info(logger_aux, "Thread Memory Client: Se desconectara el modulo CPU");
         break;
     case HSFS:
         log_info(logger_aux, "Thread Memory Client: Se conecto el modulo File System");
         fs_operations(conn->socket);
+        log_info(logger_aux, "Thread Memory Client: Se desconectara el modulo File System");
         break;
     default:
         log_warning(logger_aux, "Thread Memory Client: Cliente desconocido");

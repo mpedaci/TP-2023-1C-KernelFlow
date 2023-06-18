@@ -90,18 +90,30 @@ void bitarray_clean_from_and_how_many(t_bitarray *bitmap, int from, int how_many
 {
     for (int i = from; i < (from + how_many); i++)
     {
-        bitarray_clean_bit(bitmap, i);
+        bitarray_set(bitmap, i, false);
     }
 }
 
 void bitarray_clean_all(t_bitarray *bitmap)
 {
-    for (int i = 0; i < bitarray_get_max_bit(bitmap); i++)
+    for (int i = 0; i < bitmap->size; i++)
     {
-        bitarray_clean_bit(bitmap, i);
+        bitarray_set(bitmap, i, false);
     }
 }
 
+int get_free_space(int base)
+{
+    int size = 0;
+    for (int i = base; i < free_space_table->size; i++)
+    {
+        if (!bitarray_get(free_space_table, i))
+            size++;
+        else
+            break;
+    }
+    return size;
+}
 // DATOS
 /*
 t_info *read_memory(int base_address, int size)

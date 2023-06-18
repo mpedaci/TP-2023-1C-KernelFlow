@@ -33,8 +33,14 @@ void print_menu()
         print_internal_states();
         break;
     case 4:
-        input = readline("Ingrese el PID del PCB: ");
-        t_pcb *pcb = get_pcb_by_pid(atoi(input));
+        input = -1;
+        printf("Ingrese el PID del PCB: ");
+        if (fgets(line, sizeof(line), stdin)) {
+            if (1 == sscanf(line, "%d", &i)) {
+                input = i;
+            }
+        }
+        t_pcb *pcb = get_pcb_by_pid(input);
         printf("\n");
         if (pcb != NULL)
             print_pcb(pcb);

@@ -5,6 +5,7 @@
 
 #include <commons/log.h>
 #include <commons/config.h>
+#include "bitarray.h"
 
 #include "server.h"
 

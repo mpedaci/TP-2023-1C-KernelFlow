@@ -140,13 +140,14 @@ void end_program(
     t_modules_client *modules_client,
     t_queues *queues)
 {
+    // Modules Client destroy
+    if (modules_client != NULL)
+        free_modules_client(modules_client, logger_aux);
+
     log_debug(logger_aux, "Finalizando programa");
     // Logs destroy
     log_destroy(logger_main);
     log_destroy(logger_aux);
-    // Modules Client destroy
-    if (modules_client != NULL)
-        free_modules_client(modules_client);
     // Kernel Config destroy
     if (config != NULL)
         free_config_kernel(config);
@@ -172,8 +173,11 @@ void free_config_kernel(t_config_kernel *config)
     free(config);
 }
 
-void free_modules_client(t_modules_client *modules_client)
+void free_modules_client(t_modules_client *modules_client, t_log *logger)
 {
+    send_end(modules_client->cpu_client_socket, logger);
+    send_end(modules_client->filesystem_client_socket, logger);
+    send_end(modules_client->memory_client_socket, logger);
     socket_destroy(modules_client->cpu_client_socket);
     socket_destroy(modules_client->filesystem_client_socket);
     socket_destroy(modules_client->memory_client_socket);

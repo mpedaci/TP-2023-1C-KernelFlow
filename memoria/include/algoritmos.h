@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include "memory_vars.h"
+#include "bitarray.h"
 
 uint32_t FIRST_FIT(t_segment* segment);
 

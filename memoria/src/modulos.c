@@ -28,14 +28,14 @@ void kernel_operations(int client_socket)
             free(pidtruction);
             break;
         case END:
-            log_info(logger_aux, "Conexion Finalizada");
+            log_warning(logger_aux, "Kernel: Conexion Finalizada");
             exit = true;
-            accept_connections = false;
+            end_program_flag = true;
             break;
         default:
-            log_warning(logger_aux, "Operacion desconocida");
+            log_warning(logger_aux, "Kernel: Operacion desconocida");
             exit = true;
-            accept_connections = false;
+            end_program_flag = true;
             break;
         }
         package_destroy(package);
@@ -137,11 +137,11 @@ void cpu_operations(int client_socket)
             }
             // HACER UN FREE DE INSTRUCCION POR FAVOR
         case END:
-            log_info(logger_aux, "Conexion Finalizada");
+            log_warning(logger_aux, "CPU: Conexion Finalizada");
             exit = true;
             break;
         default:
-            log_warning(logger_aux, "Operacion desconocida\n");
+            log_warning(logger_aux, "CPU: Operacion desconocida\n");
             exit = true;
             break;
         }
@@ -159,11 +159,11 @@ void fs_operations(int client_socket)
         switch (package->operation_code)
         {
         case END:
-            log_warning(logger_aux, "Conexion Finalizada");
+            log_warning(logger_aux, "Filesystem: Conexion Finalizada");
             exit = true;
             break;
         default:
-            log_warning(logger_aux, "Operacion desconocida");
+            log_warning(logger_aux, "Filesystem: Operacion desconocida");
             exit = true;
             break;
         }

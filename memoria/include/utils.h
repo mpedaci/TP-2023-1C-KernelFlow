@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include "memory_vars.h"
 #include "algoritmos.h"
+#include "bitarray.h"
 
 t_config_memoria *read_config(char *path);
 void end_program(t_log *logger_main, t_log *logger_aux, t_config_memoria *config);
@@ -23,6 +24,7 @@ t_segments_table *get_segments_table_by_pid(int pid);
 
 void bitarray_clean_from_and_how_many(t_bitarray *bitmap, int from, int how_many);
 void bitarray_clean_all(t_bitarray *bitmap);
+int get_free_space(int base);
 
 //t_info *read_memory(int base_address, int size);
 bool write_memory(int base_address, int size, void *data);

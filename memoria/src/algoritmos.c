@@ -3,27 +3,17 @@
 // Retorna la base address para el segmento, si no encuentra retorna -1
 uint32_t FIRST_FIT(t_segment *segment)
 {
-    uint32_t s_size = segment->size;
-    uint32_t fst_size = bitarray_get_max_bit(free_space_table);
-    int i = 0, j = 0;
-    uint32_t current_space_size = 0;
-    while (i < fst_size)
+    for (int i = 0; i < free_space_table->size; i++)
     {
-        if (!bitarray_test_bit(free_space_table, i))
+        if (!bitarray_get(free_space_table, i))
         {
-            j = i;
-            bool found = bitarray_test_bit(free_space_table, j);
-            while (!found && j < fst_size)
+            int size = get_free_space(i);
+            if (size >= segment->size)
             {
-                found = bitarray_test_bit(free_space_table, j);
-                j++;
-            }
-            current_space_size = j - i;
-            if (current_space_size >= s_size)
                 return i;
-            i = j;
+            }
+            i += size - 1;
         }
-        i++;
     }
     return -1;
 }
@@ -31,71 +21,47 @@ uint32_t FIRST_FIT(t_segment *segment)
 // Retorna la base address para el segmento, si no encuentra retorna -1
 uint32_t BEST_FIT(t_segment *segment)
 {
-    uint32_t best_size = 0;
-    uint32_t best_pos = 0;
-    uint32_t s_size = segment->size;
-    uint32_t fst_size = bitarray_get_max_bit(free_space_table);
-
-    int i = 0;
-    while (i < fst_size)
+    int best_size = -1;
+    int best_base = -1;
+    for (int i = 0; i < free_space_table->size; i++)
     {
-        if (!bitarray_test_bit(free_space_table, i))
+        if (!bitarray_get(free_space_table, i))
         {
-            int j = i;
-            bool found = bitarray_test_bit(free_space_table, j);
-            while (!found && j < fst_size)
+            int size = get_free_space(i);
+            if (size >= segment->size)
             {
-                found = bitarray_test_bit(free_space_table, j);
-                j++;
+                if (best_size == -1 || size < best_size)
+                {
+                    best_size = size;
+                    best_base = i;
+                }
             }
-            uint32_t current_space_size = j - i;
-            if (current_space_size >= s_size && (current_space_size < best_size || best_size == 0))
-            {
-                best_size = current_space_size;
-                best_pos = i;
-            }
-            i = j;
+            i += size - 1;
         }
-        i++;
     }
-
-    if (best_size == 0)
-        return -1;
-    else
-        return best_pos;
+    return best_base;
 }
 
 // Retorna la base address para el segmento, si no encuentra retorna -1
 uint32_t WORST_FIT(t_segment *segment)
 {
-    uint32_t best_size = 0;
-    uint32_t best_pos = 0;
-    uint32_t s_size = segment->size;
-    uint32_t fst_size = bitarray_get_max_bit(free_space_table);
-    int i = 0;
-    while (i < fst_size)
+    int worst_size = -1;
+    int worst_base = -1;
+    for (int i = 0; i < free_space_table->size; i++)
     {
-        if (!bitarray_test_bit(free_space_table, i))
+        if (!bitarray_get(free_space_table, i))
         {
-            int j = i;
-            bool found = bitarray_test_bit(free_space_table, j);
-            while (!found && j < fst_size)
+            int size = get_free_space(i);
+            if (size >= segment->size)
             {
-                found = bitarray_test_bit(free_space_table, j);
-                j++;
+                if (worst_size == -1 || size > worst_size)
+                {
+                    worst_size = size;
+                    worst_base = i;
+                }
             }
-            uint32_t current_space_size = j - i;
-            if (current_space_size >= s_size && (current_space_size > best_size || best_size == 0))
-            {
-                best_size = current_space_size;
-                best_pos = i;
-            }
-            i = j;
+            i += size - 1;
         }
-        i++;
     }
-    if (best_size == 0)
-        return -1;
-    else
-        return best_pos;
+    return worst_base;
 }

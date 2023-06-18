@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include <commons/temporal.h>
-#include <commons/bitarray.h>
 #include <commons/collections/list.h>
 
 /* TIPO DE DATO */

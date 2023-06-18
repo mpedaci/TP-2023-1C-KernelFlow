@@ -29,6 +29,7 @@ void close_program_cpu(t_config_cpu* config, t_registers* registers, int socket_
     log_destroy(logger_aux);
 
     // destruyo y libero config
+    send_end(socket_client_memoria, logger_aux);
     free(config->ip_memoria);
     free(config->puerto_memoria);
     free(config->puerto_escucha);
