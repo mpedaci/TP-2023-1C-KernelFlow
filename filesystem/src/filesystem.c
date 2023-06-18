@@ -4,7 +4,6 @@ int main() {
     // Inicializo los logs
     logger_main = log_create(logger_main_path, "FILESYSTEM", true, LOG_LEVEL_INFO);
     logger_aux = log_create(logger_aux_path, "FILESYSTEM AUX", true, LOG_LEVEL_DEBUG);
-
     // configuracion
     t_config_filesystem *config = NULL;
     config = read_config(config_path, logger_main);
@@ -13,7 +12,7 @@ int main() {
         end_program(logger_main,config,logger_aux);
         return EXIT_FAILURE;
     }
-    initialize_filesystem(config);
+    initialize_filesystem(config, logger_aux);
 
     // filesystem en MODO cliente de memoria
     log_info(logger_aux, "Iniciando cliente");

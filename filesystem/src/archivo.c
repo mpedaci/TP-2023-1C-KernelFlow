@@ -17,17 +17,32 @@ create_fcb(config->path_fcb);
 
 create_superbloque(config->path_superbloque);
 create_bitmap(config);
+
 pthread_t crear_y_manejar_blocks;
 pthread_create(&crear_y_manejar_blocks,NULL,(void*)create_blocks,(void*)config);
 pthread_detach(crear_y_manejar_blocks);
 
 
-//PARA PROBAR SI FUNCIONA DESCOMENTAR ESTAS FUNCIONES DE ACA !!!
-//son ejemplos:
-//create_file(config,"pepe",logger_aux); 
-//open_file(config,"pepe",logger_aux);
-//truncate_file(config,200,"jose");
+/*---------------PARA PROBAR SI FUNCIONA DESCOMENTAR ESTAS FUNCIONES DE ACA-----------*/
 
+//Ejemplos crear archivos: 
+create_file(config,"pepe",logger_aux); 
+create_file(config,"juanma",logger_aux); 
+create_file(config,"meli",logger_aux); 
+
+//Ejemplos abrir archivos: 
+
+//open_file(config,"pepe",logger_aux);
+//open_file(config,"meli",logger_aux);
+
+
+//Ejemplos truncar el mismo archivo con diferentes tamaños:  
+
+truncate_file(config,200,"pepe", logger_aux);
+truncate_file(config,150,"pepe",logger_aux);
+truncate_file(config,200,"pepe", logger_aux);
+
+//write_file(config,"pepe",400,3500,80,logger_aux);
 
 
 }
@@ -64,7 +79,9 @@ void create_superbloque(char *path_superblock){
 
 void create_bitmap(t_config_filesystem *config ){
 
-    int bitmap_size= ceil(pSuperbloque->block_count / 8 );   //NO PONER 8.0 ROMPE EL CEIL 
+   // int bitmap_size= ceil(pSuperbloque->block_count / 8 );   //NO PONER 8.0 ROMPE EL CEIL 
+    bitmap_size= ((pSuperbloque->block_count + 7) / 8);
+    
 
     int file_bitmap = open(config->path_bitmap, O_CREAT | O_RDWR, 0644);
 
@@ -78,7 +95,9 @@ void create_bitmap(t_config_filesystem *config ){
     bitarray_clean_bit(bitmap, i);
     }
 
-    bitarray_destroy(bitmap);
+    test_bitmap_zeros(bitmap);
+
+    //bitarray_destroy(bitmap);
     
     msync(mmapBitmap, sizeof(t_superbloque) + bitmap_size, MS_SYNC);
 
@@ -88,6 +107,20 @@ void create_bitmap(t_config_filesystem *config ){
     close(file_bitmap);
 
 }
+
+void test_bitmap_zeros(t_bitarray *bitmap) {
+    int bitmap_size = bitarray_get_max_bit(bitmap);
+
+    for (int i = 0; i < bitmap_size; i++) {
+        if (bitarray_test_bit(bitmap, i)) {
+            printf("El bit en la posición %d no está en 0\n", i);
+            return;
+        }
+    }
+
+   // printf("Todos los bits del bitmap están en 0\n");
+}
+
 
 
 void create_blocks(t_config_filesystem *config){
@@ -119,7 +152,6 @@ void create_blocks(t_config_filesystem *config){
     close(file_blocks);
 }
 
-
 void sync_blocks(void *mmapBlocks, int file_block_size) {
     if (msync(mmapBlocks, file_block_size, MS_SYNC) == -1) {
         //log_info(logger, "No se pudo sincronizar bloques");
@@ -127,7 +159,6 @@ void sync_blocks(void *mmapBlocks, int file_block_size) {
         //log_info(logger, "bloques sincronizados");
     }
 }
-
 
 //como me dice q devuelve siempre OK entonces es una funcion q devuelve algo, es decir no puede ser void 
 
@@ -142,48 +173,14 @@ int create_file(t_config_filesystem *config ,char *nombre, t_log *logger_aux){
     fcb->nombre_archivo=malloc(strlen(nombre)+1);
 
     strcpy(fcb->nombre_archivo, nombre);
-    fcb->tamanio_archivo = 800;
-    fcb->puntero_directo = 2;
-    fcb->puntero_indirecto = 4;
+    fcb->tamanio_archivo = 0;
+    fcb->puntero_directo = 0;
+    fcb->puntero_indirecto = 0;
 
     fwrite(fcb, sizeof(t_fcb), 1, file_fcb);
     fclose(file_fcb);
     log_info(logger_aux,"Crear archivo: %s", fcb->nombre_archivo);
-
-    //asignar_bloques_al_fileBlocks(config);
-
-    //int pos_bloque_directo= fcb->puntero_directo * pSuperbloque->block_size;
-    //int pos_bloque_indirecto= fcb->puntero_indirecto * pSuperbloque->block_size;
     
-    //calculo la cantidad de bloques q necesito para el tamano que me dan del archivo 
-    int cantidad_bloques= ceil(fcb->tamanio_archivo / pSuperbloque->block_size);
-    //otra alternativa:  int cantidad_bloques = (fcb->tamanio_archivo + block_size - 1) / block_size;
-
-    int file_blocks= open(config->path_bloques,O_CREAT | O_RDWR, 0644); // acceder a fileblocks de matera global!!!
-    
-    //marco ocupado en el bitmap al bloque directo  
-    int bloque_directo_ocupado = fcb->puntero_directo; 
-    bitarray_set_bit(bitmap, bloque_directo_ocupado);
-    log_info(logger_aux,"bloque directo ocupado nº=  %d", bloque_directo_ocupado);
-
-    cantidad_bloques --; //disminuyo en 1 la cant de bloques q necesito para mi tamaño dado ya que ya use un bloque para el bloque directo
-
-    int cant_punteros= cantidad_bloques -1; //xq el array de punteros empiesa desde 0 
-
-
-    if (cantidad_bloques >0){
-        int *punteros= malloc(cant_punteros * sizeof(int));
-
-        for (int i = 0; i <= cantidad_bloques && i < cant_punteros; i++) { //arreglar 
-            int bloque_libre= obtener_bloque_libre(bitmap,bitmap_size);
-            punteros[i] = bloque_libre;
-            //printf("puntero posicion tal del bloque indirecto es= %d %d /n", i,punteros[i]);
-            log_info(logger_aux,"puntero [ %d ] va al bloque nº=  %d",i,punteros[i] );
-        }
-        free(punteros);
-    }
-
-    close(file_blocks);
     free(ruta_Fcb);
     //free(fcb->nombre_archivo);
     free(fcb); 
@@ -195,15 +192,18 @@ int create_file(t_config_filesystem *config ,char *nombre, t_log *logger_aux){
 int obtener_bloque_libre(t_bitarray *bitmap, int bitmap_size){
 
 //obtengo el bloque libre y luego lo asigno como ocupado en el bitmap
-    int bloque_libre = -1;
+    int bloque_libre;
 
-    bitmap_size= bitarray_get_max_bit(bitmap);
+    //bitmap_size= bitarray_get_max_bit(bitmap);
     for (int i = 0; i < pSuperbloque->block_count; i++) {
         if(!bitarray_test_bit(bitmap,i)){ //el bit en la pos i del bitmap es 0 osea esta libre => 
             bitarray_set_bit(bitmap, i); //lo seteo como ocupado (1)
             bloque_libre = i;
+        printf("bloque ahora asignado como ocupado en el bitmap es: %d\n", bloque_libre);
+
             break;
         }
+         //printf("bloque ocupado en el bitmap es: %d\n", bloque_libre);
     }
     return bloque_libre;
 }
@@ -229,7 +229,6 @@ int open_file(t_config_filesystem *config ,char *nombre, t_log *logger_aux){
             log_info(logger_aux,"Abrir archivo:  %s", fcb->nombre_archivo);
             fclose(file_fcb);
             //log_info(logger_aux,"Abrir archivo:  %s", fcb->nombre_archivo);
-            log_info(logger_aux, "Abrir archivo: %.*s", strlen(fcb->nombre_archivo), fcb->nombre_archivo);
 
             return 0; 
             //return OK 
@@ -241,7 +240,7 @@ int open_file(t_config_filesystem *config ,char *nombre, t_log *logger_aux){
 
 }
 
-int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre){
+int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre, t_log *logger_aux){
 
     char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
     strcpy(ruta_Fcb,config->path_fcb);
@@ -252,58 +251,110 @@ int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre){
     t_fcb*fcb = malloc(sizeof(t_fcb));
     fcb->nombre_archivo=malloc(strlen(nombre)+1);  //  a ver si agregando esto se soluciona
 	fread(fcb, sizeof(t_fcb), 1, file_fcb);
-    strcpy(fcb->nombre_archivo,nombre);
 
-    int cantidad_bloques_tam_original= ceil(fcb->tamanio_archivo / pSuperbloque->block_size);
-    cantidad_bloques_tam_original--; //le resto 1 porque sabemos q 1 bloque es por el bloque directo asignado
-    int cantidad_punteros_tam_original= cantidad_bloques_tam_original; //sabemos q tenemos tal cant de punteros para la cant d ebloques q nos quedan 
-
-    int *punteros= malloc(cantidad_punteros_tam_original * sizeof(int));
-
+    int *punterosIndirectos;
+    if(fcb->puntero_indirecto!=0){
+    punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux);
+    }
     if(nuevo_tamanio > fcb->tamanio_archivo){ //CASO EXPANDIR TAMAÑO
-
         int bloques_Adicionales= calculate_additionalBlocks(nuevo_tamanio,fcb);
-        //printf("Se requieren %d bloques adicionales \n", bloques_Adicionales);
+        printf("Se requieren %d bloques adicionales \n", bloques_Adicionales);
     
         if(bloques_Adicionales > 0){
-            
+            //punterosIndirectos=malloc((bloques_Adicionales-1)*sizeof(int));
             int i; 
             int bloque_libre;
-            for(i=cantidad_bloques_tam_original ; i < bloques_Adicionales; i++ ){
-                bloque_libre= obtener_bloque_libre(bitmap,bitmap_size);
-                punteros[i] = bloque_libre; //asigno el bloque libre a los punteros q faltan para expandir el tamaño
-            } 
+            //entonces hay un puntero indirecto
+            int bloque_libre_puntero_indirecto=0;
+            if(fcb->puntero_indirecto==0){
+                bloque_libre= obtener_bloque_libre(bitmap,bitmap_size);//bloque directo
+                fcb->puntero_directo=bloque_libre;
+                 if(bloques_Adicionales>1){
+                 bloque_libre_puntero_indirecto=obtener_bloque_libre(bitmap,bitmap_size);
+                fcb->puntero_indirecto=bloque_libre_puntero_indirecto;
+                punterosIndirectos=malloc((bloques_Adicionales-1)*sizeof(int));
+                for(i=0 ; i < bloques_Adicionales-1; i++ ){
+                    
+                   bloque_libre= obtener_bloque_libre(bitmap,bitmap_size);
+                   punterosIndirectos[i]=bloque_libre;//asigno el bloque libre a los punteros q faltan para expandir el tamaño
+                }
+                }
+            }else{
+            bloque_libre_puntero_indirecto=fcb->puntero_indirecto;
+            int z=0;
+            for(i=0 ; i < bloques_Adicionales; i++ ){
+                   bloque_libre= obtener_bloque_libre(bitmap,bitmap_size);
+                   
+                   while (punterosIndirectos[z]!=0 && punterosIndirectos[z]!=9999)
+                   {
+                    z++;
+                   }
+                   punterosIndirectos[z]=bloque_libre;//asigno el bloque libre a los punteros q faltan para expandir el tamaño
+                }
+            }
+                int cantPunterosIndirectos=cantidadPunterosIndirectos(punterosIndirectos);
+                memcpy(copy_blocks + bloque_libre_puntero_indirecto*pSuperbloque->block_size,punterosIndirectos,sizeof(int)*cantPunterosIndirectos);
+                
         }
         fcb->tamanio_archivo= nuevo_tamanio; //cambio el tamanio al nuevo 
-        fwrite(&fcb, sizeof(t_fcb), 1, file_fcb); //escribo en el fcb el cambio de tamaño 
-
-        //log_info(logger_aux,"Truncar archivo:  %s - Tamaño: %d ", fcb->nombre_archivo, fcb-> tamanio_archivo);
-
+        fclose(file_fcb);
+        FILE* file_fcb_escritura = fopen(ruta_Fcb,"w");
+        fwrite(fcb, sizeof(t_fcb), 1, file_fcb); //escribo en el fcb el cambio de tamaño 
+        fclose(file_fcb_escritura);
+        log_info(logger_aux,"Truncar archivo:  %s - Tamaño: %d ", fcb->nombre_archivo, fcb-> tamanio_archivo);
+        free(ruta_Fcb);
+        free(fcb);
 
     } else if (nuevo_tamanio < fcb->tamanio_archivo) { //CASO ACHICHAR TAMAÑO 
 
         int bloques_a_liberar= calculate_freeBlocks(nuevo_tamanio,fcb);
-        if (bloques_a_liberar > 0) {
+
+        printf("Se requieren %d bloques a liberar \n", bloques_a_liberar);
+        
+        int cantidad_bloques_tam_original= cantidadPunterosIndirectos(punterosIndirectos)+1; 
+        
+        
+        if (bloques_a_liberar > 0 && nuevo_tamanio!=0) {
             int i=0; 
             int bloque_a_liberar;
-            for (int i = cantidad_bloques_tam_original - 1; i >= 0; i--){ //voy decrementando los bloques q libero
-                int bloque_a_liberar= punteros[i]; 
-                set_freeBlock_bitmap(bitmap, bloque_a_liberar);
-                bloques_a_liberar--;
-                //punteros[i] = -1; // Asigno valor inválido al puntero liberado
-            }   
+            int cantPunterosIndirectos= cantidadPunterosIndirectos(punterosIndirectos);
+                if(cantPunterosIndirectos==bloques_a_liberar){
+                    int bloque_a_eliminar_pi=fcb->puntero_indirecto;
+                    set_freeBlock_bitmap(bitmap,bloque_a_eliminar_pi);
+                }
+
+                for (int i = bloques_a_liberar ; i > 0; i--){ //voy decrementando los bloques q libero
+                    bloque_a_liberar= punterosIndirectos[cantPunterosIndirectos-i]; 
+                    set_freeBlock_bitmap(bitmap, bloque_a_liberar);
+                    punterosIndirectos[cantPunterosIndirectos-i] = 0; // Asigno valor inválido al puntero liberado
+                } 
+                if(cantPunterosIndirectos>bloques_a_liberar){
+                    memcpy(copy_blocks + fcb->puntero_indirecto*pSuperbloque->block_size,punterosIndirectos,sizeof(int)*cantPunterosIndirectos);
+                } 
+
+        }else if(nuevo_tamanio == 0){
+            if(fcb->puntero_indirecto != 0){
+                for(int i=0; i<bloques_a_liberar; i++){
+                    int bloque_a_eliminar= punterosIndirectos[i]; 
+                    set_freeBlock_bitmap(bitmap,bloque_a_eliminar); 
+                }
+                int bloque_a_eliminar_pi= fcb->puntero_indirecto; 
+                set_freeBlock_bitmap(bitmap,bloque_a_eliminar_pi);
+            }        
+            
+            int bloque_a_eliminar_pd= fcb->puntero_directo; 
+            set_freeBlock_bitmap(bitmap,bloque_a_eliminar_pd); 
         }
         fcb->tamanio_archivo= nuevo_tamanio;
-        fwrite(&fcb, sizeof(t_fcb), 1, file_fcb);
-
-        //log_info(logger_aux,"Truncar archivo:  %s - Tamaño: %d ", fcb->nombre_archivo, fcb-> tamanio_archivo);
-
-    }
-
-        free(ruta_Fcb);
+        fclose(file_fcb);
+        FILE* file_fcb_escritura = fopen(ruta_Fcb,"w");
+        fwrite(fcb, sizeof(t_fcb), 1, file_fcb_escritura);
+        fclose(file_fcb_escritura);
+        log_info(logger_aux,"Truncar archivo:  %s - Tamaño: %d ", fcb->nombre_archivo, fcb-> tamanio_archivo);
         free(fcb);
-        close(file_fcb);
-        return 0;//OK
+        free(ruta_Fcb);
+    }   
+    return 0;//OK
     }
     return 1;//FAIL
 }
@@ -312,16 +363,22 @@ int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre){
 
 int calculate_additionalBlocks(int nuevo_tamanio, t_fcb *fcb){
 
-    printf("tamaño archivo: %d \n", fcb->tamanio_archivo);
-    printf("tamaño block size del superbloque :  %d \n", pSuperbloque->block_size);
+    //int cant_bloques_actual= ceil(fcb->tamanio_archivo / pSuperbloque->block_size);
+    int cant_bloques_actual = fcb->tamanio_archivo / pSuperbloque->block_size;
+    if (fcb->tamanio_archivo % pSuperbloque->block_size != 0) {
+        cant_bloques_actual += 1;
+    }    //int cant_bloques_nuevo=(double)ceil(nuevo_tamanio/pSuperbloque->block_size);
 
-    int cant_bloques_actual= ceil(fcb->tamanio_archivo / pSuperbloque->block_size); //VER EL TEMA DEL CEIL XQ ROMPE
-    int tamanio_actual= pSuperbloque->block_size * cant_bloques_actual; 
-    int bloques_adicionales= (nuevo_tamanio - tamanio_actual)/ pSuperbloque->block_size;
+    int cant_bloques_nuevo = nuevo_tamanio / pSuperbloque->block_size;
+    if (nuevo_tamanio % pSuperbloque->block_size != 0) {
+        cant_bloques_nuevo += 1;
+    }
+
+
+    int bloques_adicionales= cant_bloques_nuevo-cant_bloques_actual;
 
     return bloques_adicionales;
 }
-
 
 int get_freeBlock(t_bitarray *bitmap, int bitmap_size) {
     int bloque_libre = -1;
@@ -361,14 +418,51 @@ int calculate_freeBlocks(int nuevo_tamanio, t_fcb *fcb){
 
 }
 
-int set_freeBlock_bitmap(t_bitarray *bitmap, int bloque){
+void set_freeBlock_bitmap(t_bitarray *bitmap, int bloque){
     bitarray_clean_bit(bitmap, bloque);
 }
 
 
+int* obtenerPunterosIndirectos(t_fcb* fcb,t_log* logger_aux){
+    int* punterosIndirectosActuales=malloc(pSuperbloque->block_size);
+    int j=0;
+    while (j*sizeof(int)<=pSuperbloque->block_size){
+        punterosIndirectosActuales[j]=9999;
+        j++;
+    }    
+    if (fcb->puntero_indirecto!=0){
+        //for(int i=0;i<pSuperbloque->block_size/sizeof(int);i++){
+            int z=0;
+             memcpy(&punterosIndirectosActuales[z],copy_blocks+pSuperbloque->block_size+z*sizeof(int),sizeof(int));
+            log_info(logger_aux,"%d",punterosIndirectosActuales[z]);
+            z++;
+            while(punterosIndirectosActuales[z-1]!=0 && (z)*sizeof(int)<pSuperbloque->block_size){
+            memcpy(&punterosIndirectosActuales[z],copy_blocks+pSuperbloque->block_size+z*sizeof(int),sizeof(int));
+            log_info(logger_aux,"%d",punterosIndirectosActuales[z]);
+            z++;
+            }
+        //}
+    return punterosIndirectosActuales;
+    }
+    return NULL;
+
+}
+int cantidadPunterosIndirectos(int* punterosIndirectos){
+    int z=0;
+    while (punterosIndirectos[z]!=0 &&punterosIndirectos[z]!=9999)
+    {
+        z++;
+    }
+    return z;
+    
+}
 /**.....................................................................................................*/
 
-int write_file(t_config_filesystem *config, char *nombre, int cant_bytes, void *direccion_fisica){
+
+/*
+int write_file(t_config_filesystem *config, char *nombre, int cant_bytes, void *direccion_fisica, void *punteroArchivo,t_log *logger_aux ){
+
+
 
     char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
     strcpy(ruta_Fcb,config->path_fcb);
@@ -377,7 +471,6 @@ int write_file(t_config_filesystem *config, char *nombre, int cant_bytes, void *
     FILE* file_fcb = fopen(ruta_Fcb,"r");
 
     t_fcb *fcb= malloc(sizeof(t_fcb));
-
 
     int file_blocks= open(config->path_bloques,O_CREAT | O_RDWR, 0644);  
 
@@ -415,9 +508,15 @@ int write_file(t_config_filesystem *config, char *nombre, int cant_bytes, void *
     fseek(file_blocks,pos_bloque_indirecto,SEEK_SET);
     write(file_blocks, punteros, cant_punteros * sizeof(int));
 
-        free(punteros);
-    }
+    free(punteros);
 
+    log_info(logger_aux,"Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, punteroArchivo, direccion_fisica, fcb-> tamanio_archivo);
+
+
+    }
 int min(int a, int b) {
     return (a < b) ? a : b;
 }
+
+
+*/
