@@ -12,17 +12,17 @@ int main()
     if (config_kernel == NULL)
     {
         log_error(logger_main, "No se pudo cargar la configuracion");
-        end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+        end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
         return EXIT_FAILURE;
     }
     // 2. Crear clientes
     modules_client = start_modules_client(config_kernel, logger_aux);
-    /* if (modules_client == NULL)
+    if (modules_client == NULL)
     {
         log_error(logger_main, "No se pudo crear los clientes");
-        end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+        end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
         return EXIT_FAILURE;
-    } */
+    }
     // 3. Crear estructuras kernel
     // 3.0. Crear lista de todos los pcb
     all_pcb = list_create();
@@ -51,12 +51,16 @@ int main()
     sleep(3);
     while (end_program_flag == false)
         print_menu();
-    // 6. Cerrar servidor - OK
+    // 6.1. Cerrar servidor - OK
     end_kernel_server();
+    // 6.2. Cerrar hilo de kernel - OK
     end_kernel_core();
+    // 6.3. Cerrar semaforos - OK
     destroy_mutex();
+    // 6.4. Cerrar recursos - OK
+    destroy_recursos();
     // 7. Limpiar estructuras - OK
-    end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+    end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
     return EXIT_SUCCESS;
 }
 
@@ -66,6 +70,7 @@ void sigintHandler(int signum)
     end_kernel_server();
     end_kernel_core();
     destroy_mutex();
-    end_program(logger_main, logger_aux, config_kernel, modules_client, queues);
+    destroy_recursos();
+    end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
     exit(signum);
 }

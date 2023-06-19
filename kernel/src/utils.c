@@ -131,9 +131,12 @@ void end_program(
     t_log *logger_main, t_log *logger_aux,
     t_config_kernel *config,
     t_modules_client *modules_client,
+    t_list *all_pcb,
     t_queues *queues)
 {
     // Modules Client destroy
+    if (all_pcb != NULL)
+        list_destroy(all_pcb);
     if (modules_client != NULL)
         free_modules_client(modules_client, logger_aux);
 

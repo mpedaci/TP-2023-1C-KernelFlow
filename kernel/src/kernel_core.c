@@ -151,6 +151,18 @@ void cargar_recursos()
     }
 }
 
+void destroy_recursos()
+{
+    for (int i = 0; i < list_size(recursos); i++)
+    {
+        t_recurso *recurso = list_get(recursos, i);
+        list_destroy(recurso->lista_bloqueados);
+        pthread_mutex_destroy(&recurso->mutex);
+        free(recurso);
+    }
+    list_destroy(recursos);
+}
+
 void execute()
 {
     t_pcb *pcb = list_get(queues->EXEC, 0);

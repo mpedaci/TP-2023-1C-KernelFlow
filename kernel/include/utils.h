@@ -33,6 +33,7 @@ void end_program(
     t_log *logger_main, t_log *logger_aux,
     t_config_kernel *config,
     t_modules_client *modules_client,
+    t_list *all_pcb,
     t_queues *queues);
 
 // FREE FUNCTIONS

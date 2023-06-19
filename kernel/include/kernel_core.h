@@ -46,6 +46,7 @@ bool request_t_segment(t_pcb *pcb);
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb);
 void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto);
 void cargar_recursos();
+void destroy_recursos();
 void execute();
 void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response);
 
