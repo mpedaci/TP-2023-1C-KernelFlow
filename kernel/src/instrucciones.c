@@ -4,9 +4,10 @@ void actualizar_tablas(t_list *tablas_actualizadas)
 {
     for (int i = 0; i < list_size(tablas_actualizadas); i++)
     {
-        t_segments_table *aux_table = list_get(tablas_actualizadas, i);
-        int j = find_pcb_index(all_pcb, aux_table->pid);
-        ((t_pcb *)list_get(all_pcb, j))->segments_table = aux_table;
+        t_segments_table *tabla_actualizada = list_get(tablas_actualizadas, i);
+        t_pcb *pcb = list_get(all_pcb, find_pcb_index(all_pcb, tabla_actualizada->pid));
+        free_segments_table(pcb->segments_table);
+        pcb->segments_table = tabla_actualizada;
     }
 }
 
@@ -71,6 +72,7 @@ void compactar()
     t_list *tablas_actualizadas = get_ltsegmentos(paquete);
     actualizar_tablas(tablas_actualizadas);
     log_info(logger_main, "Se finalizo el proceso de compactacion");
+    list_destroy(tablas_actualizadas);
     package_destroy(paquete);
     return;
 }
@@ -86,6 +88,7 @@ bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
 
     t_package *p = get_package(modules_client->memory_client_socket, logger_aux);
     t_segments_table *tabla_actualizada = get_tsegmento(p);
+    free_segments_table(pcb->segments_table);
     pcb->segments_table = tabla_actualizada;
 
     log_info(logger_main, "PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros, 0)));
@@ -266,8 +269,9 @@ void execute_exit(t_pcb *pcb, t_status_code sc)
     log_info(logger_main, "Finaliza el proceso %d - Motivo: %s", pcb->pid, status_code);
     t_pid_status *pid_status = malloc(sizeof(t_pid_status));
     pid_status->pid = pcb->pid;
-    pid_status->status = sc;
+    pid_status->status = PROCESS_END;
     send_pid_status(modules_client->memory_client_socket, pid_status, logger_aux);
+    pcb->exit_status = sc;
     add_pcb_to_queue(QEXIT, pcb);
     free(pid_status);
 }

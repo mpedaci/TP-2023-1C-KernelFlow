@@ -9,6 +9,7 @@
 #include <commons/string.h>
 #include <commons/collections/list.h>
 
+#include "utils.h"
 #include "types.h"
 #include "kernel_vars.h"
 #include "kernel_structs.h"

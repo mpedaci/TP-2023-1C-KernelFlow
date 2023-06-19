@@ -11,7 +11,6 @@ int get_base_adress(t_segment *segment);
 
 t_segments_table *create_segments_table(int pid);
 void add_segment_to_table(int pid, t_segment *segment);
-void delete_segments_table(void *segments_table);
-void delete_segments_table_end(void *segments_table);
+void delete_segments_table(t_segments_table *segments_table);
 
 #endif /* SEGMENTOS_H */

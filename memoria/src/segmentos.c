@@ -91,22 +91,14 @@ void add_segment_to_table(int pid, t_segment *segment)
     list_add(segments_table->segment_list, segment);
 }
 
-void delete_segments_table(void *s_table)
+void delete_segments_table(t_segments_table *segments_table)
 {
-    t_segments_table *segments_table = (t_segments_table *)s_table;
     list_remove_element(all_segments_tables, segments_table);
-    for (int i = 1; i < list_size(segments_table->segment_list); i++)
-        list_remove_and_destroy_element(segments_table->segment_list, i, free);
-
-    list_destroy(segments_table->segment_list);
-    free(segments_table);
-}
-
-void delete_segments_table_end(void *s_table)
-{
-    t_segments_table *segments_table = (t_segments_table *)s_table;
-    for (int i = 1; i < list_size(segments_table->segment_list); i++)
-        list_remove_and_destroy_element(segments_table->segment_list, i, free);
+    for (int i = 1; i < list_size(segments_table->segment_list); i++){
+        t_segment *segment = list_get(segments_table->segment_list, i);
+        bitarray_clean_from_and_how_many(free_space_table, segment->base_address, segment->size);
+        free(segment);
+    }
     list_destroy(segments_table->segment_list);
     free(segments_table);
 }

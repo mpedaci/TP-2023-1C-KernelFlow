@@ -49,6 +49,7 @@ void free_instruccion(t_instruccion *instruccion);
 void free_lista_instrucciones(t_list *lista_instrucciones);
 void free_pcontexto_desalojo(t_pcontexto_desalojo *pcontexto);
 void free_pcontexto(t_pcontexto *pcontexto);
+void free_segments_table(t_segments_table *s_table);
 
 void copy_registers(t_registers *dest, t_registers *src);
 t_list *copy_instructions_list(t_list *instructions);
