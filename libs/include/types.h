@@ -14,7 +14,9 @@ typedef enum
     COMPACTATION_REQUIRED,
     OUT_OF_MEMORY,
     FILE_READED,
-    SUCCESS
+    SUCCESS,
+    PROCESS_NEW,
+    PROCESS_END
 } t_status_code;
 
 // CONSOLA
@@ -70,7 +72,7 @@ typedef struct
     t_list *instructions;
     uint32_t program_counter;
     t_registers *registers;
-    t_list *segments; // agregado
+    t_list *segments;
 } t_pcontexto;
 
 typedef struct
@@ -80,7 +82,7 @@ typedef struct
     uint32_t program_counter;
     t_registers *registers;
     t_instruccion *motivo_desalojo;
-    t_status_code status_code; // agregado
+    t_status_code status_code;
 } t_pcontexto_desalojo;
 
 // MEMORIA
@@ -146,6 +148,14 @@ typedef struct
     t_temporal *tiempo_entrada_cpu;
     t_temporal *tiempo_salida_cpu;
     t_open_files *open_files_table;
+    t_status_code exit_status;
 } t_pcb;
+
+typedef struct
+{
+    uint32_t pid;
+    t_status_code status;
+} t_pid_status;
+
 
 #endif /* TYPES_H_ */

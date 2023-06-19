@@ -82,6 +82,11 @@ t_pid_instruccion *get_pid_instruccion(t_package *paquete){
     return pid_instruccion;
 };
 
+t_pid_status *get_pid_status(t_package *paquete){
+    t_pid_status *pid_status = t_pid_status_create_from_buffer(paquete->buffer);
+    return pid_status;
+}
+
 
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
@@ -225,6 +230,15 @@ bool send_compactar(int socket, t_log *logger)
     package_destroy(paquete);
     return res;
 };
+
+bool send_pid_status(int socket, t_pid_status *pid_status, t_log *logger)
+{
+    t_buffer *buffer = t_pid_status_create_buffer(pid_status);
+    t_package *paquete = package_create(buffer, PID_STATUS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+}
 
 /* HANDSHAKE */
 

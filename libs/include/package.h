@@ -42,6 +42,7 @@ t_buffer *t_lista_t_segments_create_buffer(t_list *lt_segments);
 t_buffer *t_status_code_create_buffer(t_status_code status_code);
 t_buffer *t_pid_instruccion_create_buffer(t_pid_instruccion *pid_instruccion);
 
+t_buffer * t_pid_status_create_buffer(t_pid_status *pid_status);
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
 t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offset);
@@ -57,6 +58,8 @@ t_segments_table *t_segments_table_create_from_buffer(t_buffer *buffer, uint32_t
 t_list *t_lista_t_segments_create_from_buffer(t_buffer *buffer);
 t_status_code t_status_code_create_from_buffer(t_buffer *buffer);
 t_pid_instruccion *t_pid_instruccion_create_from_buffer(t_buffer *buffer);
+
+t_pid_status *t_pid_status_create_from_buffer(t_buffer *buffer);
 
 /* PAQUETE */
 

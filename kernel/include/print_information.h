@@ -1,6 +1,7 @@
 #ifndef PRINT_INFORMATION_H
 #define PRINT_INFORMATION_H
 
+#include <unistd.h>
 #include <readline/readline.h> // Para prints
 
 #include "types.h"
@@ -17,5 +18,6 @@ void print_pcb(t_pcb *pcb);
 void print_registers(t_registers *registers);
 void print_internal_states();
 void print_status_recursos();
+void print_segments(t_list *segments);
 
 #endif /* PRINT_INFORMATION_H */

@@ -27,6 +27,11 @@ void kernel_operations(int client_socket)
             instruction_destroyer(pidtruction->instruccion);
             free(pidtruction);
             break;
+        case PID_STATUS:
+            t_pid_status *pid_status = get_pid_status(package);
+            handle_pid_status(client_socket, pid_status);
+            free(pid_status);
+            break;
         case END:
             log_warning(logger_aux, "Kernel: Conexion Finalizada");
             exit = true;
@@ -89,6 +94,22 @@ void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction)
         break;
     }
     // HACER UN FREE DE PIDTRUCTION POR FAVOR
+}
+
+void handle_pid_status(int client_socket, t_pid_status *pid_status)
+{
+    switch (pid_status->status)
+    {
+    case PROCESS_NEW:
+        t_segments_table *st = create_segments_table(pid_status->pid);
+        send_tsegmento(client_socket, st, logger_aux);
+        break;
+    case PROCESS_END:
+        delete_segments_table(get_segments_table_by_pid(pid_status->pid));
+        break;
+    default:
+        break;
+    }
 }
 
 // CPU

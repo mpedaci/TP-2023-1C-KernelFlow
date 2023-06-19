@@ -22,13 +22,17 @@ void send_instruccions_and_wait_answer(t_config_console *config, t_list *lista_i
     send_instrucciones(kernel_socket, lista_instrucciones, logger_console);
     // Espero que la instruccion recibida sea END para saber que finalizo
     t_package *p = get_package(kernel_socket, logger_console);
-    t_instruccion *instruccion = get_instruccion(p);
-    if (instruccion->identificador == I_EXIT)
+    switch (p->operation_code)
     {
-        log_debug(logger_console, "Instruccion recibida: %d", instruccion->identificador);
+    case PID_STATUS:
+        t_pid_status *pid_status = get_pid_status(p);
+        log_debug(logger_console, "Proceso finalizado: PID - %d | Status - %d\n", pid_status->pid, pid_status->status);
+        free(pid_status);
+        break;
+    default:
+        log_warning(logger_console, "Operacion desconocida - Finalizando");
+        break;
     }
-    // destruyo socket paquete e instruccion
     package_destroy(p);
-    destroy_instruccion(instruccion);
     socket_destroy(kernel_socket);
 }

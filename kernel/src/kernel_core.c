@@ -24,7 +24,10 @@ void *process_queues()
         {
             t_pcb *pcb = pop_pcb_from_queue(QNEW);
             pcb->tiempo_llegada_ready = temporal_create();
-            add_pcb_to_queue(QREADY, pcb);
+            if (request_t_segment(pcb))
+                add_pcb_to_queue(QREADY, pcb);
+            else
+                add_pcb_to_queue(QEXIT, pcb);
         }
         // READY -> EXEC
         if (algorithm_is_FIFO() && can_execute_process())
@@ -37,18 +40,12 @@ void *process_queues()
             to_execute = NULL;
             execute();
         }
-        // EXEC -> BLOCK
-
-        // EXEC -> READY
-
-        // EXEC -> EXIT
-
-        // BLOCK -> READY
-
-        // FINALLY
+        // EXEC -> BLOCK - OK
+        // EXEC -> READY - OK
+        // EXEC -> EXIT - OK
+        // BLOCK -> READY - OK
         sleep(1);
     }
-    // free(to_execute); // NO HARIA FALTA SI ESTA DENTRO DE UNA COLA
     log_info(logger_aux, "Thread Process Queues: finalizado");
     pthread_exit(0);
 }
@@ -58,7 +55,6 @@ void *process_queues()
 bool can_move_NEW_to_READY()
 {
     int actual_multiprog = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK);
-    // log_debug(logger_aux, "Actual multiprog: %d", actual_multiprog);
     return list_size(queues->NEW) > 0 && actual_multiprog < config_kernel->grado_max_multiprog;
 }
 
@@ -96,7 +92,32 @@ void destroy_mutex()
     pthread_mutex_destroy(&mutex_exit);
     pthread_mutex_destroy(&mutex_pid);
 }
+
 // PCB
+
+bool request_t_segment(t_pcb *pcb)
+{
+    bool created = false;
+    t_pid_status *pid_status = malloc(sizeof(t_pid_status));
+    pid_status->pid = pcb->pid;
+    pid_status->status = PROCESS_NEW;
+    send_pid_status(modules_client->memory_client_socket, pid_status, logger_aux);
+    t_package *package = get_package(modules_client->memory_client_socket, logger_aux);
+    switch (package->operation_code)
+    {
+    case TSEGMENTOS:
+        t_segments_table *ts = get_tsegmento(package);
+        pcb->segments_table = ts;
+        created = true;
+        break;
+    default:
+        log_error(logger_aux, "Error al recibir tabla de segmentos");
+        break;
+    }
+    package_destroy(package);
+    free(pid_status);
+    return created;
+}
 
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
 {
@@ -106,6 +127,7 @@ t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb)
     pcontexto->registers = init_registers();
     copy_registers(pcontexto->registers, pcb->registers);
     pcontexto->instructions = copy_instructions_list(pcb->instrucciones);
+    pcontexto->segments = copy_segment_list(pcb->segments_table);
     return pcontexto;
 }
 
@@ -184,7 +206,8 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
     case I_WAIT:
         recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
         se = execute_wait(recurso_solicitado, pcb);
-        if (se) {
+        if (se)
+        {
             add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }
@@ -193,7 +216,8 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
     case I_SIGNAL:
         recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
         se = execute_signal(recurso_solicitado, pcb);
-        if (se) {
+        if (se)
+        {
             add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }
@@ -207,36 +231,38 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_to_ready(pcb);
         break;
     case I_EXIT:
-        execute_exit(pcb, "SUCCESS");
+        execute_exit(pcb, SUCCESS);
         break;
     case I_F_WRITE:
         execute_fwrite(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_CLOSE:
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        execute_exit(pcb, SUCCESS);
         break;
     case I_F_OPEN:
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        execute_exit(pcb, SUCCESS);
         break;
     case I_F_READ:
         execute_fread(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_SEEK:
-        execute_exit(pcb, "NO IMPLEMENTADO");
+        execute_exit(pcb, SUCCESS);
         break;
     case I_F_TRUNCATE:
         execute_ftruncate(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_CREATE_SEGMENT:
         se = execute_create_segment(pcontexto_response->motivo_desalojo, pcb);
-        if (se) {
+        if (se)
+        {
             add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }
         break;
     case I_DELETE_SEGMENT:
         se = execute_delete_segment(pcontexto_response->motivo_desalojo, pcb);
-        if (se) {
+        if (se)
+        {
             add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }

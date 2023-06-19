@@ -107,14 +107,6 @@ t_registers *init_registers()
     return registers;
 }
 
-t_segments_table *create_segment_table(uint32_t pid)
-{
-    t_segments_table *segments_table = malloc(sizeof(t_segments_table));
-    segments_table->pid = pid;
-    segments_table->segment_list = list_create();
-
-    return segments_table;
-}
 t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
 {
     t_pcb *pcb = malloc(sizeof(t_pcb));
@@ -122,13 +114,14 @@ t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
     pcb->instrucciones = instrucciones;
     pcb->program_counter = 0;
     pcb->registers = init_registers();
-    pcb->segments_table = create_segment_table(pid);
+    pcb->segments_table = NULL;
     pcb->est_sig_rafaga = 0;
     t_temporal *temporal = temporal_create();
     pcb->tiempo_llegada_ready = temporal;
     pcb->tiempo_entrada_cpu = temporal;
     pcb->tiempo_salida_cpu = temporal;
     pcb->open_files_table = NULL;
+    pcb->exit_status = SUCCESS;
     return pcb;
 }
 
@@ -202,11 +195,17 @@ void free_registers(t_registers *registers)
     free(registers);
 }
 
+void free_segments_table(t_segments_table *s_table)
+{
+    list_destroy_and_destroy_elements(s_table->segment_list, free);
+    free(s_table);
+}
+
 void free_pcb(t_pcb *pcb)
 {
     free_lista_instrucciones(pcb->instrucciones);
     free_registers(pcb->registers);
-    // free(pcb->segments_table);
+    free_segments_table(pcb->segments_table);
     temporal_destroy(pcb->tiempo_llegada_ready);
     temporal_destroy(pcb->tiempo_entrada_cpu);
     temporal_destroy(pcb->tiempo_salida_cpu);
@@ -247,6 +246,7 @@ void free_pcontexto(t_pcontexto *pcontexto)
 {
     free_lista_instrucciones(pcontexto->instructions);
     free_registers(pcontexto->registers);
+    list_destroy_and_destroy_elements(pcontexto->segments, free);
     free(pcontexto);
 }
 
@@ -294,4 +294,24 @@ t_instruccion *new_instruction(t_instruccion *instruccion)
     for (int i = 0; i < 4; i++)
         new_instruction->p_length[i] = instruccion->p_length[i];
     return new_instruction;
+}
+
+t_list *copy_segment_list(t_segments_table *segments_table)
+{
+    t_list *new_list = list_create();
+    for (int i = 0; i < list_size(segments_table->segment_list); i++)
+    {
+        t_segment *segment = new_segment(((t_segment *)list_get(segments_table->segment_list, i)));
+        list_add(new_list, segment);
+    }
+    return new_list;
+}
+
+t_segment *new_segment(t_segment *segment)
+{
+    t_segment *new_segment = malloc(sizeof(t_segment));
+    new_segment->id = segment->id;
+    new_segment->base_address = segment->base_address;
+    new_segment->size = segment->size;
+    return new_segment;
 }

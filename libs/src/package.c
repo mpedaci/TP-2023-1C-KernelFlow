@@ -71,9 +71,16 @@ t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto)
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
     t_buffer *buffer_instrucciones = t_lista_instrucciones_create_buffer(pcontexto->instructions);
+    
+    t_segments_table *st = malloc(sizeof(t_segments_table));
+    st->pid = pcontexto->pid;
+    st->segment_list = pcontexto->segments;
+    t_buffer *buffer_t_segmentos = t_segments_table_create_buffer(st);
+    free(st);
 
-    buffer->size = sizeof(uint32_t) * 3 +       // pid + program_counter + size lista instrucciones
+    buffer->size = sizeof(uint32_t) * 4 +       // pid + program_counter + size lista instrucciones + size tabla segmentos
                    buffer_instrucciones->size + // lista instrucciones
+                   buffer_t_segmentos->size +   // tabla de segmentos
                    4 * 4 +                      // registers->AX
                    8 * 4 +                      // registers->EAX
                    16 * 4;                      // registers->RAX
@@ -122,11 +129,20 @@ t_buffer *t_pcontexto_create_buffer(t_pcontexto *pcontexto)
     memcpy(stream + offset, &buffer_instrucciones->size, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
+    memcpy(stream + offset, &buffer_t_segmentos->size, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
     memcpy(stream + offset, buffer_instrucciones->stream, buffer_instrucciones->size);
     offset += buffer_instrucciones->size;
 
     free(buffer_instrucciones->stream);
     free(buffer_instrucciones);
+
+    memcpy(stream + offset, buffer_t_segmentos->stream, buffer_t_segmentos->size);
+    offset += buffer_t_segmentos->size;
+
+    free(buffer_t_segmentos->stream);
+    free(buffer_t_segmentos);
 
     buffer->stream = stream;
     return buffer;
@@ -377,6 +393,18 @@ t_buffer *t_pid_instruccion_create_buffer(t_pid_instruccion *pid_instruccion)
     return buffer;
 };
 
+t_buffer *t_pid_status_create_buffer(t_pid_status *pid_status)
+{
+    t_buffer *buffer = malloc(sizeof(t_buffer));
+    buffer->size = sizeof(uint32_t) * 2; // pid + status_code
+    void *stream = malloc(buffer->size);
+    uint32_t offset = 0;
+    memcpy(stream + offset, &(pid_status->pid), sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+    memcpy(stream + offset, &(pid_status->status), sizeof(uint32_t));
+    buffer->stream = stream;
+    return buffer;
+}
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
 t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offset)
@@ -478,8 +506,12 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
     stream += offset;
 
     t_buffer *buffer_instructions = malloc(sizeof(t_buffer));
+    t_buffer *buffer_t_segmentos = malloc(sizeof(t_buffer));
 
     memcpy(&(buffer_instructions->size), stream, sizeof(uint32_t));
+    stream += sizeof(uint32_t);
+
+    memcpy(&(buffer_t_segmentos->size), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
 
     buffer_instructions->stream = malloc(buffer_instructions->size);
@@ -490,6 +522,22 @@ t_pcontexto *t_pcontexto_create_from_buffer(t_buffer *buffer)
 
     free(buffer_instructions->stream);
     free(buffer_instructions);
+
+    buffer_t_segmentos->stream = malloc(buffer_t_segmentos->size);
+    memcpy(buffer_t_segmentos->stream, stream, buffer_t_segmentos->size);
+    stream += buffer_t_segmentos->size;
+
+    uint32_t offset_aux = 0;
+
+    t_segments_table *st = t_segments_table_create_from_buffer(buffer_t_segmentos, &offset_aux);
+
+    free(buffer_t_segmentos->stream);
+    free(buffer_t_segmentos);
+
+    pcontexto->segments = st->segment_list;
+
+    free(st);
+
     return pcontexto;
 }
 
@@ -723,6 +771,16 @@ t_pid_instruccion *t_pid_instruccion_create_from_buffer(t_buffer *buffer)
 
     return pid_instruccion;
 };
+
+t_pid_status *t_pid_status_create_from_buffer(t_buffer *buffer)
+{
+    t_pid_status *pid_status = malloc(sizeof(t_pid_status));
+    void *stream = buffer->stream;
+    memcpy(&(pid_status->pid), stream, sizeof(uint32_t));
+    stream += sizeof(uint32_t);
+    memcpy(&(pid_status->status), stream, sizeof(uint32_t));
+    return pid_status;
+}
 
 /* PAQUETES */
 

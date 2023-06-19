@@ -76,17 +76,17 @@ void process_client_communication(t_client_connection *conn)
         list_add(all_pcb, pcb);
 
         pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
-        // send_instruccion(modules_client->memory_client_socket, "TABLA SEGMENTOS NUEVA", logger_aux);
-        // t_package *package = get_package(modules_client->memory_client_socket, logger_aux);
-        // t_tabla_segmentos *tabla_segmentos = get_tabla_segmentos(package);
-        // pcb->segments_table = tabla_segmentos;
-        int mp = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK);
+
+        int mp = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK); // multiprogramacion
         log_info(logger_aux, "Thread con PID: %d agregado a NEW", conn->pid);
         log_info(logger_main, "Se crea el proceso %d en NEW", conn->pid);
         if (mp < config_kernel->grado_max_multiprog)
         {
             log_info(logger_aux, "Thread con PID: %d agregado a READY", conn->pid);
-            add_pcb_to_queue(QREADY, pcb);
+            if (request_t_segment(pcb))
+                add_pcb_to_queue(QREADY, pcb);
+            else
+                add_pcb_to_queue(QEXIT, pcb);
         }
         else
             add_pcb_to_queue(QNEW, pcb);
@@ -112,7 +112,11 @@ void process_client_communication(t_client_connection *conn)
         last = search_pid(queues->EXIT, conn->pid);
         sleep(1);
     }
-    send_end(conn->socket, logger_aux);
+    t_pid_status *pid_status = malloc(sizeof(t_pid_status));
+    pid_status->pid = conn->pid;
+    pid_status->status = last->exit_status;
+    send_pid_status(conn->socket, pid_status, logger_aux);
+    free(pid_status);
 }
 
 t_pcb *search_pid(t_list *queue, int pid)

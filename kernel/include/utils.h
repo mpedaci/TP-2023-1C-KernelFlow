@@ -53,4 +53,7 @@ void copy_registers(t_registers *dest, t_registers *src);
 t_list *copy_instructions_list(t_list *instructions);
 t_instruccion *new_instruction(t_instruccion *instruccion);
 
+t_list *copy_segment_list(t_segments_table *segments_table);
+t_segment *new_segment(t_segment *segment);
+
 #endif /* UTILS_H */

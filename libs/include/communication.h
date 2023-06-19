@@ -30,7 +30,8 @@ typedef enum
     END,                    // Fin Conexion - Programa
     STATUS_CODE,            // Codigo de estado
     PID_INSTRUCCION,        // Pid e instruccion
-    COMPACTAR               // Compactar
+    COMPACTAR,              // Compactar
+    PID_STATUS              // Pid e status code
 } op_code;
 
 /* CLIENTE -> SERVIDOR -> PROGRAMA */
@@ -51,6 +52,8 @@ t_segment *get_segment(t_package *paquete);
 t_status_code get_status_code(t_package *paquete);
 t_pid_instruccion *get_pid_instruccion(t_package *paquete);
 
+t_pid_status *get_pid_status(t_package *paquete);
+
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
 bool send_instrucciones(int socket, t_list *lista_instrucciones, t_log *logger);
@@ -69,6 +72,8 @@ bool send_segment(int socket, t_segment *segmento, t_log *logger);
 bool send_status_code(int socket, t_status_code status_code, t_log *logger);
 bool send_pid_instruccion(int socket, t_pid_instruccion *pid_instruccion, t_log *logger);
 bool send_compactar(int socket, t_log *logger);
+
+bool send_pid_status(int socket, t_pid_status *pid_status, t_log *logger);
 
 /* HANDSHAKE */
 

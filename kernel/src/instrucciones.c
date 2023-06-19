@@ -29,10 +29,12 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
     {
     case STATUS_CODE:
         t_status_code code = get_status_code(paquete);
-        if (code == OUT_OF_MEMORY){
-            execute_exit(pcb, "OUTOFMEMORY");
+        if (code == OUT_OF_MEMORY)
+        {
+            execute_exit(pcb, OUT_OF_MEMORY);
         }
-        else if (code == COMPACTATION_REQUIRED){
+        else if (code == COMPACTATION_REQUIRED)
+        {
             int i = find_pcb_index(queues->BLOCK, pcb->pid);
             if (i != -1)
             {
@@ -56,7 +58,6 @@ bool execute_create_segment(t_instruccion *instruccion, t_pcb *pcb)
         break;
     }
     package_destroy(paquete);
-    free_instruccion(p->instruccion);
     free(p);
     return status;
 }
@@ -89,7 +90,6 @@ bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
 
     log_info(logger_main, "PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros, 0)));
 
-    free_instruccion(pid_instruccion->instruccion);
     free(pid_instruccion);
     package_destroy(p);
 
@@ -245,10 +245,31 @@ void *io(void *args)
     pthread_exit(0);
 }
 
-void execute_exit(t_pcb *pcb, char *motivo)
+char *get_status_code_string(t_status_code sc)
 {
-    log_info(logger_main, "Finaliza el proceso %d - Motivo: %s", pcb->pid, motivo);
+    switch (sc)
+    {
+    case SUCCESS:
+        return "SUCCESS";
+    case OUT_OF_MEMORY:
+        return "OUT OF MEMORY";
+    case SEGMENTATION_FAULT:
+        return "SEGMENTATION FAULT";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+void execute_exit(t_pcb *pcb, t_status_code sc)
+{
+    char *status_code = get_status_code_string(sc);
+    log_info(logger_main, "Finaliza el proceso %d - Motivo: %s", pcb->pid, status_code);
+    t_pid_status *pid_status = malloc(sizeof(t_pid_status));
+    pid_status->pid = pcb->pid;
+    pid_status->status = sc;
+    send_pid_status(modules_client->memory_client_socket, pid_status, logger_aux);
     add_pcb_to_queue(QEXIT, pcb);
+    free(pid_status);
 }
 
 void execute_to_ready(t_pcb *pcb)

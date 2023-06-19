@@ -48,11 +48,11 @@ void process_client(int client_socket, t_log *logger)
             log_info(logger, "Se envio el contexto al kernel");
             break;
         case END:
-            printf("Conexion Finalizada");
+            log_info(logger, "Conexion Finalizada");
             exit = true;
             break;
         default:
-            printf("Operacion desconocida.");
+            log_info(logger, "Operacion desconocida");
             exit = true;
             break;
         }

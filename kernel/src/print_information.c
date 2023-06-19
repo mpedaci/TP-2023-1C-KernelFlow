@@ -155,6 +155,17 @@ void print_pcb(t_pcb *pcb)
     printf("  Estimacion de rafaga: %f\n", pcb->est_sig_rafaga);
     printf("  Registros:\n");
     print_registers(pcb->registers);
+    printf("  Segmentos:\n");
+    print_segments(pcb->segments_table->segment_list);
+}
+
+void print_segments(t_list *segments) {
+    printf("    ID\tBASE\tSIZE\n");
+    for (int i = 0; i < list_size(segments); i++)
+    {
+        t_segment *segment = list_get(segments, i);
+        printf("    %d\t%d\t%d\n", segment->id, segment->base_address, segment->size);
+    }
 }
 
 void print_registers(t_registers *registers)
