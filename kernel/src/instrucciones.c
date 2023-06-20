@@ -442,6 +442,7 @@ void execute_exit(t_pcb *pcb, t_status_code sc)
 
 void execute_yield(t_pcb *pcb)
 {
+    temporal_destroy(pcb->tiempo_llegada_ready);
     pcb->tiempo_llegada_ready = temporal_create();
     add_pcb_to_queue(QREADY, pcb);
 }

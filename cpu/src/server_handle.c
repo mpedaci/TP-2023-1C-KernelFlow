@@ -44,7 +44,6 @@ void process_client(int client_socket, t_log *logger)
                 package_destroy(package);
                 return;
             }
-
             log_info(logger, "Se envio el contexto al kernel");
             break;
         case END:

@@ -37,7 +37,8 @@ void *start_server_listen(void *listen_port)
                         pthread_create(&thr_server_conn, 0, process_client_entry, (void *)connection_info);
                 } else {
                     reject = true;
-                    destroy_connection_info(connection_info);
+                    socket_destroy(connection_info->socket);
+                    free(connection_info);
                 }
             } else {
                 free(connection_info);
@@ -51,8 +52,8 @@ void end_memory_server()
 {
     accept_connections = false;
     pthread_join(thr_server_conn, NULL);
-    socket_destroy(server_socket);
     pthread_join(thr_server, NULL);
+    socket_destroy(server_socket);
     log_info(logger_aux, "Thread Memory Server: finalizado");
 }
 
@@ -82,7 +83,8 @@ void *process_client_entry(void *ptr)
         log_warning(logger_aux, "Thread Memory Client: Cliente desconocido");
         break;
     }
-    destroy_connection_info(conn);
+    socket_destroy(conn->socket);
+    free(conn);
     pthread_exit(0);
 }
 

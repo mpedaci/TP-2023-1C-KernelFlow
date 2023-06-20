@@ -15,6 +15,7 @@ void pcontexto_destroy(t_pcontexto *contexto)
 {
     lista_instrucciones_destroy(contexto->instructions);
     registers_destroy(contexto->registers);
+    list_destroy_and_destroy_elements(contexto->segments, free);
     free(contexto);
 }
 
