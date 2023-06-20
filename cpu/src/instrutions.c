@@ -34,11 +34,7 @@ void MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_IN a memoria");
     
-<<<<<<< HEAD
     instruccion_destroy(instruccion_a_mandar);
-=======
-    instruction_destroyer(instruccion_a_mandar);
->>>>>>> origin/cpu
     free(pid_instruccion);
 
     t_package *package = get_package(socket_client_memoria, logger);
@@ -79,11 +75,7 @@ void MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_OUT a memoria");
     
-<<<<<<< HEAD
     instruccion_destroy(instruccion_a_mandar);
-=======
-    instruction_destroyer(instruccion_a_mandar);
->>>>>>> origin/cpu
     free(pid_instruccion);
 
     t_package *package = get_package(socket_client_memoria, logger);
