@@ -16,8 +16,8 @@ void create_blocks(t_config_filesystem *config);
 
 int create_file(t_config_filesystem *config ,char *nombre, t_log *logger_aux);
 int open_file(t_config_filesystem *config ,char *nombre, t_log *logger_aux);
-int write_file(t_config_filesystem *config, char *nombre, int cant_bytes, void *direccion_fisica, int punteroArchivo,t_log *logger_aux );
-int read_file(t_config_filesystem *config, int punteroArchivo, char *nombre, int cant_bytes, void *direccion_fisica, t_log *logger_aux);
+int write_file(t_config_filesystem *config, int puntero_archivo, char *nombre, int cant_bytes, void *direccion_fisica, t_log *logger_aux);
+int read_file(t_config_filesystem *config, int puntero_archivo, char *nombre, int cant_bytes, void *direccion_fisica, t_log *logger_aux);
 int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre, t_log *logger_aux);
 
 void sync_blocks(void *mmapBlocks, int file_block_size);

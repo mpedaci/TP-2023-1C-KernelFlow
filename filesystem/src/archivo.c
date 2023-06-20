@@ -39,11 +39,19 @@ create_file(config,"meli",logger_aux);
 //Ejemplos truncar el mismo archivo con diferentes tamaños:  
 
 truncate_file(config,200,"pepe", logger_aux);
-truncate_file(config,150,"pepe",logger_aux);
-truncate_file(config,200,"pepe", logger_aux);
+//truncate_file(config,150,"pepe",logger_aux);
+//truncate_file(config,200,"pepe", logger_aux);
 
-//write_file(config,"pepe",400,3500,80,logger_aux);
+//Ejemplos escribir archivo: 
 
+//write_file(config, 35, "pepe", 50, 3456789,logger_aux); 
+
+
+//Ejemplos leer archivo: 
+
+//read_file(config, 40, "pepe", 50, 3456789,logger_aux); 
+
+/*-----------------------------------------------------------------------------------*/
 
 }
 
@@ -458,11 +466,95 @@ int cantidadPunterosIndirectos(int* punterosIndirectos){
 }
 /**.....................................................................................................*/
 
+int read_file(t_config_filesystem *config, int puntero_archivo, char *nombre, int cant_bytes, void *direccion_fisica, t_log *logger_aux){
 
-/*
-int write_file(t_config_filesystem *config, char *nombre, int cant_bytes, void *direccion_fisica, void *punteroArchivo,t_log *logger_aux ){
+char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
+    strcpy(ruta_Fcb,config->path_fcb);
+    strcat(ruta_Fcb,"/");
+    strcat(ruta_Fcb,nombre);
+    FILE* file_fcb = fopen(ruta_Fcb,"r");
+
+    if(file_fcb!=NULL){
+
+    t_fcb*fcb = malloc(sizeof(t_fcb));
+    fcb->nombre_archivo=malloc(strlen(nombre)+1);  //  a ver si agregando esto se soluciona
+	fread(fcb, sizeof(t_fcb), 1, file_fcb);
 
 
+    //verifico si esta en bloque del puntero directo 
+
+    int offset_bloque_directo= fcb->puntero_directo * pSuperbloque->block_size; //desplazamiento nen bytes
+    int offset_bloque_siguiente= (fcb->puntero_directo  + 1) * pSuperbloque->block_size; //desplazamiento en bytes
+
+    void *stream= malloc(cant_bytes); 
+
+    if  (puntero_archivo > offset_bloque_directo && puntero_archivo < offset_bloque_siguiente){
+
+        int bloque_pArchivo= fcb->puntero_directo; //bloque donde esta el pArchivo  
+        int offset_dentro_bloque_pArchivo= puntero_archivo - offset_bloque_directo; //desde donde empiezo a leer en el bloque
+
+        int cant_bytes_leidos= pSuperbloque-> block_size - offset_dentro_bloque_pArchivo; //cnat byte sleidos desde el pArchivo hasta q termina el bloque 
+
+        memcpy(stream, copy_blocks + offset_dentro_bloque_pArchivo ,cant_bytes_leidos); 
+
+         printf("Contenido de stream: %s\n", (char*)stream);
+
+        cant_bytes= cant_bytes- cant_bytes_leidos; //actualizo la cant de bytes que quedan por leer 
+
+        if(cant_bytes > 0 ){ //osea quedan bytes x leer todvia 
+
+            int *punterosIndirectos;
+            punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux); 
+
+            //Calculo la posicion de donde esta el primer bloque del punteor indirecto 
+            //leo desde el principio del bloque hasta el final si es que no supera la cant de bytes el bloque
+            // lo copio al stream lo q lei  
+            // luego actualizo la cant de bytes 
+
+            int cantPunterosIndirectos=cantidadPunterosIndirectos(punterosIndirectos);
+
+
+            for(int i=0; i < cantPunterosIndirectos; i++){
+            int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;
+            int offset_bloque_siguiente_pi= (punterosIndirectos[i]  + 1) * pSuperbloque->block_size;
+            
+            if(pSuperbloque->block_size <  cant_bytes){
+                memcpy(stream + cant_bytes_leidos, copy_blocks + offset_bloque_pi ,pSuperbloque->block_size);
+                cant_bytes_leidos= cant_bytes_leidos + pSuperbloque->block_size; 
+                cant_bytes= cant_bytes -cant_bytes_leidos; 
+            
+            }else{
+
+                int cant_bytes_leidos_pi= pSuperbloque->block_size - cant_bytes; 
+                memcpy(stream + cant_bytes_leidos, copy_blocks + offset_bloque_pi ,cant_bytes_leidos_pi);
+            }
+//si es 0 añguno de los pi entonces no leo su contenido o algo asi 
+
+            }
+
+        }
+
+    }
+    else{   // punteroArchivo esta en algun bloque de puntero indirecto  
+
+
+    }
+
+
+ //send_info_read(socket_memoria, stream, log); // ENVIA A MEMORIA A ESCRIBIR
+ //t_package *package = get_package(socket, logger);
+//t_status_code sc = get_status_code(package); // ESPERA RESPUESTA DE MEMORIA
+    //if(sc == FILE_READ)
+    //    send_status_code(socket_kernel, FILE_READ, log); // AVISA A KERNEL QUE LEYO BIEN
+
+    log_info(logger_aux,"Leer archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica,cant_bytes);
+
+    }
+
+}
+
+
+int write_file(t_config_filesystem *config, int puntero_archivo, char *nombre, int cant_bytes, void *direccion_fisica, t_log *logger_aux){
 
     char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
     strcpy(ruta_Fcb,config->path_fcb);
@@ -470,53 +562,73 @@ int write_file(t_config_filesystem *config, char *nombre, int cant_bytes, void *
     strcat(ruta_Fcb,nombre);
     FILE* file_fcb = fopen(ruta_Fcb,"r");
 
-    t_fcb *fcb= malloc(sizeof(t_fcb));
+    if(file_fcb!=NULL){
 
-    int file_blocks= open(config->path_bloques,O_CREAT | O_RDWR, 0644);  
+    t_fcb*fcb = malloc(sizeof(t_fcb));
+    fcb->nombre_archivo=malloc(strlen(nombre)+1);  //  a ver si agregando esto se soluciona
+	fread(fcb, sizeof(t_fcb), 1, file_fcb);
 
-     // Calcula la cantidad de bloques necesarios para escribir la información de la cant de bytes q me piden
-    int cant_bloques_para_cant_Bytes= ceil(cant_bytes/pSuperbloque->block_size);
-    //int cantidad_bloques = (cant_bytes + pSuperbloque->block_size - 1) / pSuperbloque->block_size;
+//solicito a memoria la info q tengo q escribir 
+//request_info = (DIRMEMORIA + BYTES)
+//send_request_info(socket_memoria, request_info, log);
 
-    int pos_bloque_directo= fcb->puntero_directo * pSuperbloque->block_size;
-    int pos_bloque_indirecto= fcb->puntero_indirecto * pSuperbloque->block_size;
+//recibo en un paquete el stream desde memoria lo q tengo q escribir (implementar)
+// t_package *package = get_package(socket, logger);
+//void *stream = get_info_write(package); // LEE MEMORIA
 
-    fseek(file_blocks,pos_bloque_directo,SEEK_SET);
-    int bytes_escritos= fwrite(direccion_fisica, min(cant_bytes, pSuperbloque->block_size), 1, file_blocks);
-    cant_bytes = cant_bytes - bytes_escritos; //actualizo la cant de bytes a escribir que me quedan
-    //direccion_fisica += pSuperbloque->block_size; //Después de cada escritura, el puntero de la dirección física se actualiza mediante el incremento de pSuperbloque->block_size para apuntar a la siguiente porción de datos a escribir en el siguiente bloque.
-    cant_bloques_para_cant_Bytes--; 
-   //implemento el ocupado en el bitmap del bloque directo 
-    int bloque_directo_ocupado = fcb->puntero_directo;
-    bitarray_set_bit(bitmap, bloque_directo_ocupado);
+    void *stream = malloc(cant_bytes); 
+    stream= "meliaprobosistemasoperativosyahoraesunapersonafeliz";
 
-    fseek(file_blocks,pos_bloque_indirecto,SEEK_SET);
+    int offset_bloque_directo= fcb->puntero_directo * pSuperbloque->block_size; //desplazamiento nen bytes
+    int offset_bloque_siguiente= (fcb->puntero_directo  + 1) * pSuperbloque->block_size; //desplazamiento en bytes
 
-    int cant_punteros= cant_bloques_para_cant_Bytes;  
-    int *punteros= malloc(cant_punteros * sizeof(int));
+    if  (puntero_archivo > offset_bloque_directo && puntero_archivo < offset_bloque_siguiente){
 
-        for (int i = 0; i <= cant_bloques_para_cant_Bytes && i < cant_punteros; i++) {
-            int bloque_libre= obtener_bloque_libre(bitmap,bitmap_size);
-            punteros[i] = bloque_libre;
+        int bloque_pArchivo= fcb->puntero_directo; //bloque donde esta el pArchivo  
+        int offset_dentro_bloque_pArchivo= puntero_archivo - offset_bloque_directo; //desde donde empiezo a leer en el bloque
 
-            fseek(file_blocks, bloque_libre * pSuperbloque->block_size, SEEK_SET);
-            fwrite(direccion_fisica, 1, min(cant_bytes, pSuperbloque->block_size), file_blocks);
-            //direccion_fisica += pSuperbloque->block_size;// Después de cada escritura, el puntero de la dirección física se actualiza mediante el incremento de pSuperbloque->block_size para apuntar a la siguiente porción de datos a escribir en el siguiente bloque.
-            cant_bytes= cant_bytes - bytes_escritos;     
+        int cant_bytes_escritos= pSuperbloque-> block_size - offset_dentro_bloque_pArchivo;
+        memcpy(copy_blocks + offset_dentro_bloque_pArchivo, stream,cant_bytes_escritos); 
+
+        printf("Contenido de copy_blocks: %s\n", (char*)copy_blocks + offset_dentro_bloque_pArchivo);
+        cant_bytes= cant_bytes- cant_bytes_escritos;
+
+        if(cant_bytes > 0 ){ //osea quedan bytes x escribir todvia 
+
+            int *punterosIndirectos;
+            punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux); 
+
+            int cantPunterosIndirectos=cantidadPunterosIndirectos(punterosIndirectos);
+
+            for(int i=0; i < cantPunterosIndirectos; i++){
+            int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;
+            int offset_bloque_siguiente_pi= (punterosIndirectos[i]  + 1) * pSuperbloque->block_size;
+        
+            if(pSuperbloque->block_size <  cant_bytes){
+                memcpy(copy_blocks + offset_bloque_pi, stream + cant_bytes_escritos, pSuperbloque->block_size);
+                cant_bytes_escritos= cant_bytes_escritos + pSuperbloque->block_size; 
+                cant_bytes= cant_bytes -cant_bytes_escritos; 
+            
+        
         }
 
-    fseek(file_blocks,pos_bloque_indirecto,SEEK_SET);
-    write(file_blocks, punteros, cant_punteros * sizeof(int));
 
-    free(punteros);
-
-    log_info(logger_aux,"Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, punteroArchivo, direccion_fisica, fcb-> tamanio_archivo);
+            }
 
 
-    }
-int min(int a, int b) {
-    return (a < b) ? a : b;
+//agregar caso: si empieza a escribir desde los punteros indirectos directamente 
+
+
+        }
+    
+
+}
+    log_info(logger_aux,"Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes);
+}
 }
 
 
-*/
+
+
+
+
