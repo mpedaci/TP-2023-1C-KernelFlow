@@ -59,6 +59,8 @@ int main()
     destroy_mutex();
     // 6.4. Cerrar recursos - OK
     destroy_recursos();
+    // 6.5. Cerrar archivos - OK
+    destroy_archivos();
     // 7. Limpiar estructuras - OK
     end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
     return EXIT_SUCCESS;

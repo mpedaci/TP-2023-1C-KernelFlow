@@ -212,7 +212,7 @@ void free_pcb(t_pcb *pcb)
     temporal_destroy(pcb->tiempo_llegada_ready);
     temporal_destroy(pcb->tiempo_entrada_cpu);
     temporal_destroy(pcb->tiempo_salida_cpu);
-    // free(pcb->open_files_table);
+    list_destroy(pcb->open_files_table);
     free(pcb);
 }
 
