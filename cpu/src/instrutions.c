@@ -28,17 +28,20 @@ void MOV_IN(char *registro, char *direccion_fisica)
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_IN, params);
     bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
-    if(!res)
+    if (!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_IN a memoria");
-    
-    instruction_destroyer(instruccion_a_mandar);
+
+    instruccion_destroy(instruccion_a_mandar);
 
     t_package *package = get_package(socket_client_memoria, logger);
 
     t_data *data;
-    if(package->operation_code == DATA) {
+    if (package->operation_code == DATA)
+    {
         data = get_data(package);
-    } else {
+    }
+    else
+    {
         log_error(logger_aux, "No se pudo obtener el valor de memoria en el MOV_IN");
     }
 
@@ -67,22 +70,28 @@ void MOV_OUT(char *direccion_fisica, char *registro)
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_OUT, params);
     bool res = send_instruccion(socket_client_memoria, instruccion_a_mandar, logger_aux);
-    if(!res)
+    if (!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_OUT a memoria");
-    
-    instruction_destroyer(instruccion_a_mandar);
+
+    instruccion_destroy(instruccion_a_mandar);
 
     t_package *package = get_package(socket_client_memoria, logger);
 
     t_status_code status_code;
-    if(package->operation_code == STATUS_CODE) {
+    if (package->operation_code == STATUS_CODE)
+    {
         status_code = get_status_code(package);
-        if(status_code == SUCCESS) {
+        if (status_code == SUCCESS)
+        {
             log_info(logger_aux, "Se pudo escribir en memoria en el MOV_OUT");
-        } else {
+        }
+        else
+        {
             log_error(logger_aux, "No se pudo escribir en memoria en el MOV_OUT");
         }
-    } else {
+    }
+    else
+    {
         log_error(logger_aux, "No se pudo obtener el OK de memoria en el MOV_OUT");
     }
 
@@ -209,12 +218,6 @@ void *get_register(char *register_char)
     {
         return NULL;
     }
-}
-
-void instruction_destroyer(t_instruccion *instruccion)
-{
-    list_destroy_and_destroy_elements(instruccion->parametros, free);
-    free(instruccion);
 }
 
 // devuelve mallockeado, sin settear motivo_desalojo

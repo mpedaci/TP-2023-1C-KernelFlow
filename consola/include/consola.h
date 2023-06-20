@@ -1,5 +1,5 @@
-#ifndef CONSOLA_H
-#define CONSOLA_H
+#ifndef CONSOLA_H_
+#define CONSOLA_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,10 +8,10 @@
 #include "utils.h"
 #include "client_handle.h"
 #include "parser.h"
-
+#include "types_controllers.h"
 
 t_log* logger_console; 
 
 char* logger_console_path = "./logs/consola.log";
 
-#endif
+#endif /* CONSOLA_H_ */

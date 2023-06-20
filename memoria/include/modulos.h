@@ -2,6 +2,7 @@
 #define MODULOS_H
 
 #include "compactacion.h"
+#include "types_controllers.h"
 
 void kernel_operations(int client_socket);
 void handle_pid_instruction(int client_socket, t_pid_instruccion *pidtruction);

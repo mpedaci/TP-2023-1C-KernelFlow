@@ -1,3 +1,6 @@
+#ifndef PARSER_H_
+#define PARSER_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,5 +18,5 @@ void add_param_size_to_instruction(t_list *parametros, t_instruccion *instruccio
 t_instruccion *new_instruction(t_identificador identificador, t_list *parametros);
 t_instruccion *process_line(char *line);
 t_list *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola);
-void destroy_instruccion(t_instruccion *instruccion);
-void destroy_lista_instrucciones(t_list *lista_instrucciones);
+
+#endif /* PARSER_H_ */

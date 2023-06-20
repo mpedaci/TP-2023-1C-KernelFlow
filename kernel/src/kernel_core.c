@@ -245,8 +245,8 @@ void execute()
     pcb->tiempo_salida_cpu = temporal_create();
     update_est_sig_rafaga(pcb);
 
-    free_pcontexto(pcontexto);
-    free_pcontexto_desalojo(pcontexto_response);
+    pcontexto_destroy(pcontexto);
+    pcontexto_desalojo_destroy(pcontexto_response);
     package_destroy(p);
 }
 
@@ -265,8 +265,8 @@ void sexecute()
     log_info(logger_aux, "PID: %d | Procesando motivo de desalojo: %d", pcontexto->pid, pcontexto_response->motivo_desalojo->identificador);
     procesar_motivo_desalojo(pcontexto_response);
 
-    free_pcontexto(pcontexto);
-    free_pcontexto_desalojo(pcontexto_response);
+    pcontexto_destroy(pcontexto);
+    pcontexto_desalojo_destroy(pcontexto_response);
     package_destroy(p);
 }
 

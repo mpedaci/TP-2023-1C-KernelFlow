@@ -10,6 +10,7 @@
 #include <commons/collections/list.h>
 
 #include "types.h"
+#include "types_controllers.h"
 #include "kernel_structs.h"
 
 #include "communication.h"
@@ -42,14 +43,7 @@ t_registers *init_registers();
 
 void free_config_kernel(t_config_kernel *config);
 void free_modules_client(t_modules_client *modules_client, t_log *logger);
-void free_registers(t_registers *registers);
-void free_pcb(t_pcb *pcb);
 void free_queues(t_queues *queues);
-void free_instruccion(t_instruccion *instruccion);
-void free_lista_instrucciones(t_list *lista_instrucciones);
-void free_pcontexto_desalojo(t_pcontexto_desalojo *pcontexto);
-void free_pcontexto(t_pcontexto *pcontexto);
-void free_segments_table(t_segments_table *s_table);
 
 void copy_registers(t_registers *dest, t_registers *src);
 t_list *copy_instructions_list(t_list *instructions);

@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "server.h"
 #include "communication.h"
+#include "types_controllers.h"
 
 
 void start_kernel_server(char *listen_port);

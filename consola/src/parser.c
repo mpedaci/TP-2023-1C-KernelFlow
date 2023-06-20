@@ -97,14 +97,3 @@ t_list *parsear_pseudocodigo(FILE *pseudo_file, t_log *logger_consola)
     free(line);
     return list_instructions;
 }
-
-void destroy_instruccion(t_instruccion *instruccion)
-{
-    list_destroy_and_destroy_elements(instruccion->parametros, free);
-    free(instruccion);
-}
-
-void destroy_lista_instrucciones(t_list *lista_instrucciones)
-{
-    list_destroy_and_destroy_elements(lista_instrucciones, (void *)destroy_instruccion);
-}

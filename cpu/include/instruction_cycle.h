@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "instructions.h"
+#include "types_controllers.h"
 
 // Busca la siguiente instruccion a ejecutar del pcb y suma 1 al program counter
 t_instruccion* fetch(t_pcontexto* contexto);

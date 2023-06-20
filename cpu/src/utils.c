@@ -82,23 +82,6 @@ void set_registers_zero(t_registers *registers) {
     memcpy(registers->RDX, zero, 16);
 }
 
-void registers_destroy(t_registers *registers) {
-    free(registers->AX);
-    free(registers->BX);
-    free(registers->CX);
-    free(registers->DX);
-    free(registers->EAX);
-    free(registers->EBX);
-    free(registers->ECX);
-    free(registers->EDX);
-    free(registers->RAX);
-    free(registers->RBX);
-    free(registers->RCX);
-    free(registers->RDX);
-
-    free(registers);
-}
-
 int get_sizeof_register(char *reg) {
     if (strcmp(reg, "AX") == 0 || strcmp(reg, "BX") == 0 || strcmp(reg, "CX") == 0 || strcmp(reg, "DX") == 0)
     {

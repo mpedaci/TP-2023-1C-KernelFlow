@@ -139,7 +139,7 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
         contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
     }
 
-    instruction_destroyer(instruccionListaParaEjecutar);
+    instruccion_destroy(instruccionListaParaEjecutar);
 
     return contexto_desalojo;
 }

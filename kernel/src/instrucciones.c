@@ -6,7 +6,7 @@ void actualizar_tablas(t_list *tablas_actualizadas)
     {
         t_segments_table *tabla_actualizada = list_get(tablas_actualizadas, i);
         t_pcb *pcb = list_get(all_pcb, find_pcb_index(all_pcb, tabla_actualizada->pid));
-        free_segments_table(pcb->segments_table);
+        segments_table_destroy(pcb->segments_table);
         pcb->segments_table = tabla_actualizada;
     }
 }
@@ -88,7 +88,7 @@ bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
 
     t_package *p = get_package(modules_client->memory_client_socket, logger_aux);
     t_segments_table *tabla_actualizada = get_tsegmento(p);
-    free_segments_table(pcb->segments_table);
+    segments_table_destroy(pcb->segments_table);
     pcb->segments_table = tabla_actualizada;
 
     log_info(logger_main, "PID: %d - Eliminar Segmento - Id: %d", pcb->pid, atoi(list_get(instruccion->parametros, 0)));

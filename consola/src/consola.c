@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
     // fin del programa
     end_program(logger_console, config, file_instructions);
-    destroy_lista_instrucciones(lista_instrucciones);
+    lista_instrucciones_destroy(lista_instrucciones);
 
     return EXIT_SUCCESS;
 }

@@ -179,79 +179,17 @@ void free_modules_client(t_modules_client *modules_client, t_log *logger)
     free(modules_client);
 }
 
-void free_registers(t_registers *registers)
-{
-    free(registers->AX);
-    free(registers->BX);
-    free(registers->CX);
-    free(registers->DX);
-    free(registers->EAX);
-    free(registers->EBX);
-    free(registers->ECX);
-    free(registers->EDX);
-    free(registers->RAX);
-    free(registers->RBX);
-    free(registers->RCX);
-    free(registers->RDX);
-
-    free(registers);
-}
-
-void free_segments_table(t_segments_table *s_table)
-{
-    list_destroy_and_destroy_elements(s_table->segment_list, free);
-    free(s_table);
-}
-
-void free_pcb(t_pcb *pcb)
-{
-    free_lista_instrucciones(pcb->instrucciones);
-    free_registers(pcb->registers);
-    free_segments_table(pcb->segments_table);
-    temporal_destroy(pcb->tiempo_llegada_ready);
-    temporal_destroy(pcb->tiempo_entrada_cpu);
-    temporal_destroy(pcb->tiempo_salida_cpu);
-    list_destroy(pcb->open_files_table);
-    free(pcb);
-}
-
 void free_queues(t_queues *queues)
 {
-    list_destroy_and_destroy_elements(queues->NEW, (void *)free_pcb);
-    list_destroy_and_destroy_elements(queues->READY, (void *)free_pcb);
-    list_destroy_and_destroy_elements(queues->EXEC, (void *)free_pcb);
-    list_destroy_and_destroy_elements(queues->BLOCK, (void *)free_pcb);
-    list_destroy_and_destroy_elements(queues->EXIT, (void *)free_pcb);
+    list_destroy_and_destroy_elements(queues->NEW, (void *)destroy_pcb);
+    list_destroy_and_destroy_elements(queues->READY, (void *)destroy_pcb);
+    list_destroy_and_destroy_elements(queues->EXEC, (void *)destroy_pcb);
+    list_destroy_and_destroy_elements(queues->BLOCK, (void *)destroy_pcb);
+    list_destroy_and_destroy_elements(queues->EXIT, (void *)destroy_pcb);
     free(queues);
 }
 
-void free_instruccion(t_instruccion *instruccion)
-{
-    list_destroy_and_destroy_elements(instruccion->parametros, free);
-    free(instruccion);
-}
-
-void free_lista_instrucciones(t_list *lista_instrucciones)
-{
-    list_destroy_and_destroy_elements(lista_instrucciones, (void *)free_instruccion);
-}
-
-void free_pcontexto_desalojo(t_pcontexto_desalojo *pcontexto)
-{
-    free_lista_instrucciones(pcontexto->instructions);
-    free_instruccion(pcontexto->motivo_desalojo);
-    free_registers(pcontexto->registers);
-    free(pcontexto);
-}
-
-void free_pcontexto(t_pcontexto *pcontexto)
-{
-    free_lista_instrucciones(pcontexto->instructions);
-    free_registers(pcontexto->registers);
-    list_destroy_and_destroy_elements(pcontexto->segments, free);
-    free(pcontexto);
-}
-
+// Copy
 
 void copy_registers(t_registers *dest, t_registers *src)
 {
@@ -259,12 +197,10 @@ void copy_registers(t_registers *dest, t_registers *src)
     memcpy(dest->BX, src->BX, 4);
     memcpy(dest->CX, src->CX, 4);
     memcpy(dest->DX, src->DX, 4);
-
     memcpy(dest->EAX, src->EAX, 8);
     memcpy(dest->EBX, src->EBX, 8);
     memcpy(dest->ECX, src->ECX, 8);
     memcpy(dest->EDX, src->EDX, 8);
-
     memcpy(dest->RAX, src->RAX, 16);
     memcpy(dest->RBX, src->RBX, 16);
     memcpy(dest->RCX, src->RCX, 16);

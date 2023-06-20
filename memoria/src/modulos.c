@@ -1,11 +1,5 @@
 #include "modulos.h"
 
-void instruction_destroyer(t_instruccion *instruccion)
-{
-    list_destroy_and_destroy_elements(instruccion->parametros, free);
-    free(instruccion);
-}
-
 // KERNEL
 void kernel_operations(int client_socket)
 {
@@ -24,7 +18,7 @@ void kernel_operations(int client_socket)
         case PID_INSTRUCCION:
             t_pid_instruccion *pidtruction = get_pid_instruccion(package);
             handle_pid_instruction(client_socket, pidtruction);
-            instruction_destroyer(pidtruction->instruccion);
+            instruccion_destroy(pidtruction->instruccion);
             free(pidtruction);
             break;
         case PID_STATUS:

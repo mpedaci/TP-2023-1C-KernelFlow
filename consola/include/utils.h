@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILS_H_
+#define UTILS_H_
 
 #include <stdlib.h>
 
@@ -16,4 +16,4 @@ typedef struct
 t_config_console *read_config(char *path, t_log *logger_console);
 void end_program(t_log *logger_console, t_config_console *config, FILE *file_instructions);
 
-#endif
+#endif /* UTILS_H_ */
