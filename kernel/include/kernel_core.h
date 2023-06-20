@@ -50,6 +50,7 @@ void destroy_archivos();
 
 // Recursos
 void cargar_recursos();
+void free_recurso(t_recurso *recurso);
 void destroy_recursos();
 
 // PCB

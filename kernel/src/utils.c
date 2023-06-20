@@ -120,7 +120,7 @@ t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
     pcb->tiempo_llegada_ready = temporal;
     pcb->tiempo_entrada_cpu = temporal;
     pcb->tiempo_salida_cpu = temporal;
-    pcb->open_files_table = NULL;
+    pcb->open_files_table = list_create();
     pcb->exit_status = SUCCESS;
     return pcb;
 }

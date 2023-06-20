@@ -31,19 +31,47 @@ void process_client(int client_socket, t_log *logger)
         t_package *package = get_package(client_socket, logger);
         switch (package->operation_code)
         {
-        case OFILE:
-            printf("RECIBIDO INST OFILE");
-            package_destroy(package);
+        case INSTRUCCION:
+            log_debug(logger, "RECIBIDA INSTRUCCION");
+            t_instruccion *instruccion = get_instruccion(package);
+            handle_instruccion(instruccion, client_socket, logger);
+            list_destroy_and_destroy_elements(instruccion->parametros, free);
+            free(instruccion);
             break;
         case END:
-            printf("Conexion Finalizada");
+            log_warning(logger, "Conexion Finalizada");
             exit = true;
             break;
         default:
-            printf("Operacion desconocida.");
+            log_warning(logger, "Operacion desconocida.");
             exit = true;
             break;
         }
         package_destroy(package);
+    }
+}
+
+void handle_instruccion(t_instruccion *instruccion, int client_socket, t_log *logger)
+{
+    int timeout = 15000;
+    sleep(timeout / 1000);
+    switch (instruccion->identificador)
+    {
+    case I_F_OPEN:
+        send_status_code(client_socket, FILE_OPEN, logger);
+        break;
+    case I_F_READ:
+        // Chequear si existe el archivo o crearlo
+        send_status_code(client_socket, FILE_READ, logger);
+        break;
+    case I_F_WRITE:
+        send_status_code(client_socket, FILE_WRITTEN, logger);
+        break;
+    case I_F_TRUNCATE:
+        send_status_code(client_socket, FILE_TRUNCATED, logger);
+        break;
+    default:
+        send_status_code(client_socket, ERROR, logger);
+        break;
     }
 }

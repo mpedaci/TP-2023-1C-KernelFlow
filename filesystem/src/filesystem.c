@@ -23,7 +23,6 @@ int main() {
     log_info(logger_aux, "Iniciando servidor");
     start_filesystem_server(config->puerto_escucha, logger_aux);
     send_end(memory_socket, logger_aux);
-
     // terminar programa
     end_program(logger_main, config,logger_aux);
 

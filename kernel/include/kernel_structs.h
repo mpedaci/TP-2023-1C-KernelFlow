@@ -1,8 +1,8 @@
 #ifndef KERNEL_STRUCTS_H
 #define KERNEL_STRUCTS_H
 
+#include "types.h"
 #include <stdint.h>
-
 #include <commons/collections/list.h>
 
 typedef enum

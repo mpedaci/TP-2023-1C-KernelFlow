@@ -108,7 +108,8 @@ bool execute_fopen(t_instruccion *instruccion, t_pcb *pcb)
         send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
         t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
         t_status_code code = get_status_code(paquete);
-        if (code == FILE_READ || code == FILE_CREATED)
+        free(paquete);
+        if (code == FILE_OPEN || code == FILE_CREATED)
         {
             log_info(logger_main, "PID: %d - Crear Archivo: %s", pcb->pid, nombre_archivo);
             // Creo el archivo
@@ -119,6 +120,7 @@ bool execute_fopen(t_instruccion *instruccion, t_pcb *pcb)
             archivo_abierto->archivo = nuevo_archivo;
             archivo_abierto->puntero = 0;
             list_add(pcb->open_files_table, archivo_abierto);
+            nuevo_archivo->instancias--;
             return true;
         }
         else
@@ -127,7 +129,9 @@ bool execute_fopen(t_instruccion *instruccion, t_pcb *pcb)
             execute_exit(pcb, code);
             return false;
         }
-    } else {
+    }
+    else
+    {
         // Si existe es porque otro lo posee asignado
         t_archivo_abierto *archivo_abierto = malloc(sizeof(t_archivo_abierto));
         archivo_abierto->archivo = archivo;
@@ -135,6 +139,7 @@ bool execute_fopen(t_instruccion *instruccion, t_pcb *pcb)
         list_add(pcb->open_files_table, archivo_abierto);
         add_pcb_to_queue(QBLOCK, pcb);
         list_add(archivo->lista_bloqueados, pcb);
+        archivo->instancias--;
         return false;
     }
     return false;
@@ -172,11 +177,14 @@ bool execute_fclose(t_instruccion *instruccion, t_pcb *pcb)
         {
             list_remove_by_condition(pcb->open_files_table, (void *)archivo_abierto);
             free(archivo_abierto);
-            if (list_is_empty(archivo->lista_bloqueados))
+            archivo->instancias++;
+            if (archivo->instancias > 0)
             {
                 list_remove_by_condition(archivos_abiertos, (void *)archivo);
                 free_recurso(archivo);
-            } else {
+            }
+            else
+            {
                 t_pcb *pendiente = remove_pcb_from_queue_resourse(archivo);
                 int index_pendiente = find_pcb_index(queues->BLOCK, pendiente->pid);
                 pop_pcb_from_queue_by_index(QBLOCK, index_pendiente);
@@ -223,6 +231,8 @@ void execute_fread(t_instruccion *instruccion, t_pcb *pcb)
     int tamanio = atoi(list_get(instruccion->parametros, 2));
     t_archivo_abierto *archivo_abierto = buscar_archivo_abierto(pcb, archivo);
 
+    list_add(instruccion->parametros, string_itoa(archivo_abierto->puntero));
+
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
 
     log_info(logger_main, "PID: %d - Leer Archivo: %s - Puntero: %d - DIreccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, archivo_abierto->puntero, direccion, tamanio);
@@ -233,7 +243,8 @@ void execute_fread(t_instruccion *instruccion, t_pcb *pcb)
     pthread_create(&thr_file, 0, file_processing, (void *)arg);
 }
 
-void *file_processing(void *args){
+void *file_processing(void *args)
+{
     t_pcb_file_status *pcb_file_status = (t_pcb_file_status *)args;
     int index = find_pcb_index(queues->BLOCK, pcb_file_status->pid);
     t_package *paquete = get_package(modules_client->filesystem_client_socket, logger_aux);
@@ -242,7 +253,9 @@ void *file_processing(void *args){
     if (code == pcb_file_status->status_expected)
     {
         add_pcb_to_queue(QREADY, pcb);
-    } else {
+    }
+    else
+    {
         execute_exit(pcb, code);
     }
     free(pcb_file_status);
@@ -257,6 +270,8 @@ void execute_fwrite(t_instruccion *instruccion, t_pcb *pcb)
     int direccion = atoi(list_get(instruccion->parametros, 1));
     int tamanio = atoi(list_get(instruccion->parametros, 2));
     t_archivo_abierto *archivo_abierto = buscar_archivo_abierto(pcb, archivo);
+
+    list_add(instruccion->parametros, string_itoa(archivo_abierto->puntero));
 
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
 

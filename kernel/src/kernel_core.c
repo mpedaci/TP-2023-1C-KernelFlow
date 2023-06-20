@@ -204,15 +204,17 @@ void cargar_recursos()
     }
 }
 
+void free_recurso(t_recurso *recurso)
+{
+    list_destroy(recurso->lista_bloqueados);
+    pthread_mutex_destroy(&recurso->mutex);
+    free(recurso);
+}
+
 void destroy_recursos()
 {
     for (int i = 0; i < list_size(recursos); i++)
-    {
-        t_recurso *recurso = list_get(recursos, i);
-        list_destroy(recurso->lista_bloqueados);
-        pthread_mutex_destroy(&recurso->mutex);
-        free(recurso);
-    }
+        free_recurso(list_get(recursos, i));
     list_destroy(recursos);
 }
 

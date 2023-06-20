@@ -26,6 +26,7 @@ int main()
     // 3. Crear estructuras kernel
     // 3.0. Crear lista de todos los pcb
     all_pcb = list_create();
+    archivos_abiertos = list_create();
     // 3.1. Crear colas
     queues = create_queues();
     // 3.2 Crear recursos

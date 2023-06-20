@@ -13,13 +13,15 @@ typedef enum
     SEGMENTATION_FAULT,
     COMPACTATION_REQUIRED,
     OUT_OF_MEMORY,
+    FILE_OPEN,
     FILE_CREATED,
     FILE_READ,
     FILE_TRUNCATED,
     FILE_WRITTEN,
     SUCCESS,
     PROCESS_NEW,
-    PROCESS_END
+    PROCESS_END,
+    ERROR
 } t_status_code;
 
 // CONSOLA
@@ -150,7 +152,7 @@ typedef struct
     t_temporal *tiempo_llegada_ready;
     t_temporal *tiempo_entrada_cpu;
     t_temporal *tiempo_salida_cpu;
-    t_open_files *open_files_table;
+    t_list *open_files_table;
     t_status_code exit_status;
 } t_pcb;
 
