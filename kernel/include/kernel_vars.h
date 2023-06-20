@@ -38,8 +38,14 @@ extern t_list *recursos;
 extern t_list *sem_recursos; // Semaforos para las instancias de los recuros - CONTADOR
 extern t_list *mtx_recursos; // Semaforo para la cola de bloqueados de cada recurso - MUTEX
 
+// Archivos
+extern t_list *archivos_abiertos;
+
 // IO
 extern pthread_t thr_io;
+
+// Archivos
+extern pthread_t thr_file;
 
 // Mutex para proteger las colas
 extern pthread_mutex_t mutex_new;

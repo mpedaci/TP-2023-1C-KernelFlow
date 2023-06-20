@@ -24,7 +24,11 @@ t_list *all_pcb = NULL;
 
 t_list *recursos = NULL;
 
+t_list *archivos_abiertos = NULL;
+
 pthread_t thr_io;
+
+pthread_t thr_file;
 
 pthread_mutex_t mutex_new;
 pthread_mutex_t mutex_ready;

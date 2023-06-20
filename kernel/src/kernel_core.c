@@ -137,6 +137,59 @@ void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto)
     copy_registers(pcb->registers, pcontexto->registers);
 }
 
+// Archivos
+
+void cargar_archivos()
+{
+    archivos_abiertos = list_create();
+}
+
+bool verificar_archivo(char *nombre)
+{
+    for (int i = 0; i < list_size(archivos_abiertos); i++)
+    {
+        t_recurso *recurso = list_get(archivos_abiertos, i);
+        if (string_equals_ignore_case(recurso->recurso, nombre))
+            return true;
+    }
+    return false;
+}
+
+t_recurso *buscar_archivo(char *nombre)
+{
+    for (int i = 0; i < list_size(archivos_abiertos); i++)
+    {
+        t_recurso *recurso = list_get(archivos_abiertos, i);
+        if (string_equals_ignore_case(recurso->recurso, nombre))
+            return recurso;
+    }
+    return NULL;
+}
+
+t_recurso *crear_archivo(char *nombre)
+{
+    t_recurso *recurso = malloc(sizeof(t_recurso));
+    recurso->recurso = string_duplicate(nombre);
+    recurso->instancias = 1;
+    recurso->lista_bloqueados = list_create();
+    list_add(archivos_abiertos, recurso);
+    return recurso;
+}
+
+void destroy_archivos()
+{
+    for (int i = 0; i < list_size(archivos_abiertos); i++)
+    {
+        t_recurso *recurso = list_get(archivos_abiertos, i);
+        list_destroy(recurso->lista_bloqueados);
+        pthread_mutex_destroy(&recurso->mutex);
+        free(recurso);
+    }
+    list_destroy(archivos_abiertos);
+}
+
+// Recursos
+
 void cargar_recursos()
 {
     recursos = list_create();
@@ -223,7 +276,6 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
             add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }
-        // free(recurso_solicitado);
         break;
     case I_SIGNAL:
         recurso_solicitado = list_get(pcontexto_response->motivo_desalojo->parametros, 0);
@@ -233,14 +285,13 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
             add_pcb_to_queue(QEXEC, pcb);
             sexecute();
         }
-        // free(recurso_solicitado);
         break;
     case I_I_O:
         int tiempo = atoi(list_get(pcontexto_response->motivo_desalojo->parametros, 0));
         execute_io(tiempo, pcb);
         break;
     case I_YIELD:
-        execute_to_ready(pcb);
+        execute_yield(pcb);
         break;
     case I_EXIT:
         execute_exit(pcb, SUCCESS);
@@ -249,16 +300,31 @@ void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response)
         execute_fwrite(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_CLOSE:
-        execute_exit(pcb, SUCCESS);
+        se = execute_fclose(pcontexto_response->motivo_desalojo, pcb);
+        if (se)
+        {
+            add_pcb_to_queue(QEXEC, pcb);
+            sexecute();
+        }
         break;
     case I_F_OPEN:
-        execute_exit(pcb, SUCCESS);
+        se = execute_fopen(pcontexto_response->motivo_desalojo, pcb);
+        if (se)
+        {
+            add_pcb_to_queue(QEXEC, pcb);
+            sexecute();
+        }
         break;
     case I_F_READ:
         execute_fread(pcontexto_response->motivo_desalojo, pcb);
         break;
     case I_F_SEEK:
-        execute_exit(pcb, SUCCESS);
+        se = execute_fseek(pcontexto_response->motivo_desalojo, pcb);
+        if (se)
+        {
+            add_pcb_to_queue(QEXEC, pcb);
+            sexecute();
+        }
         break;
     case I_F_TRUNCATE:
         execute_ftruncate(pcontexto_response->motivo_desalojo, pcb);

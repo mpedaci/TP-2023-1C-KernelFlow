@@ -68,8 +68,21 @@ typedef struct
 
 typedef struct
 {
+    t_recurso *archivo;
+    int puntero;
+} t_archivo_abierto;
+
+typedef struct
+{
     int t_sleep;
     int pid;
 } t_io_pcb;
+
+typedef struct 
+{
+    int pid;
+    t_status_code status_expected;
+} t_pcb_file_status;
+
 
 #endif /* KERNEL_STRUCTS_H */

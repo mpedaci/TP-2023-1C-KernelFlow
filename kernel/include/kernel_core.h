@@ -41,13 +41,24 @@ bool can_execute_process();
 void inicializar_mutex();
 void destroy_mutex();
 
+// Archivos
+void cargar_archivos();
+bool verificar_archivo(char *nombre);
+t_recurso *buscar_archivo(char *nombre);
+t_recurso *crear_archivo(char *nombre);
+void destroy_archivos();
+
+// Recursos
+void cargar_recursos();
+void destroy_recursos();
+
 // PCB
 bool request_t_segment(t_pcb *pcb);
 t_pcontexto *create_pcontexto_from_pcb(t_pcb *pcb);
 void update_pcb_from_pcontexto(t_pcb *pcb, t_pcontexto_desalojo *pcontexto);
-void cargar_recursos();
-void destroy_recursos();
 void execute();
 void procesar_motivo_desalojo(t_pcontexto_desalojo *pcontexto_response);
+
+void cargar_archivos();
 
 #endif /* KERNEL_CORE_H */
