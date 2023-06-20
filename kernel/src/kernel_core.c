@@ -8,6 +8,8 @@ void start_kernel_core()
 void end_kernel_core()
 {
     core_running = false;
+    pthread_join(thr_file, NULL);
+    pthread_join(thr_io, NULL);
     pthread_join(thr_core, NULL);
     log_info(logger_aux, "Thread Kernel Core: finalizado");
 }
@@ -23,6 +25,7 @@ void *process_queues()
         while (can_move_NEW_to_READY())
         {
             t_pcb *pcb = pop_pcb_from_queue(QNEW);
+            temporal_destroy(pcb->tiempo_llegada_ready);
             pcb->tiempo_llegada_ready = temporal_create();
             if (request_t_segment(pcb))
                 add_pcb_to_queue(QREADY, pcb);
@@ -173,6 +176,7 @@ t_recurso *crear_archivo(char *nombre)
     recurso->instancias = 1;
     recurso->lista_bloqueados = list_create();
     list_add(archivos_abiertos, recurso);
+    pthread_mutex_init(&recurso->mutex, NULL);
     return recurso;
 }
 
@@ -180,10 +184,10 @@ void destroy_archivos()
 {
     for (int i = 0; i < list_size(archivos_abiertos); i++)
     {
-        t_recurso *recurso = list_get(archivos_abiertos, i);
+        /* t_recurso *recurso = list_get(archivos_abiertos, i);
         list_destroy(recurso->lista_bloqueados);
         pthread_mutex_destroy(&recurso->mutex);
-        free(recurso);
+        free(recurso); */
     }
     list_destroy(archivos_abiertos);
 }
@@ -196,7 +200,7 @@ void cargar_recursos()
     for (int i = 0; i < list_size(config_kernel->recursos); i++)
     {
         t_recurso *recurso = malloc(sizeof(t_recurso));
-        recurso->recurso = list_get(config_kernel->recursos, i);
+        recurso->recurso = string_duplicate(list_get(config_kernel->recursos, i));
         recurso->instancias = atoi((char *)list_get(config_kernel->instancias_recursos, i));
         recurso->lista_bloqueados = list_create(); // PCBs Bloqueados
         list_add(recursos, recurso);
@@ -206,6 +210,7 @@ void cargar_recursos()
 
 void free_recurso(t_recurso *recurso)
 {
+    free(recurso->recurso);
     list_destroy(recurso->lista_bloqueados);
     pthread_mutex_destroy(&recurso->mutex);
     free(recurso);
@@ -222,6 +227,7 @@ void execute()
 {
     t_pcb *pcb = list_get(queues->EXEC, 0);
     log_info(logger_aux, "PID: %d | Ejecutando", pcb->pid);
+    temporal_destroy(pcb->tiempo_entrada_cpu);
     pcb->tiempo_entrada_cpu = temporal_create();
     t_pcontexto *pcontexto = create_pcontexto_from_pcb(pcb);
     log_info(logger_aux, "PID: %d | Enviando contexto a CPU", pcontexto->pid);
@@ -235,6 +241,7 @@ void execute()
     log_info(logger_aux, "PID: %d | Procesando motivo de desalojo: %d", pcontexto->pid, pcontexto_response->motivo_desalojo->identificador);
     procesar_motivo_desalojo(pcontexto_response);
 
+    temporal_destroy(pcb->tiempo_salida_cpu);
     pcb->tiempo_salida_cpu = temporal_create();
     update_est_sig_rafaga(pcb);
 

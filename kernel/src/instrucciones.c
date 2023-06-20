@@ -101,14 +101,14 @@ bool execute_delete_segment(t_instruccion *instruccion, t_pcb *pcb)
 
 bool execute_fopen(t_instruccion *instruccion, t_pcb *pcb)
 {
+    bool status = false;
     char *nombre_archivo = list_get(instruccion->parametros, 0);
     t_recurso *archivo = buscar_archivo(nombre_archivo);
     if (archivo == NULL) // Se consulta a FS si existe o no
     {
         send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
-        t_package *paquete = get_package(modules_client->memory_client_socket, logger_aux);
+        t_package *paquete = get_package(modules_client->filesystem_client_socket, logger_aux);
         t_status_code code = get_status_code(paquete);
-        free(paquete);
         if (code == FILE_OPEN || code == FILE_CREATED)
         {
             log_info(logger_main, "PID: %d - Crear Archivo: %s", pcb->pid, nombre_archivo);
@@ -121,14 +121,14 @@ bool execute_fopen(t_instruccion *instruccion, t_pcb *pcb)
             archivo_abierto->puntero = 0;
             list_add(pcb->open_files_table, archivo_abierto);
             nuevo_archivo->instancias--;
-            return true;
+            status = true;
         }
         else
         {
             log_error(logger_main, "Error al crear archivo");
             execute_exit(pcb, code);
-            return false;
         }
+        package_destroy(paquete);
     }
     else
     {
@@ -140,9 +140,8 @@ bool execute_fopen(t_instruccion *instruccion, t_pcb *pcb)
         add_pcb_to_queue(QBLOCK, pcb);
         list_add(archivo->lista_bloqueados, pcb);
         archivo->instancias--;
-        return false;
     }
-    return false;
+    return status;
 }
 
 t_archivo_abierto *buscar_archivo_abierto(t_pcb *pcb, char *nombre_archivo)
@@ -154,6 +153,28 @@ t_archivo_abierto *buscar_archivo_abierto(t_pcb *pcb, char *nombre_archivo)
             return archivo_abierto;
     }
     return NULL;
+}
+
+int find_archivo_abierto_index(t_pcb *pcb, char *nombre_archivo)
+{
+    for (int i = 0; i < list_size(pcb->open_files_table); i++)
+    {
+        t_archivo_abierto *archivo_abierto = list_get(pcb->open_files_table, i);
+        if (string_equals_ignore_case(archivo_abierto->archivo->recurso, nombre_archivo))
+            return i;
+    }
+    return -1;
+}
+
+int find_archivo_index(char *nombre_archivo)
+{
+    for (int i = 0; i < list_size(archivos_abiertos); i++)
+    {
+        t_recurso *archivo = list_get(archivos_abiertos, i);
+        if (string_equals_ignore_case(archivo->recurso, nombre_archivo))
+            return i;
+    }
+    return -1;
 }
 
 bool execute_fclose(t_instruccion *instruccion, t_pcb *pcb)
@@ -175,12 +196,14 @@ bool execute_fclose(t_instruccion *instruccion, t_pcb *pcb)
         }
         else
         {
-            list_remove_by_condition(pcb->open_files_table, (void *)archivo_abierto);
+            int index_archivo_abierto = find_archivo_abierto_index(pcb, nombre_archivo);
+            t_archivo_abierto *archivo_abierto = list_remove(pcb->open_files_table, index_archivo_abierto);
             free(archivo_abierto);
             archivo->instancias++;
             if (archivo->instancias > 0)
             {
-                list_remove_by_condition(archivos_abiertos, (void *)archivo);
+                int index_archivo = find_archivo_index(nombre_archivo);
+                list_remove(archivos_abiertos, index_archivo);
                 free_recurso(archivo);
             }
             else
@@ -216,6 +239,7 @@ bool execute_fseek(t_instruccion *instruccion, t_pcb *pcb)
         else
         {
             archivo_abierto->puntero = atoi(list_get(instruccion->parametros, 1));
+            log_info(logger_main, "PID: %d - Actualizar puntero Archivo: %s - Puntero %d", pcb->pid, nombre_archivo, archivo_abierto->puntero);
             return true;
         }
     }
@@ -246,8 +270,8 @@ void execute_fread(t_instruccion *instruccion, t_pcb *pcb)
 void *file_processing(void *args)
 {
     t_pcb_file_status *pcb_file_status = (t_pcb_file_status *)args;
-    int index = find_pcb_index(queues->BLOCK, pcb_file_status->pid);
     t_package *paquete = get_package(modules_client->filesystem_client_socket, logger_aux);
+    int index = find_pcb_index(queues->BLOCK, pcb_file_status->pid);
     t_pcb *pcb = pop_pcb_from_queue_by_index(QBLOCK, index);
     t_status_code code = get_status_code(paquete);
     if (code == pcb_file_status->status_expected)
@@ -258,6 +282,7 @@ void *file_processing(void *args)
     {
         execute_exit(pcb, code);
     }
+    package_destroy(paquete);
     free(pcb_file_status);
     pthread_exit(0);
 }

@@ -31,20 +31,20 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
         list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         break;
     case I_F_READ:
-        seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
+        /* seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
         if(seg_fault) {
             num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
             list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         }
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1); */
         break;
     case I_F_WRITE:
-        seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
+        /* seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
         if(seg_fault) {
             num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
             list_add(instruccionListaParaEjecutar->parametros, num_segmento);
         }
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
+        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1); */
         break;
     default:
         break;

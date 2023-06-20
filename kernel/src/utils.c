@@ -116,10 +116,9 @@ t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
     pcb->registers = init_registers();
     pcb->segments_table = NULL;
     pcb->est_sig_rafaga = 0;
-    t_temporal *temporal = temporal_create();
-    pcb->tiempo_llegada_ready = temporal;
-    pcb->tiempo_entrada_cpu = temporal;
-    pcb->tiempo_salida_cpu = temporal;
+    pcb->tiempo_llegada_ready = temporal_create();
+    pcb->tiempo_entrada_cpu = temporal_create();
+    pcb->tiempo_salida_cpu = temporal_create();
     pcb->open_files_table = list_create();
     pcb->exit_status = SUCCESS;
     return pcb;

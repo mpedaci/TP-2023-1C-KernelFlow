@@ -53,24 +53,29 @@ void process_client(int client_socket, t_log *logger)
 
 void handle_instruccion(t_instruccion *instruccion, int client_socket, t_log *logger)
 {
-    int timeout = 15000;
+    int timeout = 2000;
     sleep(timeout / 1000);
     switch (instruccion->identificador)
     {
     case I_F_OPEN:
+        log_info(logger, "Se recibio una instruccion de abrir archivo");
         send_status_code(client_socket, FILE_OPEN, logger);
         break;
     case I_F_READ:
+        log_info(logger, "Se recibio una instruccion de leer archivo");
         // Chequear si existe el archivo o crearlo
         send_status_code(client_socket, FILE_READ, logger);
         break;
     case I_F_WRITE:
+        log_info(logger, "Se recibio una instruccion de escribir archivo");
         send_status_code(client_socket, FILE_WRITTEN, logger);
         break;
     case I_F_TRUNCATE:
+        log_info(logger, "Se recibio una instruccion de truncar archivo");
         send_status_code(client_socket, FILE_TRUNCATED, logger);
         break;
     default:
+        log_warning(logger, "Instruccion desconocida.");
         send_status_code(client_socket, ERROR, logger);
         break;
     }
