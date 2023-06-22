@@ -867,6 +867,7 @@ t_info *t_info_create_from_buffer(t_buffer *buffer) {
     void *stream = buffer->stream;
     memcpy(&(info->size), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
+    info->data = malloc(info->size);
     memcpy(info->data, stream, info->size);
     return info;
 }

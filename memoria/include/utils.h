@@ -26,7 +26,7 @@ void bitarray_clean_from_and_how_many(t_bitarray *bitmap, int from, int how_many
 void bitarray_clean_all(t_bitarray *bitmap);
 int get_free_space(int base);
 
-//t_info *read_memory(int base_address, int size);
+t_info *read_memory(int base_address, int size);
 bool write_memory(int base_address, int size, void *data);
 void move_data(int to, int from, int length);
 

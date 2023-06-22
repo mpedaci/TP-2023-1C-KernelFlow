@@ -266,7 +266,7 @@ bool send_info_write(int socket, t_info_write *info_write, t_log *logger)
 bool send_info_read(int socket, t_info_read *info_read, t_log *logger)
 {
     t_buffer *buffer = t_info_read_create_buffer(info_read);
-    t_package *paquete = package_create(buffer, INFO_WRITE);
+    t_package *paquete = package_create(buffer, INFO_READ);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
@@ -275,7 +275,7 @@ bool send_info_read(int socket, t_info_read *info_read, t_log *logger)
 bool send_info(int socket, t_info *info, t_log *logger)
 {
     t_buffer *buffer = t_info_create_buffer(info);
-    t_package *paquete = package_create(buffer, INFO_WRITE);
+    t_package *paquete = package_create(buffer, INFO);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;

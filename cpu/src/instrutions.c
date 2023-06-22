@@ -40,7 +40,7 @@ char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
     char *value = malloc(tam_reg + 1);
     *(value + tam_reg) = '\0';
 
-    if(package->operation_code == DATA) {
+    if(package->operation_code == INFO) {
         info = get_info(package);
         memcpy(reg, info->data, tam_reg);
         memcpy(value, info->data, tam_reg);
@@ -70,6 +70,7 @@ char *MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
     info_write->info = malloc(sizeof(t_info));
     info_write->pid = pid;
     info_write->base_address = atoi(direccion_fisica);
+    info_write->info->data = malloc(tam_reg);
     memcpy(info_write->info->data, reg, tam_reg);
     info_write->info->size = tam_reg;
     
