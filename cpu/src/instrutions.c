@@ -17,7 +17,7 @@ void SET(char *registro_char, char *valor_char)
 
 // mem -> reg -- lectura
 // Lee el valor de memoria correspondiente a la Dirección Lógica y lo almacena en el Registro
-void MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
+char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
 {
     void *reg = get_register(registro);
     int tam_reg = get_sizeof_register(registro);
@@ -34,15 +34,17 @@ void MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_IN a memoria");
     
-    instruccion_destroy(instruccion_a_mandar);
+    list_destroy_and_destroy_elements(instruccion_a_mandar->parametros, free);
     free(pid_instruccion);
 
     t_package *package = get_package(socket_client_memoria, logger);
 
     t_data *data;
+    char *value = NULL;
     if(package->operation_code == DATA) {
         data = get_data(package);
         memcpy(reg, data->value, tam_reg); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
+        value = string_duplicate(data->value);
         free(data->value);
         free(data);
     } else {
@@ -50,22 +52,25 @@ void MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
     }
 
     package_destroy(package);
+
+    return value;
 }
 
 // reg -> mem -- escritura
 // Lee el valor del Registro y lo escribe en la dirección física de memoria obtenida a partir de la Dirección Lógica
-void MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
+char *MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
 {
     void *reg = get_register(registro);
     int tam_reg = get_sizeof_register(registro);
 
     char *valor_reg = malloc(tam_reg + 1);
+    *(valor_reg + tam_reg) = '\0';
 
     memcpy(valor_reg, reg, tam_reg);
 
     t_list *params = list_create();
-    list_add(params, direccion_fisica);
-    list_add(params, valor_reg);
+    list_add(params, string_duplicate(direccion_fisica));
+    list_add(params, string_duplicate(valor_reg));
 
     t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_OUT, params);
     t_pid_instruccion *pid_instruccion = malloc(sizeof(t_pid_instruccion));
@@ -75,7 +80,7 @@ void MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_OUT a memoria");
     
-    instruccion_destroy(instruccion_a_mandar);
+    list_destroy_and_destroy_elements(instruccion_a_mandar->parametros, free);
     free(pid_instruccion);
 
     t_package *package = get_package(socket_client_memoria, logger);
@@ -93,6 +98,8 @@ void MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
     }
 
     package_destroy(package);
+
+    return valor_reg;
 }
 
 t_pcontexto_desalojo *I_O(t_pcontexto *contexto, t_instruccion *instruccionListaParaEjecutar)

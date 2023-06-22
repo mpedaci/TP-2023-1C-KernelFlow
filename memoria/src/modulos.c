@@ -147,10 +147,10 @@ void handle_cpu_pid_instruction(int client_socket, t_pid_instruccion *pidtructio
         // if(!res)
         //     log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
         break;
-    case I_MOV_OUT: // escribe en memoria y pasa OK
+    case I_MOV_OUT: // escribe en memoria y pasa t_status_code->SUCCESS
         base_address = atoi((char *)list_get(instruction->parametros, 0));
         char *valor_a_escribir = (char *)list_get(instruction->parametros, 1);
-        length = instruction->p_length[1];
+        length = instruction->p_length[1] - 1;
         bool result = write_memory(base_address, length, valor_a_escribir);
         if (!result)
         {
