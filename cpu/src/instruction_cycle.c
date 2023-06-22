@@ -11,7 +11,6 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
 {
     // creando instruccion lista para ejecutar
     t_instruccion *instruccionListaParaEjecutar = new_instruction(instruccionSiguiente);
-    t_instruccion *aux;
 
     char *num_segmento;
     bool seg_fault;

@@ -57,6 +57,10 @@ t_pid_instruccion *get_pid_instruccion(t_package *paquete);
 
 t_pid_status *get_pid_status(t_package *paquete);
 
+t_info_write *get_info_write(t_package* paquete);
+t_info_read *get_info_read(t_package* paquete);
+t_info *get_info(t_package* paquete);
+
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
 bool send_instrucciones(int socket, t_list *lista_instrucciones, t_log *logger);

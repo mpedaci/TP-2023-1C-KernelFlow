@@ -29,7 +29,9 @@ char *get_instruction_string(t_identificador id);
 
 char *get_params_string(t_instruccion *instruction);
 
-t_instruccion *cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segmentos, int index_parametro);
+t_instruccion *cambiar_dir_logica_a_fisica_movs(t_instruccion *instruccion, t_list *segments, int index_parametro);
+
+t_instruccion *cambiar_dir_logica_a_fisica_files(t_instruccion *instruccion, t_list *segments);
 
 bool checkear_seg_fault(t_instruccion *instruction, t_list *segments);
 
