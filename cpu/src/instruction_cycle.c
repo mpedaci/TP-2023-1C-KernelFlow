@@ -33,6 +33,7 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
         num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 0)));
         instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 0);
         list_add(instruccionListaParaEjecutar->parametros, num_segmento); //p0 dir_fis - p1 reg - p3 num_seg
+        instruccion_destroy(aux);
         break;
     case I_F_READ:
         /* seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
@@ -206,13 +207,15 @@ char *get_params_string(t_instruccion *instruction)
     return params_string;
 }
 
+// le decis en que index esta la dir logica y te crea una nueva instruccion igual pero con la dir fisica
 t_instruccion *cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segments, int index_parametro) {
     char *direccion_fisica = get_direccion_fisica((char*)list_get(instruccion->parametros, index_parametro), segments);
-    list_remove(instruccion->parametros, index_parametro);
-    list_add(instruccion->parametros, direccion_fisica);
-    for(int i = 0; i < instruccion->cant_parametros; i++) { //reescribo el tamanio de los parametros
-        instruccion->p_length[i] = strlen((char*)list_get(instruccion->parametros, i)) + 1;
-    }
+    // crear instruccion
+    // crear list params
+    // agregarlos a la isntruccion con "create_new_instruction"
+    // free params
+    // return instruccion nueva
+    return NULL;
 }
 
 bool checkear_seg_fault(t_instruccion *instruction, t_list *segments) {
