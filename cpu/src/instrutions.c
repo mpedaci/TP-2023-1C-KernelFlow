@@ -31,7 +31,6 @@ char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
     bool res = send_info_read(socket_client_memoria, info_read, logger_aux);
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_IN a memoria");
-    
     free(info_read);
 
     t_package *package = get_package(socket_client_memoria, logger);

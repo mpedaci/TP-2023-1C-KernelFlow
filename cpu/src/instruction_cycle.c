@@ -13,7 +13,6 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
     t_instruccion *instruccionListaParaEjecutar = new_instruction(instruccionSiguiente);
 
     char *num_segmento;
-    bool seg_fault;
 
     switch (instruccionListaParaEjecutar->identificador)
     {
@@ -31,20 +30,12 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
         list_add(instruccionListaParaEjecutar->parametros, num_segmento); //p0 dir_fis - p1 reg - p3 num_seg
         break;
     case I_F_READ:
-        /* seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
-        if(seg_fault) {
-            num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
-            list_add(instruccionListaParaEjecutar->parametros, num_segmento);
-        }
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1); */
+        instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica_files(instruccionListaParaEjecutar, contexto->segments);
+        seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
         break;
     case I_F_WRITE:
-        /* seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
-        if(seg_fault) {
-            num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
-            list_add(instruccionListaParaEjecutar->parametros, num_segmento);
-        }
-        cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1); */
+        instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica_files(instruccionListaParaEjecutar, contexto->segments);
+        seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
         break;
     default:
         break;
@@ -121,10 +112,11 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
     t_pcontexto_desalojo *contexto_desalojo;
 
     if(seg_fault) {
-        int tamanio = get_by_num_segmento(atoi((char*)list_get(instruccionListaParaEjecutar->parametros, 3)), contexto->segments)->size;
+        seg_fault = false;
+        int tamanio = get_by_num_segmento(atoi((char*)list_get(instruccionListaParaEjecutar->parametros, 4)), contexto->segments)->size;
         log_error(logger, "PID: %d - Error SEG_FAULT - Segmento: %s - Offset: %s - Tamanio: %d", contexto->pid, (char*)list_get(instruccionListaParaEjecutar->parametros, 3), (char*)list_get(instruccionListaParaEjecutar->parametros, 2), tamanio);
-        list_remove(instruccionListaParaEjecutar->parametros, 3); // elimino el numero de segmento que agregue en decode
-        list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el offset que agregue en decode
+        list_remove(instruccionListaParaEjecutar->parametros, 4); // elimino el numero de segmento que agregue en decode
+        list_remove(instruccionListaParaEjecutar->parametros, 3); // elimino el offset que agregue en decode
         contexto_desalojo = stop_exec(contexto, instruccionListaParaEjecutar, SEGMENTATION_FAULT);
     } else {
         contexto_desalojo = execute(instruccionListaParaEjecutar, contexto);
@@ -245,17 +237,18 @@ t_instruccion *cambiar_dir_logica_a_fisica_files(t_instruccion *instruccion, t_l
 }
 
 bool checkear_seg_fault(t_instruccion *instruction, t_list *segments) {
-    int num_seg = get_num_segmento(list_get(instruction->parametros, 1));
+    int num_seg = get_num_segmento((char*)list_get(instruction->parametros, 1));
     t_segment *segment = get_by_num_segmento(num_seg, segments);
 
     int desplazamiento = get_desplazamiento_segmento(list_get(instruction->parametros, 1));
-    int tamanio_a_leer_escribir = atoi(list_get(instruction->parametros, 2));
+    int tamanio_a_leer_escribir = atoi((char*)list_get(instruction->parametros, 2));
 
     bool res = (tamanio_a_leer_escribir + desplazamiento) > segment->size;
 
     if(res) {
         int offset = desplazamiento + tamanio_a_leer_escribir - segment->size;
         list_add(instruction->parametros, string_itoa(offset));
+        list_add(instruction->parametros, string_itoa(num_seg));
     }
 
     return res;
