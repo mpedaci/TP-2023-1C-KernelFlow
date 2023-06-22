@@ -31,7 +31,10 @@ typedef enum
     STATUS_CODE,            // Codigo de estado
     PID_INSTRUCCION,        // Pid e instruccion
     COMPACTAR,              // Compactar
-    PID_STATUS              // Pid e status code
+    PID_STATUS,             // Pid e status code
+    INFO_WRITE,             // Pedido escritura a memoria
+    INFO_READ,              // Pedido lectura a memoria
+    INFO                    // Datos void*
 } op_code;
 
 /* CLIENTE -> SERVIDOR -> PROGRAMA */
@@ -74,6 +77,10 @@ bool send_pid_instruccion(int socket, t_pid_instruccion *pid_instruccion, t_log 
 bool send_compactar(int socket, t_log *logger);
 
 bool send_pid_status(int socket, t_pid_status *pid_status, t_log *logger);
+
+bool send_info_write(int socket, t_info_write *info_write, t_log *logger);
+bool send_info_read(int socket, t_info_read *info_read, t_log *logger);
+bool send_info(int socket, t_info *info, t_log *logger);
 
 /* HANDSHAKE */
 

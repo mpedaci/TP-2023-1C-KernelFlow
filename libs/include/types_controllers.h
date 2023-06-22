@@ -16,5 +16,7 @@ void pcontexto_desalojo_destroy(t_pcontexto_desalojo *pcontexto);
 void registers_destroy(t_registers *registers);
 void segments_table_destroy(t_segments_table *s_table);
 void destroy_pcb(t_pcb *pcb);
+void info_destroy(t_info *info);
+void info_write_destroy(t_info_write *info_write);
 
 #endif /* TYPES_CONTROLLERS_H_ */

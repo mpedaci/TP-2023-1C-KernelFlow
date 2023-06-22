@@ -62,6 +62,16 @@ void destroy_pcb(t_pcb *pcb)
     free(pcb);
 }
 
+void info_destroy(t_info *info) {
+    free(info->data);
+    free(info);
+}
+
+void info_write_destroy(t_info_write *info_write) {
+    info_destroy(info_write->info);
+    free(info_write);
+}
+
 // Memoria - Estructuras.c
 /* void destroy_all_segments(){
     for (int i = 0; i < list_size(all_segments_tables); i++)

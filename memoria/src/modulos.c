@@ -150,7 +150,7 @@ void handle_cpu_pid_instruction(int client_socket, t_pid_instruccion *pidtructio
     case I_MOV_OUT: // escribe en memoria y pasa t_status_code->SUCCESS
         base_address = atoi((char *)list_get(instruction->parametros, 0));
         char *valor_a_escribir = (char *)list_get(instruction->parametros, 1);
-        length = instruction->p_length[1] - 1;
+        length = instruction->p_length[1] - 1; // -1 pq es un char* y no queremos escribir el '\0'
         bool result = write_memory(base_address, length, valor_a_escribir);
         if (!result)
         {

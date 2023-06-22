@@ -22,18 +22,14 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
         sleep(atoi(config->retardo_instruccion) / 1000); // Miliseconds -> Seconds
         break;
     case I_MOV_IN:
-        aux = instruccionListaParaEjecutar;
         num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
-        instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 1);
+        instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica_movs(instruccionListaParaEjecutar, contexto->segments, 1);
         list_add(instruccionListaParaEjecutar->parametros, num_segmento); //p0 reg - p1 dir_fis - p3 num_seg
-        instruccion_destroy(aux);
         break;
     case I_MOV_OUT:
-        aux = instruccionListaParaEjecutar;
         num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 0)));
-        instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica(instruccionListaParaEjecutar, contexto->segments, 0);
+        instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica_movs(instruccionListaParaEjecutar, contexto->segments, 0);
         list_add(instruccionListaParaEjecutar->parametros, num_segmento); //p0 dir_fis - p1 reg - p3 num_seg
-        instruccion_destroy(aux);
         break;
     case I_F_READ:
         /* seg_fault = checkear_seg_fault(instruccionListaParaEjecutar, contexto->segments);
@@ -74,8 +70,8 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
         free(valor);
         break;
     case I_MOV_OUT:
-        valor = MOV_OUT((char*)list_get(instruccionListaParaEjecutar->parametros, 1), (char*)list_get(instruccionListaParaEjecutar->parametros, 0), contexto->pid);
-        log_info(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %s - Direccion Fisica: %s - valor: %s", contexto->pid, (char*)list_get(instruccionListaParaEjecutar->parametros, 2), (char*)list_get(instruccionListaParaEjecutar->parametros, 1), valor);
+        valor = MOV_OUT((char*)list_get(instruccionListaParaEjecutar->parametros, 0), (char*)list_get(instruccionListaParaEjecutar->parametros, 1), contexto->pid);
+        log_info(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %s - Direccion Fisica: %s - valor: %s", contexto->pid, (char*)list_get(instruccionListaParaEjecutar->parametros, 2), (char*)list_get(instruccionListaParaEjecutar->parametros, 0), valor);
         list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         free(valor);
         break;
@@ -208,14 +204,45 @@ char *get_params_string(t_instruccion *instruction)
 }
 
 // le decis en que index esta la dir logica y te crea una nueva instruccion igual pero con la dir fisica
-t_instruccion *cambiar_dir_logica_a_fisica(t_instruccion *instruccion, t_list *segments, int index_parametro) {
+t_instruccion *cambiar_dir_logica_a_fisica_movs(t_instruccion *instruccion, t_list *segments, int index_parametro) {
     char *direccion_fisica = get_direccion_fisica((char*)list_get(instruccion->parametros, index_parametro), segments);
-    // crear instruccion
-    // crear list params
-    // agregarlos a la isntruccion con "create_new_instruction"
-    // free params
-    // return instruccion nueva
-    return NULL;
+
+    t_list *params = list_create();
+
+    switch(index_parametro) {
+        case 0:
+            list_add(params, direccion_fisica);
+            list_add(params, string_duplicate((char*)list_get(instruccion->parametros, 1)));
+            break;
+        case 1:
+            list_add(params, string_duplicate((char*)list_get(instruccion->parametros, 0)));
+            list_add(params, direccion_fisica);
+            break;
+        default:
+            return NULL;
+    }
+
+    t_instruccion *instruccion_new = create_new_instruction(instruccion->identificador, params);
+
+    instruccion_destroy(instruccion);
+
+    return instruccion_new;
+}
+
+t_instruccion *cambiar_dir_logica_a_fisica_files(t_instruccion *instruccion, t_list *segments) {
+    char *direccion_fisica = get_direccion_fisica((char*)list_get(instruccion->parametros, 1), segments);
+
+    t_list *params = list_create();
+
+    list_add(params, string_duplicate((char*)list_get(instruccion->parametros, 0)));
+    list_add(params, direccion_fisica);
+    list_add(params, string_duplicate((char*)list_get(instruccion->parametros, 2)));
+
+    t_instruccion *instruccion_new = create_new_instruction(instruccion->identificador, params);
+
+    instruccion_destroy(instruccion);
+
+    return instruccion_new;
 }
 
 bool checkear_seg_fault(t_instruccion *instruction, t_list *segments) {

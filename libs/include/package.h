@@ -43,6 +43,11 @@ t_buffer *t_status_code_create_buffer(t_status_code status_code);
 t_buffer *t_pid_instruccion_create_buffer(t_pid_instruccion *pid_instruccion);
 
 t_buffer * t_pid_status_create_buffer(t_pid_status *pid_status);
+
+t_buffer *t_info_write_create_buffer(t_info_write *info_write);
+t_buffer *t_info_read_create_buffer(t_info_read *info_read);
+t_buffer *t_info_create_buffer(t_info *info);
+
 /* BUFFERS TIPOS DE DATOS -> RECV */
 
 t_instruccion *t_instruccion_create_from_buffer(t_buffer *buffer, uint32_t *offset);
@@ -60,6 +65,10 @@ t_status_code t_status_code_create_from_buffer(t_buffer *buffer);
 t_pid_instruccion *t_pid_instruccion_create_from_buffer(t_buffer *buffer);
 
 t_pid_status *t_pid_status_create_from_buffer(t_buffer *buffer);
+
+t_info_write *t_info_write_create_from_buffer(t_buffer *buffer);
+t_info_read *t_info_read_create_from_buffer(t_buffer *buffer);
+t_info *t_info_create_from_buffer(t_buffer *buffer);
 
 /* PAQUETE */
 

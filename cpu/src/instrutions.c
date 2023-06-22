@@ -22,31 +22,29 @@ char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
     void *reg = get_register(registro);
     int tam_reg = get_sizeof_register(registro);
 
-    t_list *params = list_create();
-    list_add(params, direccion_fisica);
-    list_add(params, string_itoa(tam_reg));
+    // creo info_read para peticion de lectura a memoria
+    t_info_read *info_read = malloc(sizeof(t_info_read));
+    info_read->pid = pid;
+    info_read->base_address = atoi(direccion_fisica); // PREGUNTA - aca hay que hacer un string_duplicate o esta bien asi???????????????????????????????????
+    info_read->size = tam_reg;
 
-    t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_IN, params);
-    t_pid_instruccion *pid_instruccion = malloc(sizeof(t_pid_instruccion));
-    pid_instruccion->pid = pid;
-    pid_instruccion->instruccion = instruccion_a_mandar;
-    bool res = send_pid_instruccion(socket_client_memoria, pid_instruccion, logger_aux);
+    bool res = send_info_read(socket_client_memoria, info_read, logger_aux);
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_IN a memoria");
     
-    list_destroy_and_destroy_elements(instruccion_a_mandar->parametros, free);
-    free(pid_instruccion);
+    free(info_read);
 
     t_package *package = get_package(socket_client_memoria, logger);
 
-    t_data *data;
-    char *value = NULL;
+    t_info *info;
+    char *value = malloc(tam_reg + 1);
+    *(value + tam_reg) = '\0';
+
     if(package->operation_code == DATA) {
-        data = get_data(package);
-        memcpy(reg, data->value, tam_reg); // copia solo el tamanio del registro, si la data es mas grande que el tam del registro, se pierde
-        value = string_duplicate(data->value);
-        free(data->value);
-        free(data);
+        info = get_info(package);
+        memcpy(reg, info->data, tam_reg);
+        memcpy(value, info->data, tam_reg);
+        info_destroy(info);
     } else {
         log_error(logger_aux, "No se pudo obtener el valor de memoria en el MOV_IN");
     }
@@ -65,24 +63,22 @@ char *MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
 
     char *valor_reg = malloc(tam_reg + 1);
     *(valor_reg + tam_reg) = '\0';
+    memcpy(valor_reg, reg, tam_reg); // creo un valor vhar para hacer el log despues
 
-    memcpy(valor_reg, reg, tam_reg);
-
-    t_list *params = list_create();
-    list_add(params, string_duplicate(direccion_fisica));
-    list_add(params, string_duplicate(valor_reg));
-
-    t_instruccion *instruccion_a_mandar = create_new_instruction(I_MOV_OUT, params);
-    t_pid_instruccion *pid_instruccion = malloc(sizeof(t_pid_instruccion));
-    pid_instruccion->pid = pid;
-    pid_instruccion->instruccion = instruccion_a_mandar;
-    bool res = send_pid_instruccion(socket_client_memoria, pid_instruccion, logger_aux);
+    // creo el t_info_write para mandarle la peticion de escritura a memoria
+    t_info_write *info_write = malloc(sizeof(t_info_write));
+    info_write->info = malloc(sizeof(t_info));
+    info_write->pid = pid;
+    info_write->base_address = atoi(direccion_fisica);
+    memcpy(info_write->info->data, reg, tam_reg);
+    info_write->info->size = tam_reg;
+    
+    bool res = send_info_write(socket_client_memoria, info_write, logger_aux);
     if(!res)
         log_error(logger_aux, "No se pudo enviar la instruccion de MOV_OUT a memoria");
-    
-    list_destroy_and_destroy_elements(instruccion_a_mandar->parametros, free);
-    free(pid_instruccion);
 
+    info_write_destroy(info_write);
+    
     t_package *package = get_package(socket_client_memoria, logger);
 
     t_status_code status_code;

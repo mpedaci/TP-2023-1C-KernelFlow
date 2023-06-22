@@ -66,27 +66,41 @@ t_segments_table *get_tsegmento(t_package *paquete)
     return segments_table;
 };
 
-t_segment *get_segment(t_package *paquete){
+t_segment *get_segment(t_package *paquete) {
     uint32_t offset = 0;
     t_segment *segment = t_segment_create_from_buffer(paquete->buffer, &offset);
     return segment;
 };
 
-t_status_code get_status_code(t_package *paquete){
+t_status_code get_status_code(t_package *paquete) {
     t_status_code status_code = t_status_code_create_from_buffer(paquete->buffer);
     return status_code;
 };
 
-t_pid_instruccion *get_pid_instruccion(t_package *paquete){
+t_pid_instruccion *get_pid_instruccion(t_package *paquete) {
     t_pid_instruccion *pid_instruccion = t_pid_instruccion_create_from_buffer(paquete->buffer);
     return pid_instruccion;
 };
 
-t_pid_status *get_pid_status(t_package *paquete){
+t_pid_status *get_pid_status(t_package *paquete) {
     t_pid_status *pid_status = t_pid_status_create_from_buffer(paquete->buffer);
     return pid_status;
 }
 
+t_info_write *get_info_write(t_package* paquete) {
+    t_info_write *info_write = t_info_write_create_from_buffer(paquete->buffer);
+    return info_write;
+}
+
+t_info_read *get_info_read(t_package* paquete) {
+    t_info_read *info_read = t_info_read_create_from_buffer(paquete->buffer);
+    return info_read;
+}
+
+t_info *get_info(t_package* paquete) {
+    t_info *info = t_info_create_from_buffer(paquete->buffer);
+    return info;
+}
 
 /* PROGRAMA -> CLIENTE -> SERVIDOR */
 
@@ -235,6 +249,33 @@ bool send_pid_status(int socket, t_pid_status *pid_status, t_log *logger)
 {
     t_buffer *buffer = t_pid_status_create_buffer(pid_status);
     t_package *paquete = package_create(buffer, PID_STATUS);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+}
+
+bool send_info_write(int socket, t_info_write *info_write, t_log *logger)
+{
+    t_buffer *buffer = t_info_write_create_buffer(info_write);
+    t_package *paquete = package_create(buffer, INFO_WRITE);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+}
+
+bool send_info_read(int socket, t_info_read *info_read, t_log *logger)
+{
+    t_buffer *buffer = t_info_read_create_buffer(info_read);
+    t_package *paquete = package_create(buffer, INFO_WRITE);
+    bool res = package_send(socket, paquete, logger);
+    package_destroy(paquete);
+    return res;
+}
+
+bool send_info(int socket, t_info *info, t_log *logger)
+{
+    t_buffer *buffer = t_info_create_buffer(info);
+    t_package *paquete = package_create(buffer, INFO_WRITE);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;
