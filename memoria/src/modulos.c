@@ -120,6 +120,8 @@ void cpu_operations(int client_socket)
             res = send_info(client_socket, info, logger_aux);
             if(!res)
                 log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
+            free(info_read);
+            info_destroy(info);
             break;
         case INFO_WRITE:
             t_info_write *info_write = get_info_write(package);
@@ -133,6 +135,7 @@ void cpu_operations(int client_socket)
             }
             if (!res)
                 log_error(logger_aux, "No se pudo enviar el OK a CPU (MOV_OUT)");
+            info_write_destroy(info_write);
             break;
         case END:
             log_info(logger_aux, "Conexion Finalizada");

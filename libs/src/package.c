@@ -420,6 +420,10 @@ t_buffer *t_info_write_create_buffer(t_info_write *info_write) {
     memcpy(stream + offset, &(buffer_info->size), sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(stream + offset, buffer_info->stream, buffer_info->size);
+
+    free(buffer_info->stream);
+    free(buffer_info);
+    
     buffer->stream = stream;
     return buffer;
 }
