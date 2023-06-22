@@ -115,7 +115,6 @@ int get_free_space(int base)
     return size;
 }
 // DATOS
-/*
 t_info *read_memory(int base_address, int size)
 {
     sleep(config->memory_time_delay / 1000);
@@ -135,7 +134,6 @@ t_info *read_memory(int base_address, int size)
         return info;
     }
 }
-*/
 
 bool write_memory(int base_address, int size, void *data)
 {
