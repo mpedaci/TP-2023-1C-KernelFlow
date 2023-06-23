@@ -138,11 +138,11 @@ void cpu_operations(int client_socket)
             info_write_destroy(info_write);
             break;
         case END:
-            log_info(logger_aux, "Conexion Finalizada");
+            log_warning(logger_aux, "CPU: Conexion Finalizada");
             exit = true;
             break;
         default:
-            log_warning(logger_aux, "Operacion desconocida\n");
+            log_warning(logger_aux, "CPU: Operacion desconocida");
             exit = true;
             break;
         }
