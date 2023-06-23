@@ -12,7 +12,7 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
     // creando instruccion lista para ejecutar
     t_instruccion *instruccionListaParaEjecutar = new_instruction(instruccionSiguiente);
 
-    char *num_segmento;
+    int num_segmento;
 
     switch (instruccionListaParaEjecutar->identificador)
     {
@@ -20,14 +20,14 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
         sleep(atoi(config->retardo_instruccion) / 1000); // Miliseconds -> Seconds
         break;
     case I_MOV_IN:
-        num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 1)));
+        num_segmento = get_num_segmento((char*)list_get(instruccionListaParaEjecutar->parametros, 1));
         instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica_movs(instruccionListaParaEjecutar, contexto->segments, 1);
-        list_add(instruccionListaParaEjecutar->parametros, num_segmento); //p0 reg - p1 dir_fis - p3 num_seg
+        list_add(instruccionListaParaEjecutar->parametros, &num_segmento); //p0 reg - p1 dir_fis - p3 num_seg
         break;
     case I_MOV_OUT:
-        num_segmento = string_itoa(get_num_segmento(list_get(instruccionListaParaEjecutar->parametros, 0)));
+        num_segmento = get_num_segmento((char*)list_get(instruccionListaParaEjecutar->parametros, 0));
         instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica_movs(instruccionListaParaEjecutar, contexto->segments, 0);
-        list_add(instruccionListaParaEjecutar->parametros, num_segmento); //p0 dir_fis - p1 reg - p3 num_seg
+        list_add(instruccionListaParaEjecutar->parametros, &num_segmento); //p0 dir_fis - p1 reg - p3 num_seg
         break;
     case I_F_READ:
         instruccionListaParaEjecutar = cambiar_dir_logica_a_fisica_files(instruccionListaParaEjecutar, contexto->segments);
@@ -55,13 +55,13 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
         break;
     case I_MOV_IN:
         valor = MOV_IN((char*)list_get(instruccionListaParaEjecutar->parametros, 0), (char*)list_get(instruccionListaParaEjecutar->parametros, 1), contexto->pid);
-        log_info(logger, "PID: %d - Accion: LEER - Segmento: %s - Direccion Fisica: %s - valor: %s", contexto->pid, (char *) list_get(instruccionListaParaEjecutar->parametros, 2), (char *) list_get(instruccionListaParaEjecutar->parametros, 1), valor);
+        log_info(logger, "PID: %d - Accion: LEER - Segmento: %d - Direccion Fisica: %s - valor: %s", contexto->pid, *((int*)list_get(instruccionListaParaEjecutar->parametros, 2)), (char *) list_get(instruccionListaParaEjecutar->parametros, 1), valor);
         list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         free(valor);
         break;
     case I_MOV_OUT:
         valor = MOV_OUT((char*)list_get(instruccionListaParaEjecutar->parametros, 0), (char*)list_get(instruccionListaParaEjecutar->parametros, 1), contexto->pid);
-        log_info(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %s - Direccion Fisica: %s - valor: %s", contexto->pid, (char*)list_get(instruccionListaParaEjecutar->parametros, 2), (char*)list_get(instruccionListaParaEjecutar->parametros, 0), valor);
+        log_info(logger, "PID: %d - Accion: ESCRIBIR - Segmento: %d - Direccion Fisica: %s - valor: %s", contexto->pid, *((int*)list_get(instruccionListaParaEjecutar->parametros, 2)), (char*)list_get(instruccionListaParaEjecutar->parametros, 0), valor);
         list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
         free(valor);
         break;
@@ -114,7 +114,7 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
     if(seg_fault) {
         seg_fault = false;
         int tamanio = get_by_num_segmento(atoi((char*)list_get(instruccionListaParaEjecutar->parametros, 4)), contexto->segments)->size;
-        log_error(logger, "PID: %d - Error SEG_FAULT - Segmento: %s - Offset: %s - Tamanio: %d", contexto->pid, (char*)list_get(instruccionListaParaEjecutar->parametros, 3), (char*)list_get(instruccionListaParaEjecutar->parametros, 2), tamanio);
+        log_error(logger, "PID: %d - Error SEG_FAULT - Segmento: %d - Offset: %d - Tamanio: %d", contexto->pid, *((int*)list_get(instruccionListaParaEjecutar->parametros, 3)), *((int*)list_get(instruccionListaParaEjecutar->parametros, 2)), tamanio);
         list_remove(instruccionListaParaEjecutar->parametros, 4); // elimino el numero de segmento que agregue en decode
         list_remove(instruccionListaParaEjecutar->parametros, 3); // elimino el offset que agregue en decode
         contexto_desalojo = stop_exec(contexto, instruccionListaParaEjecutar, SEGMENTATION_FAULT);
@@ -247,8 +247,8 @@ bool checkear_seg_fault(t_instruccion *instruction, t_list *segments) {
 
     if(res) {
         int offset = desplazamiento + tamanio_a_leer_escribir - segment->size;
-        list_add(instruction->parametros, string_itoa(offset));
-        list_add(instruction->parametros, string_itoa(num_seg));
+        list_add(instruction->parametros, &offset);
+        list_add(instruction->parametros, &num_seg);
     }
 
     return res;

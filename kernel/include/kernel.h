@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <signal.h> // Para cierre seguro
-#include <readline/readline.h> // Para prints
 
 #include <commons/log.h>
 #include <commons/collections/list.h>

@@ -71,30 +71,3 @@ void info_write_destroy(t_info_write *info_write) {
     info_destroy(info_write->info);
     free(info_write);
 }
-
-// Memoria - Estructuras.c
-/* void destroy_all_segments(){
-    for (int i = 0; i < list_size(all_segments_tables); i++)
-    {
-        t_segments_table *segments_table = list_get(all_segments_tables, i);
-        for (int j = 1; j < list_size(segments_table->segment_list); j++)
-        {
-            t_segment *segment = list_get(segments_table->segment_list, j);
-            free(segment);
-        }
-    }
-}
-
-void destroy_all_segments_tables(){
-    for (int i = 0; i < list_size(all_segments_tables); i++)
-    {
-        t_segments_table *segments_table = list_get(all_segments_tables, i);
-        list_destroy(segments_table->segment_list);
-        free(segments_table);
-    }
-}
- */
-
-// Memoria - Segmentos.c
-// void delete_segment(int pid, t_segment *segment);
-// void delete_segments_table(t_segments_table *segments_table);
