@@ -39,16 +39,19 @@ create_file(config,"meli",logger_aux);
 //Ejemplos truncar el mismo archivo con diferentes tamaños:  
 
 truncate_file(config,200,"pepe", logger_aux);
+truncate_file(config,300,"meli", logger_aux);
 //truncate_file(config,150,"pepe",logger_aux);
 //truncate_file(config,200,"pepe", logger_aux);
 
 //Ejemplos escribir archivo: 
 
 //write_file(config, 35, "pepe", 50, 3456789,logger_aux); 
+write_file(config, 35, "pepe", 120, 3456789,logger_aux); 
 
 
 //Ejemplos leer archivo: 
 
+read_file(config, 35, "pepe", 120, 3456789,logger_aux); 
 //read_file(config, 40, "pepe", 50, 3456789,logger_aux); 
 
 /*-----------------------------------------------------------------------------------*/
@@ -90,12 +93,11 @@ void create_bitmap(t_config_filesystem *config ){
    // int bitmap_size= ceil(pSuperbloque->block_count / 8 );   //NO PONER 8.0 ROMPE EL CEIL 
     bitmap_size= ((pSuperbloque->block_count + 7) / 8);
     
-
     int file_bitmap = open(config->path_bitmap, O_CREAT | O_RDWR, 0644);
 
     ftruncate(file_bitmap,sizeof(t_superbloque) + bitmap_size);
 
-     void *mmapBitmap = mmap(NULL, sizeof(t_superbloque) + bitmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, file_bitmap, 0);
+    void *mmapBitmap = mmap(NULL, sizeof(t_superbloque) + bitmap_size, PROT_READ | PROT_WRITE, MAP_SHARED, file_bitmap, 0);
 
     bitmap = bitarray_create_with_mode(mmapBitmap + sizeof(t_superbloque), bitmap_size, LSB_FIRST);
     //bitarray_set_bit(bitmap, false);//pone en 0 c/ bit 
@@ -149,10 +151,9 @@ void create_blocks(t_config_filesystem *config){
 
     while(1){
     // Sincronizas los cambios en el archivo de bloques en disco
-    sleep(config->retardo_acceso_bloque);
-    memcpy(mmapBlocks,copy_blocks,file_block_size);
-    sync_blocks(mmapBlocks, file_block_size);
-    
+        sleep(config->retardo_acceso_bloque);
+        memcpy(mmapBlocks,copy_blocks,file_block_size);
+        sync_blocks(mmapBlocks, file_block_size);
     }
     
     //free(copy_blocks);
@@ -207,11 +208,11 @@ int obtener_bloque_libre(t_bitarray *bitmap, int bitmap_size){
         if(!bitarray_test_bit(bitmap,i)){ //el bit en la pos i del bitmap es 0 osea esta libre => 
             bitarray_set_bit(bitmap, i); //lo seteo como ocupado (1)
             bloque_libre = i;
-        printf("bloque ahora asignado como ocupado en el bitmap es: %d\n", bloque_libre);
-
+            printf("bloque ahora asignado como ocupado en el bitmap es: %d\n", bloque_libre);
             break;
         }
          //printf("bloque ocupado en el bitmap es: %d\n", bloque_libre);
+
     }
     return bloque_libre;
 }
@@ -233,19 +234,16 @@ int open_file(t_config_filesystem *config ,char *nombre, t_log *logger_aux){
     
     if(file_fcb!=NULL){
 
-            fread(fcb, sizeof(t_fcb), 1, file_fcb); // Leer los datos del archivo y almacenarlos en fcb
-            log_info(logger_aux,"Abrir archivo:  %s", fcb->nombre_archivo);
-            fclose(file_fcb);
-            //log_info(logger_aux,"Abrir archivo:  %s", fcb->nombre_archivo);
+        fread(fcb, sizeof(t_fcb), 1, file_fcb); // Leer los datos del archivo y almacenarlos en fcb
+        log_info(logger_aux,"Abrir archivo:  %s", fcb->nombre_archivo);
+        fclose(file_fcb);
+        //log_info(logger_aux,"Abrir archivo:  %s", fcb->nombre_archivo);
 
-            return 0; 
-            //return OK 
+        return 0; //return OK 
+
     }else{
-    printf("No existe el archivo: %s \n", file_fcb );
+        printf("No existe el archivo: %s \n", file_fcb );
     }
-
-
-
 }
 
 int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre, t_log *logger_aux){
@@ -262,7 +260,7 @@ int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre, 
 
     int *punterosIndirectos;
     if(fcb->puntero_indirecto!=0){
-    punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux);
+        punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux);
     }
     if(nuevo_tamanio > fcb->tamanio_archivo){ //CASO EXPANDIR TAMAÑO
         int bloques_Adicionales= calculate_additionalBlocks(nuevo_tamanio,fcb);
@@ -304,6 +302,12 @@ int truncate_file(t_config_filesystem *config, int nuevo_tamanio, char *nombre, 
                 memcpy(copy_blocks + bloque_libre_puntero_indirecto*pSuperbloque->block_size,punterosIndirectos,sizeof(int)*cantPunterosIndirectos);
                 
         }
+
+        for (int i = 0; i < bitmap_size * 8 ; i++) {
+        int bit_value = bitarray_test_bit(bitmap, i);
+        printf("Bloque: %d estado: %d\n", i, bit_value);
+        }
+
         fcb->tamanio_archivo= nuevo_tamanio; //cambio el tamanio al nuevo 
         fclose(file_fcb);
         FILE* file_fcb_escritura = fopen(ruta_Fcb,"w");
@@ -382,9 +386,7 @@ int calculate_additionalBlocks(int nuevo_tamanio, t_fcb *fcb){
         cant_bloques_nuevo += 1;
     }
 
-
     int bloques_adicionales= cant_bloques_nuevo-cant_bloques_actual;
-
     return bloques_adicionales;
 }
 
@@ -396,7 +398,11 @@ int get_freeBlock(t_bitarray *bitmap, int bitmap_size) {
 
         if(!bitarray_test_bit(bitmap,i)){ //el bit en la pos i del bitmap es 0 osea esta libre => 
             bitarray_set_bit(bitmap, i); //lo seteo como ocupado (1)
+            //CREAR LOG QUE INDIQUE QUE EL BLOQUE i ESTA LIBRE
             bloque_libre = i;
+        }
+        else{
+            //CREAR LOG QUE INDIQUE QUE EL BLOQUE i ESTA OCUPADO
         }
     }
     return bloque_libre;
@@ -406,7 +412,6 @@ int get_freeBlock(t_bitarray *bitmap, int bitmap_size) {
 //-------------------------funciones aux para reducir tamaño ----------------------------------//
 
 int calculate_freeBlocks(int nuevo_tamanio, t_fcb *fcb){
-//VER EL TEMA DEL CEIL XQ ROMPE(es mejor esta forma)
 //int bloques_actuales = ceil((double)fcb->tamanio_archivo/ pSuperbloque->block_size);
 //int bloques_nuevos = ceil((double)nuevo_tamanio / pSuperbloque->block_size);
 
@@ -441,12 +446,12 @@ int* obtenerPunterosIndirectos(t_fcb* fcb,t_log* logger_aux){
     if (fcb->puntero_indirecto!=0){
         //for(int i=0;i<pSuperbloque->block_size/sizeof(int);i++){
             int z=0;
-             memcpy(&punterosIndirectosActuales[z],copy_blocks+pSuperbloque->block_size+z*sizeof(int),sizeof(int));
-            log_info(logger_aux,"%d",punterosIndirectosActuales[z]);
+            memcpy(&punterosIndirectosActuales[z],copy_blocks+pSuperbloque->block_size+z*sizeof(int),sizeof(int));
+            log_info(logger_aux," puntero indirecto: %d",punterosIndirectosActuales[z]);
             z++;
             while(punterosIndirectosActuales[z-1]!=0 && (z)*sizeof(int)<pSuperbloque->block_size){
             memcpy(&punterosIndirectosActuales[z],copy_blocks+pSuperbloque->block_size+z*sizeof(int),sizeof(int));
-            log_info(logger_aux,"%d",punterosIndirectosActuales[z]);
+            log_info(logger_aux,"puntero indirecto %d",punterosIndirectosActuales[z]);
             z++;
             }
         //}
@@ -468,77 +473,100 @@ int cantidadPunterosIndirectos(int* punterosIndirectos){
 
 int read_file(t_config_filesystem *config, int puntero_archivo, char *nombre, int cant_bytes, void *direccion_fisica, t_log *logger_aux){
 
-char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
+    int cant_bytes_inicial=cant_bytes;
+    char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
     strcpy(ruta_Fcb,config->path_fcb);
     strcat(ruta_Fcb,"/");
     strcat(ruta_Fcb,nombre);
     FILE* file_fcb = fopen(ruta_Fcb,"r");
-
-    if(file_fcb!=NULL){
+    if(file_fcb==NULL){
+        return 1;
+    }
 
     t_fcb*fcb = malloc(sizeof(t_fcb));
-    fcb->nombre_archivo=malloc(strlen(nombre)+1);  //  a ver si agregando esto se soluciona
-	fread(fcb, sizeof(t_fcb), 1, file_fcb);
+    fcb->nombre_archivo=malloc(strlen(nombre)+1);
+    fread(fcb, sizeof(t_fcb), 1, file_fcb);
 
+    void *buffer = malloc(cant_bytes);
+    
 
-    //verifico si esta en bloque del puntero directo 
+    int numero_de_bloque_inicial= puntero_archivo/pSuperbloque->block_size;
+    int cantidad_de_bloques_a_leer=cant_bytes/pSuperbloque->block_size;
+    int offset_aux= cant_bytes-cantidad_de_bloques_a_leer*pSuperbloque->block_size; //desde donde empiezo a escribir en el bloque
+    int offset_dentro_bloque_pArchivo= puntero_archivo-(puntero_archivo/pSuperbloque->block_size)*pSuperbloque->block_size; //desde donde empiezo a escribir en el bloque
+    int cant_bytes_disponibles= pSuperbloque-> block_size - offset_dentro_bloque_pArchivo;
 
-    int offset_bloque_directo= fcb->puntero_directo * pSuperbloque->block_size; //desplazamiento nen bytes
-    int offset_bloque_siguiente= (fcb->puntero_directo  + 1) * pSuperbloque->block_size; //desplazamiento en bytes
+    if(offset_aux>cant_bytes_disponibles){
+        cantidad_de_bloques_a_leer++;
+    }
 
-    void *stream= malloc(cant_bytes); 
+    if (cant_bytes % pSuperbloque->block_size > 0) {
+        cantidad_de_bloques_a_leer++;
+    }
 
-    if  (puntero_archivo > offset_bloque_directo && puntero_archivo < offset_bloque_siguiente){
+    int *punterosIndirectos;
+    int cant_bytes_a_leer=0;
+    
+    if(fcb->puntero_indirecto!=0){
+    punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux);
+    }
 
-        int bloque_pArchivo= fcb->puntero_directo; //bloque donde esta el pArchivo  
-        int offset_dentro_bloque_pArchivo= puntero_archivo - offset_bloque_directo; //desde donde empiezo a leer en el bloque
-
-        int cant_bytes_leidos= pSuperbloque-> block_size - offset_dentro_bloque_pArchivo; //cnat byte sleidos desde el pArchivo hasta q termina el bloque 
-
-        memcpy(stream, copy_blocks + offset_dentro_bloque_pArchivo ,cant_bytes_leidos); 
-
-         printf("Contenido de stream: %s\n", (char*)stream);
-
-        cant_bytes= cant_bytes- cant_bytes_leidos; //actualizo la cant de bytes que quedan por leer 
-
-        if(cant_bytes > 0 ){ //osea quedan bytes x leer todvia 
-
-            int *punterosIndirectos;
-            punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux); 
-
-            //Calculo la posicion de donde esta el primer bloque del punteor indirecto 
-            //leo desde el principio del bloque hasta el final si es que no supera la cant de bytes el bloque
-            // lo copio al stream lo q lei  
-            // luego actualizo la cant de bytes 
-
-            int cantPunterosIndirectos=cantidadPunterosIndirectos(punterosIndirectos);
-
-
-            for(int i=0; i < cantPunterosIndirectos; i++){
-            int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;
-            int offset_bloque_siguiente_pi= (punterosIndirectos[i]  + 1) * pSuperbloque->block_size;
-            
-            if(pSuperbloque->block_size <  cant_bytes){
-                memcpy(stream + cant_bytes_leidos, copy_blocks + offset_bloque_pi ,pSuperbloque->block_size);
-                cant_bytes_leidos= cant_bytes_leidos + pSuperbloque->block_size; 
-                cant_bytes= cant_bytes -cant_bytes_leidos; 
-            
-            }else{
-
-                int cant_bytes_leidos_pi= pSuperbloque->block_size - cant_bytes; 
-                memcpy(stream + cant_bytes_leidos, copy_blocks + offset_bloque_pi ,cant_bytes_leidos_pi);
-            }
-//si es 0 añguno de los pi entonces no leo su contenido o algo asi 
-
-            }
-
+    if(numero_de_bloque_inicial==0){
+        if(cantidad_de_bloques_a_leer==1){
+            memcpy(buffer, copy_blocks +fcb->puntero_directo*pSuperbloque->block_size+ offset_dentro_bloque_pArchivo,cant_bytes); 
+            //memcpy(copy_blocks +fcb->puntero_directo*pSuperbloque->block_size+ offset_dentro_bloque_pArchivo, stream,cant_bytes); 
         }
+        else{
+            memcpy(buffer,copy_blocks +fcb->puntero_directo*pSuperbloque->block_size+ offset_dentro_bloque_pArchivo,cant_bytes_disponibles);
+            //memcpy(copy_blocks +fcb->puntero_directo*pSuperbloque->block_size+ offset_dentro_bloque_pArchivo, stream,cant_bytes_disponibles);
+            
+            printf("en el puntero directo: %d \n", fcb->puntero_directo);
+            printf("LEO Contenido de copy_blocks bloque puntero directo: %s \n", (char*)copy_blocks + offset_dentro_bloque_pArchivo);
 
+            cant_bytes=cant_bytes-cant_bytes_disponibles; 
+            cant_bytes_a_leer+=cant_bytes_disponibles;
+            for(int i=0; i < cantidad_de_bloques_a_leer-1; i++){
+                int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;        
+                if(pSuperbloque->block_size <  cant_bytes){//lees en todo el bloque y falta mas
+                    memcpy(buffer + cant_bytes_a_leer,copy_blocks + offset_bloque_pi, pSuperbloque->block_size);
+                    //memcpy(copy_blocks + offset_bloque_pi, stream + cant_bytes_escritos, pSuperbloque->block_size);
+                    printf("en el puntero indirecto: %d \n", punterosIndirectos[i]);
+                    printf("LEO Contenido de copy_blocks bloque puntero indirecto: %s \n", (char*)copy_blocks + offset_bloque_pi);
+                    cant_bytes= cant_bytes -pSuperbloque->block_size; 
+                    cant_bytes_a_leer= cant_bytes_a_leer + pSuperbloque->block_size; 
+                }
+                else{
+                    
+                    memcpy(buffer + cant_bytes_a_leer, copy_blocks + offset_bloque_pi,cant_bytes);
+                    //memcpy(copy_blocks + offset_bloque_pi, stream + cant_bytes_escritos,cant_bytes);
+                    printf("LEO Contenido de copy_blocks bloque puntero indirecto: %s \n", (char*)copy_blocks + offset_bloque_pi);
+
+                }
+            }
+        }
     }
-    else{   // punteroArchivo esta en algun bloque de puntero indirecto  
+    else{
+        numero_de_bloque_inicial-=1;
+        for(int i=numero_de_bloque_inicial; i < cantidad_de_bloques_a_leer; i++){
+            int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;        
+            if(pSuperbloque->block_size <  cant_bytes){//escribis en todo el bloque y falta mas
 
-
+                memcpy(buffer + cant_bytes_a_leer, copy_blocks + offset_bloque_pi+offset_dentro_bloque_pArchivo, pSuperbloque->block_size);
+                //memcpy(copy_blocks + offset_bloque_pi+offset_dentro_bloque_pArchivo, stream + cant_bytes_escritos, pSuperbloque->block_size);
+                offset_dentro_bloque_pArchivo=0;
+                printf("LEO Contenido de copy_blocks bloque puntero indirecto: %s \n", (char*)copy_blocks + offset_bloque_pi);
+                cant_bytes_a_leer= cant_bytes_a_leer + pSuperbloque->block_size; 
+                cant_bytes= cant_bytes -cant_bytes_a_leer; 
+            }
+            else{
+                memcpy(buffer + cant_bytes_a_leer, copy_blocks + offset_bloque_pi+offset_dentro_bloque_pArchivo,cant_bytes);
+                //memcpy(copy_blocks + offset_bloque_pi+offset_dentro_bloque_pArchivo, stream + cant_bytes_escritos,cant_bytes);
+            }
+        }
     }
+    log_info(logger_aux,"Leer archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
+    return 0;
+}
 
 
  //send_info_read(socket_memoria, stream, log); // ENVIA A MEMORIA A ESCRIBIR
@@ -547,88 +575,95 @@ char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
     //if(sc == FILE_READ)
     //    send_status_code(socket_kernel, FILE_READ, log); // AVISA A KERNEL QUE LEYO BIEN
 
-    log_info(logger_aux,"Leer archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica,cant_bytes);
 
-    }
-
-}
 
 
 int write_file(t_config_filesystem *config, int puntero_archivo, char *nombre, int cant_bytes, void *direccion_fisica, t_log *logger_aux){
-
+    int cant_bytes_inicial=cant_bytes;
     char* ruta_Fcb=malloc(strlen(config->path_fcb)+strlen(nombre)+2);
     strcpy(ruta_Fcb,config->path_fcb);
     strcat(ruta_Fcb,"/");
     strcat(ruta_Fcb,nombre);
     FILE* file_fcb = fopen(ruta_Fcb,"r");
+    if(file_fcb==NULL){
+        return 1;
+    }
+        t_fcb*fcb = malloc(sizeof(t_fcb));
+        fcb->nombre_archivo=malloc(strlen(nombre)+1);
+        fread(fcb, sizeof(t_fcb), 1, file_fcb);
+        //solicito a memoria la info q tengo q escribir 
+        //request_info = (DIRMEMORIA + BYTES)
+        //send_request_info(socket_memoria, request_info, log);    
+        //recibo en un paquete el stream desde memoria lo q tengo q escribir (implementar)
+        // t_package *package = get_package(socket, logger);
+        //void *stream = get_info_write(package); // LEE MEMORIA
+        void *stream = malloc(cant_bytes);
+        stream= "meliaprobosistemasoperativosyahoraesunapersonafeliz holaquetal quieroversiescribeenotrosbloques a ver que onda si se escribe esto en los punteros indirectos";
 
-    if(file_fcb!=NULL){
+        int numero_de_bloque_inicial= puntero_archivo/pSuperbloque->block_size;
+        int cantida_de_bloques_a_escribir=cant_bytes/pSuperbloque->block_size;
+        int offset_aux= cant_bytes-cantida_de_bloques_a_escribir*pSuperbloque->block_size; //desde donde empiezo a escribir en el bloque
+        int offset_dentro_bloque_pArchivo= puntero_archivo-(puntero_archivo/pSuperbloque->block_size)*pSuperbloque->block_size; //desde donde empiezo a escribir en el bloque
+        int cant_bytes_disponibles= pSuperbloque-> block_size - offset_dentro_bloque_pArchivo;
 
-    t_fcb*fcb = malloc(sizeof(t_fcb));
-    fcb->nombre_archivo=malloc(strlen(nombre)+1);  //  a ver si agregando esto se soluciona
-	fread(fcb, sizeof(t_fcb), 1, file_fcb);
+        if(offset_aux>cant_bytes_disponibles){
+            cantida_de_bloques_a_escribir++;
+        }
+        if (cant_bytes % pSuperbloque->block_size > 0) {
+            cantida_de_bloques_a_escribir++;
+        }
 
-//solicito a memoria la info q tengo q escribir 
-//request_info = (DIRMEMORIA + BYTES)
-//send_request_info(socket_memoria, request_info, log);
+    int *punterosIndirectos;
+    int cant_bytes_escritos=0;
+    if(fcb->puntero_indirecto!=0){
+    punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux);
+    }
+    if(numero_de_bloque_inicial==0){
+        if(cantida_de_bloques_a_escribir==1){
+            memcpy(copy_blocks +fcb->puntero_directo*pSuperbloque->block_size+ offset_dentro_bloque_pArchivo, stream,cant_bytes); 
+        }
+        else{
+            memcpy(copy_blocks +fcb->puntero_directo*pSuperbloque->block_size+ offset_dentro_bloque_pArchivo, stream,cant_bytes_disponibles);
+            
+            printf("en el puntero directo: %d \n", fcb->puntero_directo);
+            printf("Contenido de copy_blocks bloque puntero directo: %s \n", (char*)copy_blocks + offset_dentro_bloque_pArchivo);
 
-//recibo en un paquete el stream desde memoria lo q tengo q escribir (implementar)
-// t_package *package = get_package(socket, logger);
-//void *stream = get_info_write(package); // LEE MEMORIA
+            cant_bytes=cant_bytes-cant_bytes_disponibles; 
+            cant_bytes_escritos+=cant_bytes_disponibles;
+            for(int i=0; i < cantida_de_bloques_a_escribir-1; i++){
+                int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;        
+                if(pSuperbloque->block_size <  cant_bytes){//escribis en todo el bloque y falta mas
+                    memcpy(copy_blocks + offset_bloque_pi, stream + cant_bytes_escritos, pSuperbloque->block_size);
+                    printf("en el puntero indirecto: %d \n", punterosIndirectos[i]);
+                    printf("Contenido de copy_blocks bloque puntero indirecto: %s \n", (char*)copy_blocks + offset_bloque_pi);
+                    cant_bytes= cant_bytes -pSuperbloque->block_size; 
+                    cant_bytes_escritos= cant_bytes_escritos + pSuperbloque->block_size; 
+                }
+                else{
+                    memcpy(copy_blocks + offset_bloque_pi, stream + cant_bytes_escritos,cant_bytes);
+                    
+                    printf("Contenido de copy_blocks bloque puntero indirecto: %s \n", (char*)copy_blocks + offset_bloque_pi);
 
-    void *stream = malloc(cant_bytes); 
-    stream= "meliaprobosistemasoperativosyahoraesunapersonafeliz";
-
-    int offset_bloque_directo= fcb->puntero_directo * pSuperbloque->block_size; //desplazamiento nen bytes
-    int offset_bloque_siguiente= (fcb->puntero_directo  + 1) * pSuperbloque->block_size; //desplazamiento en bytes
-
-    if  (puntero_archivo > offset_bloque_directo && puntero_archivo < offset_bloque_siguiente){
-
-        int bloque_pArchivo= fcb->puntero_directo; //bloque donde esta el pArchivo  
-        int offset_dentro_bloque_pArchivo= puntero_archivo - offset_bloque_directo; //desde donde empiezo a leer en el bloque
-
-        int cant_bytes_escritos= pSuperbloque-> block_size - offset_dentro_bloque_pArchivo;
-        memcpy(copy_blocks + offset_dentro_bloque_pArchivo, stream,cant_bytes_escritos); 
-
-        printf("Contenido de copy_blocks: %s\n", (char*)copy_blocks + offset_dentro_bloque_pArchivo);
-        cant_bytes= cant_bytes- cant_bytes_escritos;
-
-        if(cant_bytes > 0 ){ //osea quedan bytes x escribir todvia 
-
-            int *punterosIndirectos;
-            punterosIndirectos=obtenerPunterosIndirectos(fcb,logger_aux); 
-
-            int cantPunterosIndirectos=cantidadPunterosIndirectos(punterosIndirectos);
-
-            for(int i=0; i < cantPunterosIndirectos; i++){
-            int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;
-            int offset_bloque_siguiente_pi= (punterosIndirectos[i]  + 1) * pSuperbloque->block_size;
-        
-            if(pSuperbloque->block_size <  cant_bytes){
-                memcpy(copy_blocks + offset_bloque_pi, stream + cant_bytes_escritos, pSuperbloque->block_size);
+                }
+            }
+        }
+    }
+    else{
+        numero_de_bloque_inicial-=1;
+        for(int i=numero_de_bloque_inicial; i < cantida_de_bloques_a_escribir; i++){
+            int offset_bloque_pi= punterosIndirectos[i] * pSuperbloque-> block_size;        
+            if(pSuperbloque->block_size <  cant_bytes){//escribis en todo el bloque y falta mas
+                memcpy(copy_blocks + offset_bloque_pi+offset_dentro_bloque_pArchivo, stream + cant_bytes_escritos, pSuperbloque->block_size);
+                offset_dentro_bloque_pArchivo=0;
+                printf("Contenido de copy_blocks bloque puntero indirecto: %s \n", (char*)copy_blocks + offset_bloque_pi);
                 cant_bytes_escritos= cant_bytes_escritos + pSuperbloque->block_size; 
                 cant_bytes= cant_bytes -cant_bytes_escritos; 
-            
-        
-        }
-
-
             }
-
-
-//agregar caso: si empieza a escribir desde los punteros indirectos directamente 
-
-
+            else{
+                memcpy(copy_blocks + offset_bloque_pi+offset_dentro_bloque_pArchivo, stream + cant_bytes_escritos,cant_bytes);
+            }
         }
-    
-
+    }
+    log_info(logger_aux,"Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
+    return 0;
 }
-    log_info(logger_aux,"Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes);
-}
-}
-
-
-
-
-
-
