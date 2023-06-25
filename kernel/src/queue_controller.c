@@ -1,26 +1,8 @@
 #include "queue_controller.h"
 
-pthread_mutex_t get_queue_mutex(t_queue_id queue_id)
+t_queue *get_queue(t_queue_id qId)
 {
-    switch (queue_id)
-    {
-    case QNEW:
-        return mutex_new;
-    case QREADY:
-        return mutex_ready;
-    case QEXEC:
-        return mutex_running;
-    case QBLOCK:
-        return mutex_blocked;
-    case QEXIT:
-        return mutex_exit;
-    }
-    return mutex_exit;
-}
-
-t_list *get_queue(t_queue_id queue_id)
-{
-    switch (queue_id)
+    switch (qId)
     {
     case QNEW:
         return queues->NEW;
@@ -37,49 +19,105 @@ t_list *get_queue(t_queue_id queue_id)
     }
 }
 
-void add_pcb_to_queue(t_queue_id queue_id, t_pcb *pcb)
+char *get_queue_name(t_queue_id qId)
 {
-    pthread_mutex_t mutex = get_queue_mutex(queue_id);
-    t_list *cola = get_queue(queue_id);
-    pthread_mutex_lock(&mutex);
-    list_add(cola, pcb);
-    pthread_mutex_unlock(&mutex);
+    switch (qId)
+    {
+    case QNEW:
+        return "NEW";
+    case QREADY:
+        return "READY";
+    case QEXEC:
+        return "EXEC";
+    case QBLOCK:
+        return "BLOCK";
+    case QEXIT:
+        return "EXIT";
+    default:
+        return NULL;
+    }
 }
 
-t_pcb *pop_pcb_from_queue(t_queue_id queue_id)
+int get_pcb_index_from_queue(t_pcb *pcb, t_queue *q)
 {
-    pthread_mutex_t mutex = get_queue_mutex(queue_id);
-    t_list *cola = get_queue(queue_id);
-    pthread_mutex_lock(&mutex);
-    t_pcb *pcb = list_remove(cola, 0);
-    pthread_mutex_unlock(&mutex);
-    return pcb;
+    for (int i = 0; i < list_size(q->queue); i++)
+    {
+        t_pcb *p = list_get(q->queue, i);
+        if (p->pid == pcb->pid)
+            return i;
+    }
+    return -1;
 }
 
-t_pcb *pop_pcb_from_queue_by_index(t_queue_id queue_id, int index)
+t_pcb *move_fist_from_to(t_queue_id qSource, t_queue_id qDestiny)
 {
-    pthread_mutex_t mutex = get_queue_mutex(queue_id);
-    t_list *cola = get_queue(queue_id);
-    pthread_mutex_lock(&mutex);
-    t_pcb *pcb = list_remove(cola, index);
-    pthread_mutex_unlock(&mutex);
-    return pcb;
+    t_pcb *pcb_to_move = NULL;
+    t_queue *source = get_queue(qSource);
+
+    pthread_mutex_lock(&source->mutex);
+    if (list_is_empty(source->queue))
+    {
+        pthread_mutex_unlock(&source->mutex);
+        return NULL;
+    }
+    else
+    {
+        pcb_to_move = list_get(source->queue, 0);
+    }
+    pthread_mutex_unlock(&source->mutex);
+
+    move_pcb_from_to(pcb_to_move, qSource, qDestiny);
+    return pcb_to_move;
 }
 
-bool is_queue_empty(t_queue_id queue_id)
+void move_pcb_from_to(t_pcb *pcb_to_move, t_queue_id qSource, t_queue_id qDestiny)
 {
-    pthread_mutex_t mutex = get_queue_mutex(queue_id);
-    t_list *cola = get_queue(queue_id);
-    pthread_mutex_lock(&mutex);
-    bool result = list_is_empty(cola);
-    pthread_mutex_unlock(&mutex);
-    return result;
+    t_queue *source = get_queue(qSource);
+    t_queue *destiny = get_queue(qDestiny);
+
+    pthread_mutex_lock(&source->mutex);
+    pthread_mutex_lock(&destiny->mutex);
+
+    int indexSource = get_pcb_index_from_queue(pcb_to_move, source);
+    list_remove(source->queue, indexSource);
+
+    list_add(destiny->queue, pcb_to_move);
+
+    if (qDestiny == QREADY)
+    {
+        temporal_destroy(pcb_to_move->tiempo_llegada_ready);
+        pcb_to_move->tiempo_llegada_ready = temporal_create();
+        apply_planner_algorithm();
+    }
+
+    pthread_mutex_unlock(&destiny->mutex);
+    pthread_mutex_unlock(&source->mutex);
+
+    log_info(logger_main, "PID: %d - Estado Anterior: %s - Estado Actual: %s", pcb_to_move->pid, get_queue_name(qSource), get_queue_name(qDestiny));
 }
 
-t_pcb *remove_pcb_from_queue_resourse(t_recurso *recurso)
+t_pcb *get_pcb_from(t_queue_id qSource)
 {
-    pthread_mutex_lock(&recurso->mutex);
-    t_pcb *pcb = list_remove(recurso->lista_bloqueados, 0);
-    pthread_mutex_unlock(&recurso->mutex);
-    return pcb;
+    t_queue *source = get_queue(qSource);
+    pthread_mutex_lock(&source->mutex);
+    t_pcb *pcb_to_move = list_get(source->queue, 0);
+    pthread_mutex_unlock(&source->mutex);
+    return pcb_to_move;
+}
+
+void add_pcb_to_queue(t_pcb *pcb_to_move, t_queue_id qDestiny)
+{
+    t_queue *destiny = get_queue(qDestiny);
+    pthread_mutex_lock(&destiny->mutex);
+    list_add(destiny->queue, pcb_to_move);
+    pthread_mutex_unlock(&destiny->mutex);
+}
+
+bool is_queue_empty(t_queue_id qId)
+{
+    t_queue *q = get_queue(qId);
+    pthread_mutex_lock(&q->mutex);
+    bool isEmpty = (list_size(q->queue) == 0);
+    pthread_mutex_unlock(&q->mutex);
+    return isEmpty;
 }

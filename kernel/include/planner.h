@@ -9,16 +9,13 @@
 
 #include "utils.h"
 
-// FIFO
-t_pcb *FIFO(t_list *queue);
+void apply_planner_algorithm();
+bool algorithm_is(char *algorithm);
 
-// HRRN
-void check_est_sig_rafaga(t_pcb *pcb);
-double calculate_est_sig_rafaga(t_pcb *pcb);
-void update_est_sig_rafaga(t_pcb *pcb);
-double calculate_rr(t_pcb *pcb, t_temporal *tiempo_actual);
+void FIFO(t_queue *queue);
+
+void HRRN(t_queue *queue);
 bool sort_by_rr(t_pcb *pcb1, t_pcb *pcb2);
-
-t_pcb *HRRN(t_list *queue);
+double calculate_rr(t_pcb *pcb, t_temporal *tiempo_actual);
 
 #endif /* PLANNER_H */

@@ -125,7 +125,7 @@ bool send_pcontexto(int socket, t_pcontexto *contexto, t_log *logger)
 bool send_pcontexto_desalojo(int socket, t_pcontexto_desalojo *contexto, t_log *logger)
 {
     t_buffer *buffer = t_pcontexto_desalojo_create_buffer(contexto);
-    t_package *paquete = package_create(buffer, PCONTEXTO);
+    t_package *paquete = package_create(buffer, PCONTEXTODESALOJO);
     bool res = package_send(socket, paquete, logger);
     package_destroy(paquete);
     return res;

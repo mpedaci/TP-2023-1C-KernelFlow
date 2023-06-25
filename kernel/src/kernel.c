@@ -4,76 +4,46 @@ int main()
 {
     // Para cierre seguro
     signal(SIGINT, sigintHandler);
-    // 0. Inicializar loggers
+    // 0. Inicializar loggers - OK
     logger_main = log_create(logger_main_path, "KERNEL", true, LOG_LEVEL_INFO);
     logger_aux = log_create(logger_aux_path, "KERNEL AUX", true, LOG_LEVEL_DEBUG);
-    // 1. Cargar configuracion
+    // 1. Cargar configuracion - OK
     config_kernel = read_config(config_path, logger_aux);
     if (config_kernel == NULL)
     {
         log_error(logger_main, "No se pudo cargar la configuracion");
-        end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
+        end_program(logger_main, logger_aux, config_kernel, modules_client);
         return EXIT_FAILURE;
     }
-    // 2. Crear clientes
+    // 2. Crear clientes - OK
     modules_client = start_modules_client(config_kernel, logger_aux);
     if (modules_client == NULL)
     {
         log_error(logger_main, "No se pudo crear los clientes");
-        end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
+        end_program(logger_main, logger_aux, config_kernel, modules_client);
         return EXIT_FAILURE;
     }
-    // 3. Crear estructuras kernel
-    // 3.0. Crear lista de todos los pcb
-    all_pcb = list_create();
-    archivos_abiertos = list_create();
-    // 3.1. Crear colas
-    queues = create_queues();
-    // 3.2 Crear recursos
-    cargar_recursos();
-    // 4. Levantar hilo de servidor
-    start_kernel_server(config_kernel->puerto_escucha);
-    // 4.1. Levantar servidor - OK
-    // 4.2. Recibir cliente - OK
-    // 4.3. Crear hilo para cliente - OK
-    // 4.4. Crear PCB - OK
-    // 4.5. Solicitar Tabla de Segmentos - OK
-    // 4.6. Alojar PCB en cola de ready - OK
-    // 4.7. Inicializar mutex - OK
-    inicializar_mutex();
-    // 5. Levantar hilo de kernel
+    // 5. Levantar hilo de kernel - OK
     start_kernel_core();
-    // 5.1. Verificar contenido de colas - OK
-    // 5.2. Aplicar algoritmo - OK
-    // 5.3. Procesar CPU
-    // 5.4. Actualizar estados - OK
-    // 6. Mostrar info del sistema
-    // Mantengo abierto el programa por ahora
+    // 4. Levantar hilo de servidor - OK
+    start_kernel_server(config_kernel->puerto_escucha);
+    // 6. Mostrar info del sistema - OK
     sleep(3);
     while (end_program_flag == false)
-        print_menu();
-    // 6.1. Cerrar servidor - OK
+       print_menu();
+    // 7. Cerrar servidores - OK
     end_kernel_server();
-    // 6.2. Cerrar hilo de kernel - OK
     end_kernel_core();
-    // 6.3. Cerrar semaforos - OK
-    destroy_mutex();
-    // 6.4. Cerrar recursos - OK
-    destroy_recursos();
-    // 6.5. Cerrar archivos - OK
-    destroy_archivos();
-    // 7. Limpiar estructuras - OK
-    end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
+    // 8. Limpiar estructuras - OK
+    end_program(logger_main, logger_aux, config_kernel, modules_client);
     return EXIT_SUCCESS;
 }
 
 void sigintHandler(int signum)
 {
-    printf("\nIniciando fin del modulo por signal: %d\n", signum);
+    log_warning(logger_aux, "Iniciando fin del modulo por signal de apagado");
     end_kernel_server();
     end_kernel_core();
-    destroy_mutex();
-    destroy_recursos();
-    end_program(logger_main, logger_aux, config_kernel, modules_client, all_pcb, queues);
+    end_program(logger_main, logger_aux, config_kernel, modules_client);
     exit(signum);
 }

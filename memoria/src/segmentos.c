@@ -68,18 +68,18 @@ int get_base_adress(t_segment *segment)
 }
 
 // TABLAS DE SEGMENTOS
+
 t_segments_table *create_segments_table(int pid)
 {
-    t_segments_table *segments_table = malloc(sizeof(t_segments_table));
-    segments_table->pid = pid;
-    segments_table->segment_list = list_create();
-
-    list_add(segments_table->segment_list, segment_0);
-
-    list_add(all_segments_tables, segments_table);
-
-    log_info(logger_main, "Creacion de Proceso PID: %d", pid);
-
+    t_segments_table *segments_table = NULL;
+    segments_table = get_segments_table_by_pid(pid);
+    if (segments_table == NULL){
+        segments_table = malloc(sizeof(t_segments_table));
+        segments_table->pid = pid;
+        segments_table->segment_list = list_create();
+        list_add(segments_table->segment_list, segment_0);
+        list_add(all_segments_tables, segments_table);
+    }
     return segments_table;
 }
 

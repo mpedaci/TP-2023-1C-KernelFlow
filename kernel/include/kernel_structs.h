@@ -5,15 +5,6 @@
 #include <stdint.h>
 #include <commons/collections/list.h>
 
-typedef enum
-{
-    QNEW,
-    QREADY,
-    QEXEC,
-    QBLOCK,
-    QEXIT
-} t_queue_id;
-
 typedef struct
 {
     // Configuración del cliente
@@ -43,13 +34,18 @@ typedef struct
     int cpu_client_socket;
 } t_modules_client;
 
+typedef struct {
+    t_list *queue;
+    pthread_mutex_t mutex;
+} t_queue;
+
 typedef struct
 {
-    t_list *NEW;
-    t_list *READY;
-    t_list *EXEC;
-    t_list *BLOCK;
-    t_list *EXIT;
+    t_queue *NEW;
+    t_queue *READY;
+    t_queue *EXEC;
+    t_queue *BLOCK;
+    t_queue *EXIT;
 } t_queues;
 
 typedef struct
@@ -75,12 +71,13 @@ typedef struct
 typedef struct
 {
     int t_sleep;
-    int pid;
+    t_pcb *pcb;
 } t_io_pcb;
 
 typedef struct 
 {
-    int pid;
+    t_pcb *pcb;
+    t_recurso *archivo;
     t_status_code status_expected;
 } t_pcb_file_status;
 

@@ -61,59 +61,13 @@ t_config_kernel *read_config(char *config_path, t_log *logger)
     return kernel_config;
 }
 
-t_queues *create_queues()
-{
-    t_queues *queues = malloc(sizeof(t_queues));
-    queues->NEW = list_create();
-    queues->READY = list_create();
-    queues->EXEC = list_create();
-    queues->BLOCK = list_create();
-    queues->EXIT = list_create();
-    return queues;
-}
-
-t_registers *init_registers()
-{
-    t_registers *registers = malloc(sizeof(t_registers));
-
-    registers->AX = malloc(4);
-    registers->BX = malloc(4);
-    registers->CX = malloc(4);
-    registers->DX = malloc(4);
-    registers->EAX = malloc(8);
-    registers->EBX = malloc(8);
-    registers->ECX = malloc(8);
-    registers->EDX = malloc(8);
-    registers->RAX = malloc(16);
-    registers->RBX = malloc(16);
-    registers->RCX = malloc(16);
-    registers->RDX = malloc(16);
-
-    char *zero = "0000000000000000";
-
-    memcpy(registers->AX, zero, 4);
-    memcpy(registers->BX, zero, 4);
-    memcpy(registers->CX, zero, 4);
-    memcpy(registers->DX, zero, 4);
-    memcpy(registers->EAX, zero, 8);
-    memcpy(registers->EBX, zero, 8);
-    memcpy(registers->ECX, zero, 8);
-    memcpy(registers->EDX, zero, 8);
-    memcpy(registers->RAX, zero, 16);
-    memcpy(registers->RBX, zero, 16);
-    memcpy(registers->RCX, zero, 16);
-    memcpy(registers->RDX, zero, 16);
-
-    return registers;
-}
-
 t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
 {
     t_pcb *pcb = malloc(sizeof(t_pcb));
     pcb->pid = pid;
     pcb->instrucciones = instrucciones;
     pcb->program_counter = 0;
-    pcb->registers = init_registers();
+    pcb->registers = registers_create();
     pcb->segments_table = NULL;
     pcb->est_sig_rafaga = 0;
     pcb->tiempo_llegada_ready = temporal_create();
@@ -121,21 +75,31 @@ t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
     pcb->tiempo_salida_cpu = temporal_create();
     pcb->open_files_table = list_create();
     pcb->exit_status = SUCCESS;
+    pcb->next_queue = QREADY;
     return pcb;
 }
 
+// Print
+
+char *get_pids_queue_string(t_queue *q)
+{
+    char *params_string = string_new();
+    for (int i = 0; i < list_size(q->queue); i++)
+    {
+        t_pcb *pcb = list_get(q->queue, i);
+        string_append_with_format(&params_string, "%d", pcb->pid);
+        if (i != list_size(q->queue) - 1)
+            string_append(&params_string, " - ");
+    }
+    return params_string;
+}
+
+
 // END PROGRAM
 
-void end_program(
-    t_log *logger_main, t_log *logger_aux,
-    t_config_kernel *config,
-    t_modules_client *modules_client,
-    t_list *all_pcb,
-    t_queues *queues)
+void end_program(t_log *logger_main, t_log *logger_aux, t_config_kernel *config, t_modules_client *modules_client)
 {
     // Modules Client destroy
-    if (all_pcb != NULL)
-        list_destroy(all_pcb);
     if (modules_client != NULL)
         free_modules_client(modules_client, logger_aux);
 
@@ -146,9 +110,6 @@ void end_program(
     // Kernel Config destroy
     if (config != NULL)
         free_config_kernel(config);
-    // Queues destroy
-    if (queues != NULL)
-        free_queues(queues);
 }
 
 // FREE FUNCTIONS
@@ -177,79 +138,4 @@ void free_modules_client(t_modules_client *modules_client, t_log *logger)
     socket_destroy(modules_client->filesystem_client_socket);
     socket_destroy(modules_client->memory_client_socket);
     free(modules_client);
-}
-
-void free_queues(t_queues *queues)
-{
-    list_destroy_and_destroy_elements(queues->NEW, (void *)destroy_pcb);
-    list_destroy_and_destroy_elements(queues->READY, (void *)destroy_pcb);
-    list_destroy_and_destroy_elements(queues->EXEC, (void *)destroy_pcb);
-    list_destroy_and_destroy_elements(queues->BLOCK, (void *)destroy_pcb);
-    list_destroy_and_destroy_elements(queues->EXIT, (void *)destroy_pcb);
-    free(queues);
-}
-
-// Copy
-
-void copy_registers(t_registers *dest, t_registers *src)
-{
-    memcpy(dest->AX, src->AX, 4);
-    memcpy(dest->BX, src->BX, 4);
-    memcpy(dest->CX, src->CX, 4);
-    memcpy(dest->DX, src->DX, 4);
-    memcpy(dest->EAX, src->EAX, 8);
-    memcpy(dest->EBX, src->EBX, 8);
-    memcpy(dest->ECX, src->ECX, 8);
-    memcpy(dest->EDX, src->EDX, 8);
-    memcpy(dest->RAX, src->RAX, 16);
-    memcpy(dest->RBX, src->RBX, 16);
-    memcpy(dest->RCX, src->RCX, 16);
-    memcpy(dest->RDX, src->RDX, 16);
-}
-
-t_list *copy_instructions_list(t_list *instructions)
-{
-    t_list *new_list = list_create();
-    for (int i = 0; i < list_size(instructions); i++)
-    {
-        t_instruccion *instruction = new_instruction(((t_instruccion *)list_get(instructions, i)));
-        list_add(new_list, instruction);
-    }
-    return new_list;
-}
-
-t_instruccion *new_instruction(t_instruccion *instruccion)
-{
-    t_instruccion *new_instruction = malloc(sizeof(t_instruccion));
-    new_instruction->identificador = instruccion->identificador;
-    new_instruction->cant_parametros = instruccion->cant_parametros;
-    new_instruction->parametros = list_create();
-    for (int i = 0; i < instruccion->cant_parametros; i++)
-    {
-        char *param = string_duplicate(list_get(instruccion->parametros, i));
-        list_add(new_instruction->parametros, param);
-    }
-    for (int i = 0; i < 4; i++)
-        new_instruction->p_length[i] = instruccion->p_length[i];
-    return new_instruction;
-}
-
-t_list *copy_segment_list(t_segments_table *segments_table)
-{
-    t_list *new_list = list_create();
-    for (int i = 0; i < list_size(segments_table->segment_list); i++)
-    {
-        t_segment *segment = new_segment(((t_segment *)list_get(segments_table->segment_list, i)));
-        list_add(new_list, segment);
-    }
-    return new_list;
-}
-
-t_segment *new_segment(t_segment *segment)
-{
-    t_segment *new_segment = malloc(sizeof(t_segment));
-    new_segment->id = segment->id;
-    new_segment->base_address = segment->base_address;
-    new_segment->size = segment->size;
-    return new_segment;
 }

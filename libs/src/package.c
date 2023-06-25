@@ -154,7 +154,7 @@ t_buffer *t_pcontexto_desalojo_create_buffer(t_pcontexto_desalojo *pcontexto)
     t_buffer *buffer_instrucciones = t_lista_instrucciones_create_buffer(pcontexto->instructions);
     t_buffer *buffer_instruccion_desalojo = t_instruccion_create_buffer(pcontexto->motivo_desalojo);
 
-    buffer->size = sizeof(uint32_t) * 4 +              // pid + program_counter + size lista instrucciones + size instruccion desalojo
+    buffer->size = sizeof(uint32_t) * 5 +              // pid + program_counter + status_code + size lista instrucciones + size instruccion desalojo
                    buffer_instrucciones->size +        // lista instrucciones
                    buffer_instruccion_desalojo->size + // instruccion desalojo
                    4 * 4 +                             // registers->AX
@@ -169,6 +169,9 @@ t_buffer *t_pcontexto_desalojo_create_buffer(t_pcontexto_desalojo *pcontexto)
     offset += sizeof(uint32_t);
 
     memcpy(stream + offset, &(pcontexto->program_counter), sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    memcpy(stream + offset, &(pcontexto->status_code), sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
     // Registros
@@ -617,6 +620,9 @@ t_pcontexto_desalojo *t_pcontexto_desalojo_create_from_buffer(t_buffer *buffer)
     memcpy(&(pcontexto->program_counter), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
 
+    memcpy(&(pcontexto->status_code), stream, sizeof(uint32_t));
+    stream += sizeof(uint32_t);
+
     // Registros
 
     uint32_t offset = 4;
@@ -905,7 +911,7 @@ bool package_send(int socket, t_package *paquete, t_log *logger)
     memcpy(a_enviar + offset, &(paquete->buffer->size), sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(a_enviar + offset, paquete->buffer->stream, paquete->buffer->size);
-    if (send(socket, a_enviar, paquete->buffer->size + sizeof(uint8_t) + sizeof(uint32_t), 0) == -1)
+    if (send(socket, a_enviar, paquete->buffer->size + sizeof(uint8_t) + sizeof(uint32_t), MSG_NOSIGNAL) == -1)
     {
         log_error(logger, "Error al enviar el paquete");
         free(a_enviar);

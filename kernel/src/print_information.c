@@ -1,5 +1,43 @@
 #include "print_information.h"
 
+// AUXILIAR
+
+t_pcb *get_pcb_by_pid(int pid)
+{
+    t_pcb *pcb;
+    for (int i = 0; i < list_size(queues->NEW->queue); i++)
+    {
+        pcb = list_get(queues->NEW->queue, i);
+        if (pcb->pid == pid)
+            return pcb;
+    }
+    for (int i = 0; i < list_size(queues->READY->queue); i++)
+    {
+        pcb = list_get(queues->READY->queue, i);
+        if (pcb->pid == pid)
+            return pcb;
+    }
+    for (int i = 0; i < list_size(queues->EXEC->queue); i++)
+    {
+        pcb = list_get(queues->EXEC->queue, i);
+        if (pcb->pid == pid)
+            return pcb;
+    }
+    for (int i = 0; i < list_size(queues->BLOCK->queue); i++)
+    {
+        pcb = list_get(queues->BLOCK->queue, i);
+        if (pcb->pid == pid)
+            return pcb;
+    }
+    for (int i = 0; i < list_size(queues->EXIT->queue); i++)
+    {
+        pcb = list_get(queues->EXIT->queue, i);
+        if (pcb->pid == pid)
+            return pcb;
+    }
+    return NULL;
+}
+
 // PRINTS FUNCTIONS
 
 void print_menu()
@@ -60,42 +98,6 @@ void print_menu()
     sleep(1);
 }
 
-t_pcb *get_pcb_by_pid(int pid)
-{
-    t_pcb *pcb;
-    for (int i = 0; i < list_size(queues->NEW); i++)
-    {
-        pcb = list_get(queues->NEW, i);
-        if (pcb->pid == pid)
-            return pcb;
-    }
-    for (int i = 0; i < list_size(queues->READY); i++)
-    {
-        pcb = list_get(queues->READY, i);
-        if (pcb->pid == pid)
-            return pcb;
-    }
-    for (int i = 0; i < list_size(queues->EXEC); i++)
-    {
-        pcb = list_get(queues->EXEC, i);
-        if (pcb->pid == pid)
-            return pcb;
-    }
-    for (int i = 0; i < list_size(queues->BLOCK); i++)
-    {
-        pcb = list_get(queues->BLOCK, i);
-        if (pcb->pid == pid)
-            return pcb;
-    }
-    for (int i = 0; i < list_size(queues->EXIT); i++)
-    {
-        pcb = list_get(queues->EXIT, i);
-        if (pcb->pid == pid)
-            return pcb;
-    }
-    return NULL;
-}
-
 void print_config()
 {
     printf("Configuracion:\n");
@@ -127,15 +129,15 @@ void print_instancias_recursos(char *instancias_recursos)
 void print_queues()
 {
     printf("Cola de NEW:\n");
-    list_iterate(queues->NEW, (void *)print_pcb_pid);
+    list_iterate(queues->NEW->queue, (void *)print_pcb_pid);
     printf("Cola de READY:\n");
-    list_iterate(queues->READY, (void *)print_pcb_pid);
+    list_iterate(queues->READY->queue, (void *)print_pcb_pid);
     printf("Cola de EXEC:\n");
-    list_iterate(queues->EXEC, (void *)print_pcb_pid);
+    list_iterate(queues->EXEC->queue, (void *)print_pcb_pid);
     printf("Cola de BLOCK:\n");
-    list_iterate(queues->BLOCK, (void *)print_pcb_pid);
+    list_iterate(queues->BLOCK->queue, (void *)print_pcb_pid);
     printf("Cola de EXIT:\n");
-    list_iterate(queues->EXIT, (void *)print_pcb_pid);
+    list_iterate(queues->EXIT->queue, (void *)print_pcb_pid);
 }
 
 void print_pcb_pid(t_pcb *pcb)
@@ -148,15 +150,27 @@ void print_pcb(t_pcb *pcb)
     printf("  PID: %d\n", pcb->pid);
     printf("  Program Counter: %d\n", pcb->program_counter);
     printf("  Cantidad de instrucciones: %d\n", list_size(pcb->instrucciones));
-    // printf("  Cantidad de segmentos: %d\n", list_size(pcb->segments_table));
-    // printf("  Cantidad de archivos abiertos: %d\n", list_size(pcb->open_files_table));
-    int64_t time_ready = temporal_diff(temporal_create(), pcb->tiempo_llegada_ready);
+    t_temporal *now = temporal_create();
+    int64_t time_ready = temporal_diff(now, pcb->tiempo_llegada_ready);
+    temporal_destroy(now);
     printf("  Tiempo de llegada a READY: %ld\n", time_ready);
     printf("  Estimacion de rafaga: %f\n", pcb->est_sig_rafaga);
     printf("  Registros:\n");
     print_registers(pcb->registers);
     printf("  Segmentos:\n");
     print_segments(pcb->segments_table->segment_list);
+    printf("  Archivos abiertos:\n");
+    print_archivos_abiertos(pcb->open_files_table);
+}
+
+void print_archivos_abiertos(t_list *archivos_abiertos)
+{
+    printf("    NOMBRE\tPUNTERO\n");
+    for (int i = 0; i < list_size(archivos_abiertos); i++)
+    {
+        t_archivo_abierto *archivo_abierto = list_get(archivos_abiertos, i);
+        printf("    %s\t%d\n", archivo_abierto->archivo->recurso, archivo_abierto->puntero);
+    }
 }
 
 void print_segments(t_list *segments) {
@@ -246,9 +260,10 @@ void print_registers(t_registers *registers)
 
 void print_internal_states()
 {
-    int grado_multiprog = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK);
     printf("Proximo PID: %d\n", pid_counter);
-    printf("Grado de multiprogramacion: %d\n", grado_multiprog);
+    printf("Grado de multiprogramacion: %d\n", get_actual_multiprog());
+    printf("Puede moverse de NEW a READY: %d\n", can_move_NEW_to_READY());
+    printf("Puede ejecutar proceso: %d\n", can_execute_process());
     printf("Aceptar conexiones consola: %d\n", accept_connections);
     printf("Nucleo kernel estado: %d\n", core_running);
 }

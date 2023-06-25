@@ -165,7 +165,7 @@ void print_all_segments_tables()
         for (int j = 0; j < aux_table->segment_list->elements_count; j++)
         {
             t_segment *segment = list_get(aux_table->segment_list, j);
-            log_info(logger_main, "PID: %d - Segmento: %d - Base: %d - Tamanio: %d\n", aux_table->pid, segment->id, segment->base_address, segment->size);
+            log_info(logger_main, "PID: %d - Segmento: %d - Base: %d - Tamanio: %d", aux_table->pid, segment->id, segment->base_address, segment->size);
         }
     }
 }

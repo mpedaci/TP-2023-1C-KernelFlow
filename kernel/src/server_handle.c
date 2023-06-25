@@ -69,34 +69,21 @@ void process_client_communication(t_client_connection *conn)
     {
     case INSTRUCCIONES:
         log_info(logger_aux, "Thread con PID: %d instrucciones recibidas", conn->pid);
-        t_list *instrucciones = get_instrucciones(package); // 800
+        t_list *instrucciones = get_instrucciones(package);
         t_pcb *pcb = pcb_create(conn->pid, instrucciones);
-
-        // guardo todos los pcb en una lista
-        list_add(all_pcb, pcb);
-
         pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
-
-        int mp = list_size(queues->READY) + list_size(queues->EXEC) + list_size(queues->BLOCK); // multiprogramacion
-        log_info(logger_aux, "Thread con PID: %d agregado a NEW", conn->pid);
+        list_add(all_pcb, pcb);
+        add_pcb_to_queue(pcb, QNEW);
         log_info(logger_main, "Se crea el proceso %d en NEW", conn->pid);
-        if (mp < config_kernel->grado_max_multiprog)
-        {
-            log_info(logger_aux, "Thread con PID: %d agregado a READY", conn->pid);
-            if (request_t_segment(pcb))
-                add_pcb_to_queue(QREADY, pcb);
-            else
-                add_pcb_to_queue(QEXIT, pcb);
-        }
-        else
-            add_pcb_to_queue(QNEW, pcb);
+        if (can_move_NEW_to_READY())
+            move_NEW_to_READY();
         break;
     case END:
-        printf("Conexion Finalizada\n");
+        log_info(logger_aux, "Thread con PID: %d Conexion Finalizada", conn->pid);
         exit = true;
         break;
     default:
-        printf("Operacion desconocida\n");
+        log_info(logger_aux, "Thread con PID: %d Operacion desconocida", conn->pid);
         exit = true;
         break;
     }
@@ -106,17 +93,15 @@ void process_client_communication(t_client_connection *conn)
     // Search for the pcb pid in EXIT queue
     log_info(logger_aux, "Thread con PID: %d esperando a que termine", conn->pid);
     t_pcb *last = NULL;
-    last = search_pid(queues->EXIT, conn->pid);
+    last = search_pid(queues->EXIT->queue, conn->pid);
     while (last == NULL)
     {
-        last = search_pid(queues->EXIT, conn->pid);
+        last = search_pid(queues->EXIT->queue, conn->pid);
         sleep(1);
     }
-    t_pid_status *pid_status = malloc(sizeof(t_pid_status));
-    pid_status->pid = conn->pid;
-    pid_status->status = last->exit_status;
+    t_pid_status *pid_status = pid_status_create(conn->pid, last->exit_status);
     send_pid_status(conn->socket, pid_status, logger_aux);
-    free(pid_status);
+    pid_status_destroy(pid_status);
 }
 
 t_pcb *search_pid(t_list *queue, int pid)

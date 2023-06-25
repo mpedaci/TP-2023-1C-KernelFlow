@@ -3,13 +3,15 @@
 
 #include "types.h"
 #include "kernel_vars.h"
+#include "planner.h"
 
-pthread_mutex_t get_queue_mutex(t_queue_id queue_id);
-t_list *get_queue(t_queue_id queue_id);
-void add_pcb_to_queue(t_queue_id queue_id, t_pcb *pcb);
-t_pcb *pop_pcb_from_queue(t_queue_id queue_id);
-t_pcb *pop_pcb_from_queue_by_index(t_queue_id queue_id, int index);
-bool is_queue_empty(t_queue_id queue_id);
-t_pcb *remove_pcb_from_queue_resourse(t_recurso *recurso);
+t_queue *get_queue(t_queue_id qId);
+char *get_queue_name(t_queue_id qId);
+int get_pcb_index_from_queue(t_pcb *pcb, t_queue *q);
+t_pcb *move_fist_from_to(t_queue_id qSource, t_queue_id qDestiny);
+void move_pcb_from_to(t_pcb *pcb_to_move, t_queue_id qSource, t_queue_id qDestiny);
+t_pcb *get_pcb_from(t_queue_id qSource);
+void add_pcb_to_queue(t_pcb *pcb_to_move, t_queue_id qDestiny);
+bool is_queue_empty(t_queue_id qId);
 
 #endif /* QUEUE_CONTROLLER_H */

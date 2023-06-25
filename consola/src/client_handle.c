@@ -18,21 +18,24 @@ void send_instruccions_and_wait_answer(t_config_console *config, t_list *lista_i
 {
     // inicializo socket
     int kernel_socket = start_console_client(config->ip_kernel, config->puerto_kernel, logger_console);
-    // Enviar lista de instrucciones a kernel
-    send_instrucciones(kernel_socket, lista_instrucciones, logger_console);
-    // Espero que la instruccion recibida sea END para saber que finalizo
-    t_package *p = get_package(kernel_socket, logger_console);
-    switch (p->operation_code)
+    if (kernel_socket != -1)
     {
-    case PID_STATUS:
-        t_pid_status *pid_status = get_pid_status(p);
-        log_debug(logger_console, "Proceso finalizado: PID - %d | Status - %d\n", pid_status->pid, pid_status->status);
-        free(pid_status);
-        break;
-    default:
-        log_warning(logger_console, "Operacion desconocida - Finalizando");
-        break;
+        // Enviar lista de instrucciones a kernel
+        send_instrucciones(kernel_socket, lista_instrucciones, logger_console);
+        // Espero que la instruccion recibida sea END para saber que finalizo
+        t_package *p = get_package(kernel_socket, logger_console);
+        switch (p->operation_code)
+        {
+        case PID_STATUS:
+            t_pid_status *pid_status = get_pid_status(p);
+            log_debug(logger_console, "Proceso finalizado: PID - %d | Status - %s\n", pid_status->pid, status_code_string(pid_status->status));
+            free(pid_status);
+            break;
+        default:
+            log_warning(logger_console, "Operacion desconocida - Finalizando");
+            break;
+        }
+        package_destroy(p);
+        socket_destroy(kernel_socket);
     }
-    package_destroy(p);
-    socket_destroy(kernel_socket);
 }

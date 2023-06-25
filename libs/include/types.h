@@ -21,7 +21,8 @@ typedef enum
     SUCCESS,
     PROCESS_NEW,
     PROCESS_END,
-    ERROR
+    ERROR,
+    INVALID_RESOURCE
 } t_status_code;
 
 // CONSOLA
@@ -160,6 +161,15 @@ typedef struct
 } t_open_files;
 
 // KERNEL
+typedef enum
+{
+    QNEW,
+    QREADY,
+    QEXEC,
+    QBLOCK,
+    QEXIT
+} t_queue_id;
+
 typedef struct
 {
     uint32_t pid;
@@ -173,6 +183,7 @@ typedef struct
     t_temporal *tiempo_salida_cpu;
     t_list *open_files_table;
     t_status_code exit_status;
+    t_queue_id next_queue;
 } t_pcb;
 
 typedef struct
