@@ -1,5 +1,5 @@
-#ifndef INSTRUCCIONES_H
-#define INSTRUCCIONES_H
+#ifndef KERNEL_INSTRUCTIONS_H
+#define KERNEL_INSTRUCTIONS_H
 
 #include <pthread.h>
 #include <unistd.h>
@@ -48,4 +48,4 @@ bool execute_create_segment(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo
 bool execute_delete_segment(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
 void compactar();
 
-#endif /* INSTRUCCIONES_H */
+#endif /* KERNEL_INSTRUCTIONS_H */

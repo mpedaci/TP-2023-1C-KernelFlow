@@ -22,7 +22,7 @@
 #include "planner.h"
 #include "communication.h"
 
-#include "instrucciones.h"
+#include "kernel_instructions.h"
 
 // CORE
 

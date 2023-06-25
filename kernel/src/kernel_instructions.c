@@ -1,4 +1,4 @@
-#include "instrucciones.h"
+#include "kernel_instructions.h"
 
 // EXECUTE RECURSOS
 

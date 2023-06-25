@@ -7,7 +7,7 @@
 #include "kernel_vars.h"
 #include "communication.h"
 #include "queue_controller.h"
-#include "instrucciones.h"
+#include "kernel_instructions.h"
 
 #include "types.h"
 #include "types_controllers.h"
