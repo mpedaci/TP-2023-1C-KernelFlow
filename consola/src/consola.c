@@ -34,7 +34,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    send_instruccions_and_wait_answer(config, lista_instrucciones, logger_console);
+    send_instruccions_and_wait_to_end(config, lista_instrucciones, logger_console);
 
     // fin del programa
     end_program(logger_console, config, file_instructions);

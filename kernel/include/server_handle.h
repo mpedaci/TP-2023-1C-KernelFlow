@@ -24,5 +24,7 @@ void *process_client_entry(void *ptr);
 
 t_pcb *search_pid(t_list *queue, int pid);
 void process_client_communication(t_client_connection *conn);
+void process_instrucciones(t_client_connection *conn, t_list *instrucciones);
+void wait_to_end_process(t_client_connection *conn);
 
 #endif /* SERVER_HANDLE_H */

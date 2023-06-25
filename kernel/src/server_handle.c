@@ -70,15 +70,7 @@ void process_client_communication(t_client_connection *conn)
     case INSTRUCCIONES:
         log_info(logger_aux, "Thread con PID: %d instrucciones recibidas", conn->pid);
         t_list *instrucciones = get_instrucciones(package);
-        t_pcb *pcb = pcb_create(conn->pid, instrucciones);
-        pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
-        list_add(all_pcb, pcb);
-        if (accept_new_process_in_READY()){
-            add_pcb_to_queue(pcb, QNEW);
-            move_NEW_to_READY();
-        } else {
-            add_pcb_to_queue(pcb, QNEW);
-        }
+        process_instrucciones(conn, instrucciones);
         break;
     case END:
         log_info(logger_aux, "Thread con PID: %d Conexion Finalizada", conn->pid);
@@ -93,17 +85,7 @@ void process_client_communication(t_client_connection *conn)
     if (exit)
         return;
     // Search for the pcb pid in EXIT queue
-    log_info(logger_aux, "Thread con PID: %d esperando a que termine", conn->pid);
-    t_pcb *last = NULL;
-    last = search_pid(queues->EXIT->queue, conn->pid);
-    while (last == NULL)
-    {
-        last = search_pid(queues->EXIT->queue, conn->pid);
-        sleep(1);
-    }
-    t_pid_status *pid_status = pid_status_create(conn->pid, last->exit_status);
-    send_pid_status(conn->socket, pid_status, logger_aux);
-    pid_status_destroy(pid_status);
+    wait_to_end_process(conn);
 }
 
 t_pcb *search_pid(t_list *queue, int pid)
@@ -115,4 +97,39 @@ t_pcb *search_pid(t_list *queue, int pid)
             return pcb;
     }
     return NULL;
+}
+
+void process_instrucciones(t_client_connection *conn, t_list *instrucciones)
+{
+    t_pcb *pcb = pcb_create(conn->pid, instrucciones);
+    pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
+    list_add(all_pcb, pcb);
+    // Se avisa a Consola su PID asignado
+    t_pid_status *pid_status = pid_status_create(conn->pid, PROCESS_NEW);
+    send_pid_status(conn->socket, pid_status, logger_aux);
+    pid_status_destroy(pid_status);
+    // Se verifica si se puede agregar a la cola READY
+    if (accept_new_process_in_READY())
+    {
+        add_pcb_to_queue(pcb, QNEW);
+        move_NEW_to_READY();
+    }
+    else
+    {
+        add_pcb_to_queue(pcb, QNEW);
+    }
+}
+
+void wait_to_end_process(t_client_connection *conn)
+{
+    t_pcb *last = NULL;
+    last = search_pid(queues->EXIT->queue, conn->pid);
+    while (last == NULL)
+    {
+        last = search_pid(queues->EXIT->queue, conn->pid);
+        sleep(1);
+    }
+    t_pid_status *pid_status = pid_status_create(conn->pid, last->exit_status);
+    send_pid_status(conn->socket, pid_status, logger_aux);
+    pid_status_destroy(pid_status);
 }
