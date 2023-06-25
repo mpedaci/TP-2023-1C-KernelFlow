@@ -296,16 +296,9 @@ t_buffer *t_segment_create_buffer(t_segment *segment)
 t_buffer *t_segments_table_create_buffer(t_segments_table *segments_table)
 {
     t_buffer *buffer = malloc(sizeof(t_buffer));
-    uint32_t size_total = 0;
-    for (int i = 0; i < list_size(segments_table->segment_list); i++)
-    {
-        t_buffer *buffer_segment = t_segment_create_buffer(list_get(segments_table->segment_list, i));
-        size_total += buffer_segment->size;
-        free(buffer_segment->stream);
-        free(buffer_segment);
-    }
-    buffer->size = sizeof(uint32_t) + // PID
-                   size_total;
+    uint32_t cant_segmentos = list_size(segments_table->segment_list);
+    buffer->size = sizeof(uint32_t) * 2 + // PID + cant segmentos
+                   cant_segmentos * sizeof(uint32_t) * 3; // size de cada segmento (id + size + base_address)
 
     void *stream = malloc(buffer->size);
     uint32_t offset = 0;
@@ -313,13 +306,18 @@ t_buffer *t_segments_table_create_buffer(t_segments_table *segments_table)
     memcpy(stream + offset, &segments_table->pid, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
-    for (int i = 0; i < list_size(segments_table->segment_list); i++)
+    memcpy(stream + offset, &cant_segmentos, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    for (int i = 0; i < cant_segmentos; i++)
     {
-        t_buffer *buffer_segment = t_segment_create_buffer(list_get(segments_table->segment_list, i));
-        memcpy(stream + offset, buffer_segment->stream, buffer_segment->size);
-        offset += buffer_segment->size;
-        free(buffer_segment->stream);
-        free(buffer_segment);
+        t_segment *segment = list_get(segments_table->segment_list, i);
+        memcpy(stream + offset, &segment->id, sizeof(uint32_t));
+        offset += sizeof(uint32_t);
+        memcpy(stream + offset, &segment->size, sizeof(uint32_t));
+        offset += sizeof(uint32_t);
+        memcpy(stream + offset, &segment->base_address, sizeof(uint32_t));
+        offset += sizeof(uint32_t);
     }
     buffer->stream = stream;
     return buffer;
@@ -749,9 +747,23 @@ t_segments_table *t_segments_table_create_from_buffer(t_buffer *buffer, uint32_t
     stream += sizeof(uint32_t);
     offset_aux += sizeof(uint32_t);
 
-    while (offset_aux < buffer->size)
+    uint32_t cant_segmentos = 0;
+    memcpy(&(cant_segmentos), stream, sizeof(uint32_t));
+    stream += sizeof(uint32_t);
+    offset_aux += sizeof(uint32_t);
+
+    for (int i = 0; i < cant_segmentos; i++)
     {
-        t_segment *segment = t_segment_create_from_buffer(buffer, &offset_aux);
+        t_segment *segment = malloc(sizeof(t_segment));
+        memcpy(&(segment->id), stream, sizeof(uint32_t));
+        stream += sizeof(uint32_t);
+        offset_aux += sizeof(uint32_t);
+        memcpy(&(segment->size), stream, sizeof(uint32_t));
+        stream += sizeof(uint32_t);
+        offset_aux += sizeof(uint32_t);
+        memcpy(&(segment->base_address), stream, sizeof(uint32_t));
+        stream += sizeof(uint32_t);
+        offset_aux += sizeof(uint32_t);
         list_add(segments_table->segment_list, segment);
     }
 

@@ -13,5 +13,6 @@ void move_pcb_from_to(t_pcb *pcb_to_move, t_queue_id qSource, t_queue_id qDestin
 t_pcb *get_pcb_from(t_queue_id qSource);
 void add_pcb_to_queue(t_pcb *pcb_to_move, t_queue_id qDestiny);
 bool is_queue_empty(t_queue_id qId);
+int get_queue_size(t_queue_id qId);
 
 #endif /* QUEUE_CONTROLLER_H */

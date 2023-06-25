@@ -14,6 +14,7 @@ bool request_t_segment(t_pcb *pcb)
     {
     case TSEGMENTOS:
         t_segments_table *ts = get_tsegmento(package);
+        segments_table_destroy(pcb->segments_table);
         pcb->segments_table = ts;
         created = true;
         break;

@@ -68,7 +68,9 @@ t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
     pcb->instrucciones = instrucciones;
     pcb->program_counter = 0;
     pcb->registers = registers_create();
-    pcb->segments_table = NULL;
+    pcb->segments_table = malloc(sizeof(t_segments_table));
+    pcb->segments_table->segment_list = list_create();
+    pcb->segments_table->pid = pid;
     pcb->est_sig_rafaga = 0;
     pcb->tiempo_llegada_ready = temporal_create();
     pcb->tiempo_entrada_cpu = temporal_create();

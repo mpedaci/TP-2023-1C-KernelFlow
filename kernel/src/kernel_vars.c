@@ -19,6 +19,8 @@ pthread_t thr_server;
 pthread_t thr_server_conn;
 pthread_t thr_core;
 
+pthread_mutex_t mutex_NEW_to_READY;
+
 bool core_running = true;
 
 t_list *all_pcb = NULL; 

@@ -8,6 +8,7 @@ void start_kernel_core()
     archives_create();
     all_pcb_create();
     queues_create();
+    pthread_mutex_init(&mutex_NEW_to_READY, NULL);
     pthread_create(&thr_core, 0, process_queues, NULL);
 }
 
@@ -22,6 +23,7 @@ void end_kernel_core()
     all_pcb_destroy();
     archives_destroy();
     recursos_destroy();
+    pthread_mutex_destroy(&mutex_NEW_to_READY);
     log_info(logger_aux, "Thread Kernel Core: finalizado");
 }
 
@@ -46,6 +48,7 @@ void *process_queues()
 
 void move_NEW_to_READY()
 {
+    pthread_mutex_lock(&mutex_NEW_to_READY);
     while (can_move_NEW_to_READY())
     {
         t_pcb *pcb = get_pcb_from(QNEW);
@@ -59,6 +62,7 @@ void move_NEW_to_READY()
             EXIT(pcb);
         }
     }
+    pthread_mutex_unlock(&mutex_NEW_to_READY);
 }
 
 void move_READY_to_EXEC()
@@ -75,12 +79,17 @@ void move_READY_to_EXEC()
 
 int get_actual_multiprog()
 {
-    return list_size(queues->READY->queue) + list_size(queues->EXEC->queue) + list_size(queues->BLOCK->queue);
+    return get_queue_size(QREADY) + get_queue_size(QEXEC) + get_queue_size(QBLOCK);
+}
+
+bool accept_new_process_in_READY()
+{
+    return get_actual_multiprog() < config_kernel->grado_max_multiprog;
 }
 
 bool can_move_NEW_to_READY()
 {
-    return list_size(queues->NEW->queue) > 0 && get_actual_multiprog() <= config_kernel->grado_max_multiprog;
+    return get_queue_size(QNEW) > 0 && accept_new_process_in_READY();
 }
 
 bool can_execute_process()

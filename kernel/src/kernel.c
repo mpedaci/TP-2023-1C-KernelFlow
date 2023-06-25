@@ -23,10 +23,10 @@ int main()
         end_program(logger_main, logger_aux, config_kernel, modules_client);
         return EXIT_FAILURE;
     }
-    // 5. Levantar hilo de kernel - OK
-    start_kernel_core();
     // 4. Levantar hilo de servidor - OK
     start_kernel_server(config_kernel->puerto_escucha);
+    // 5. Levantar hilo de kernel - OK
+    start_kernel_core();
     // 6. Mostrar info del sistema - OK
     sleep(3);
     while (end_program_flag == false)

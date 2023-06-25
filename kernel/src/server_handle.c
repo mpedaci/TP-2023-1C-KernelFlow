@@ -73,10 +73,12 @@ void process_client_communication(t_client_connection *conn)
         t_pcb *pcb = pcb_create(conn->pid, instrucciones);
         pcb->est_sig_rafaga = config_kernel->estimacion_inicial;
         list_add(all_pcb, pcb);
-        add_pcb_to_queue(pcb, QNEW);
-        log_info(logger_main, "Se crea el proceso %d en NEW", conn->pid);
-        if (can_move_NEW_to_READY())
+        if (accept_new_process_in_READY()){
+            add_pcb_to_queue(pcb, QNEW);
             move_NEW_to_READY();
+        } else {
+            add_pcb_to_queue(pcb, QNEW);
+        }
         break;
     case END:
         log_info(logger_aux, "Thread con PID: %d Conexion Finalizada", conn->pid);

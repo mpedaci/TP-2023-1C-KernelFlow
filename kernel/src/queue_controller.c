@@ -110,6 +110,8 @@ void add_pcb_to_queue(t_pcb *pcb_to_move, t_queue_id qDestiny)
     t_queue *destiny = get_queue(qDestiny);
     pthread_mutex_lock(&destiny->mutex);
     list_add(destiny->queue, pcb_to_move);
+    if (qDestiny == QNEW)
+        log_info(logger_main, "Se crea el proceso %d en NEW", pcb_to_move->pid);
     pthread_mutex_unlock(&destiny->mutex);
 }
 
@@ -120,4 +122,13 @@ bool is_queue_empty(t_queue_id qId)
     bool isEmpty = (list_size(q->queue) == 0);
     pthread_mutex_unlock(&q->mutex);
     return isEmpty;
+}
+
+int get_queue_size(t_queue_id qId)
+{
+    t_queue *q = get_queue(qId);
+    pthread_mutex_lock(&q->mutex);
+    int size = list_size(q->queue);
+    pthread_mutex_unlock(&q->mutex);
+    return size;
 }

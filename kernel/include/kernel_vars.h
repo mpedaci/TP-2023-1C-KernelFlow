@@ -28,6 +28,7 @@ extern uint32_t pid_counter;
 extern pthread_t thr_server;
 extern pthread_t thr_server_conn;
 extern pthread_t thr_core;
+extern pthread_mutex_t mutex_NEW_to_READY;
 
 extern bool core_running;
 

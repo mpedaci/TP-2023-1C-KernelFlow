@@ -41,6 +41,7 @@ void move_READY_to_EXEC();
 // CONDICIONES
 
 int get_actual_multiprog();
+bool accept_new_process_in_READY();
 bool can_move_NEW_to_READY();
 bool can_execute_process();
 
