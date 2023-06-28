@@ -5,6 +5,8 @@
 #include "compactacion.h"
 
 void start_memory(t_config_memoria *config);
+void destroy_all_segments();
+void destroy_all_segments_tables();
 void end_memory();
 t_bitarray *create_free_space_table(size_t memory_size);
 

@@ -2,10 +2,6 @@
 
 t_client_connection *connection_info;
 
-bool fs_connected = false;
-bool cpu_connected = false;
-bool kernel_connected = false;
-
 void start_memory_server(char *listen_port)
 {
     pthread_create(&thr_server, 0, start_server_listen, (void *)listen_port);

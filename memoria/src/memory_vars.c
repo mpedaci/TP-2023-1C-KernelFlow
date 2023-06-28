@@ -13,6 +13,10 @@ bool accept_connections = true;
 pthread_t thr_server;
 pthread_t thr_server_conn;
 
+bool fs_connected = false;
+bool cpu_connected = false;
+bool kernel_connected = false;
+
 t_list *all_segments_tables = NULL;
 t_segment *segment_0 = NULL;
 

@@ -3,6 +3,11 @@
 void start_memory(t_config_memoria *config)
 {
     // memory_space = malloc(config->memory_size);
+
+    // ESPERO QUE SE CONECTEN TODOS LOS MODULOS
+    while (!(fs_connected && cpu_connected && kernel_connected))
+        ;
+
     memory_space = calloc(1, config->memory_size);
     all_segments_tables = list_create();
     free_space_table = create_free_space_table(config->memory_size);

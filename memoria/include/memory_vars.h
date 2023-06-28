@@ -41,6 +41,9 @@ extern int server_socket;
 extern bool accept_connections;
 extern pthread_t thr_server;
 extern pthread_t thr_server_conn;
+extern bool fs_connected;
+extern bool cpu_connected;
+extern bool kernel_connected;
 
 // Estructuras
 extern void *memory_space;
