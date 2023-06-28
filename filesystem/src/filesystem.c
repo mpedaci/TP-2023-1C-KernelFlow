@@ -12,7 +12,7 @@ int main() {
         end_program(logger_main,config,logger_aux);
         return EXIT_FAILURE;
     }
-    initialize_filesystem(config, logger_aux);
+    initialize_filesystem(config, logger_main);
 
     // filesystem en MODO cliente de memoria
     log_info(logger_aux, "Iniciando cliente");
@@ -21,6 +21,7 @@ int main() {
     // filesystem en MODO servidor de kernel
     log_info(logger_aux, "Iniciando servidor");
     start_filesystem_server(config->puerto_escucha, logger_aux);
+    
 
     // terminar programa
     end_program(logger_main, config,logger_aux);
