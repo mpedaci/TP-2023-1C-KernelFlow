@@ -20,15 +20,26 @@ int main(void)
     // INICIALIZO SERVIDOR
     start_memory_server(config->port);
 
-    // INICIALIZO MEMORIA
-    start_memory(config);
+    // MUESTRO UN UNICO MENU POR SI SE QUIERE SALIR ANTES DE INICIALIZAR LA MEMORIA
+    sleep(3);
+    print_menu();
+    // ESPERO QUE SE CONECTEN TODOS LOS MODULOS
+    while (!(fs_connected && cpu_connected && kernel_connected) && !end_program_flag)
+        ;
+
+    // SI SE SELECCIONA "SALIR" TERMINO EL PROGRAMA SIN HABER INICIALIZADO LA MEMORIA
+    if(!end_program_flag){
+        // INICIALIZO MEMORIA
+        start_memory(config);
+    } 
 
     sleep(3);
-    while (end_program_flag == false)
+    while (!end_program_flag)
         print_menu();
 
     end_memory_server();
-    end_memory();
+    if(memory_space != NULL)
+        end_memory();
     end_program(logger_main, logger_aux, config);
 
     return EXIT_SUCCESS;
@@ -38,7 +49,8 @@ void sigintHandler(int signum)
 {
     printf("\nIniciando fin del modulo por signal: %d\n", signum);
     end_memory_server();
-    end_memory();
+    if(memory_space != NULL)
+        end_memory();
     end_program(logger_main, logger_aux, config);
     exit(signum);
 }
