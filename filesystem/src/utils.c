@@ -56,4 +56,6 @@ void end_program(t_log *logger_main, t_config_filesystem *config, t_log *logger_
    free(config->path_superbloque);
    free(config->retardo_acceso_bloque);
    free(config);
+
+   end_filesystem();
 }

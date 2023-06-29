@@ -11,12 +11,10 @@
 //cambiar las rutas si uso la vm utnso
 
 char *config_path = "./config/filesystem.config";
-char *logger_main_path = "./logs/filesystem.log";
+char *logger_main_path = "./logs/filesystem.log";;
 char *logger_aux_path = "./logs/filesystem_aux.log";
-t_log *logger_main;
-t_log *logger_aux;
 
-void atender_request(int socket_kernel);
+int main();
 
 #endif /* FILESYSTEM_H */
 
