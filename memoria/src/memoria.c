@@ -19,13 +19,9 @@ int main(void)
 
     // INICIALIZO SERVIDOR
     start_memory_server(config->port);
-
-    // MUESTRO UN UNICO MENU POR SI SE QUIERE SALIR ANTES DE INICIALIZAR LA MEMORIA
-    sleep(3);
-    print_menu();
+    
     // ESPERO QUE SE CONECTEN TODOS LOS MODULOS
-    while (!(fs_connected && cpu_connected && kernel_connected) && !end_program_flag)
-        ;
+    while (!(fs_connected && cpu_connected && kernel_connected) && !end_program_flag);
 
     // SI SE SELECCIONA "SALIR" TERMINO EL PROGRAMA SIN HABER INICIALIZADO LA MEMORIA
     if(!end_program_flag){
