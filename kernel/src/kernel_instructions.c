@@ -96,6 +96,8 @@ bool execute_fwrite(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
     t_archivo_abierto *archivo_abierto = buscar_archivo_abierto(pcb, archivo);
     pthread_mutex_lock(&archivo_abierto->archivo->mutex);
     list_add(instruccion->parametros, string_itoa(archivo_abierto->puntero));
+    instruccion->p_length[3] = strlen(string_itoa(archivo_abierto->puntero)) + 1;
+    instruccion->cant_parametros++;
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
     log_info(logger_main, "PID: %d - Escribir Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, archivo_abierto->puntero, direccion, tamanio);
     t_pcb_file_status *arg = malloc(sizeof(t_pcb_file_status));
@@ -116,6 +118,8 @@ bool execute_fread(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
     t_archivo_abierto *archivo_abierto = buscar_archivo_abierto(pcb, archivo);
     pthread_mutex_lock(&archivo_abierto->archivo->mutex);
     list_add(instruccion->parametros, string_itoa(archivo_abierto->puntero));
+    instruccion->p_length[3] = strlen(string_itoa(archivo_abierto->puntero)) + 1;
+    instruccion->cant_parametros++;
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
     log_info(logger_main, "PID: %d - Leer Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, archivo_abierto->puntero, direccion, tamanio);
     t_pcb_file_status *arg = malloc(sizeof(t_pcb_file_status));

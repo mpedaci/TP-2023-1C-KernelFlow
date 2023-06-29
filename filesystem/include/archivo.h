@@ -8,8 +8,6 @@
 #include <pthread.h>
 #include <sys/stat.h>
 
-#include <commons/bitarray.h>
-
 #include "filesystem_vars.h"
 
 void initialize_filesystem();

@@ -62,22 +62,21 @@ void handle_instruccion(t_instruccion *instruccion, int client_socket)
     {
     case I_F_OPEN:
         log_info(logger_aux, "Se recibio una instruccion de abrir archivo");
-        nombre = list_get(instruccion->parametros, 0);
+        nombre = (char*)list_get(instruccion->parametros, 0);
         response = open_file(nombre);
         if (response == 0)
             send_status_code(client_socket, FILE_OPEN, logger_aux);
         else
         {
-            // response= create_file(config,nombre,logger);
             send_status_code(client_socket, ERROR, logger_aux);
         }
         break;
     case I_F_READ:
         log_info(logger_aux, "Se recibio una instruccion de leer archivo");
-        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 0));
-        nombre = list_get(instruccion->parametros, 1);
+        nombre = list_get(instruccion->parametros, 0);
+        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 1));
         cant_bytes = atoi((char*)list_get(instruccion->parametros, 2));
-        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 3));
+        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 3));
         response = read_file(puntero_archivo, nombre, cant_bytes, direccion_fisica);
         if (response == 0)
             send_status_code(client_socket, FILE_READ, logger_aux);
@@ -86,10 +85,10 @@ void handle_instruccion(t_instruccion *instruccion, int client_socket)
         break;
     case I_F_WRITE:
         log_info(logger_aux, "Se recibio una instruccion de escribir archivo");
-        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 0));
-        nombre = list_get(instruccion->parametros, 1);
+        nombre = (char*)list_get(instruccion->parametros, 0);
+        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 1));
         cant_bytes = atoi((char*)list_get(instruccion->parametros, 2));
-        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 3));
+        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 3));
         response = write_file(puntero_archivo, nombre, cant_bytes, direccion_fisica);
         if (response == 0)
             send_status_code(client_socket, FILE_WRITTEN, logger_aux);
@@ -109,7 +108,7 @@ void handle_instruccion(t_instruccion *instruccion, int client_socket)
         else
         {
             response = create_file(nombre);
-            response = truncate_file(nuevo_tamanio, nombre);
+            response = truncate_file(nuevo_tamanio, nombre); // CHEQUEAR, NO SE SI SE TIENE QUE CREAR EL ARCHIVO SI TE PASAN EL TRUNCATE
             send_status_code(client_socket, FILE_TRUNCATED, logger_aux);
         }
         break;

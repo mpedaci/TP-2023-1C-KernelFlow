@@ -7,7 +7,6 @@ int bitmap_size;
 
 void end_filesystem()
 {
-
     free(copy_blocks);
     free(bitmap);
 }
@@ -197,35 +196,31 @@ int create_file(char *nombre)
 
 int open_file(char *nombre)
 {
-
-    char *ruta_Fcb = malloc(strlen(config->path_fcb) + strlen(nombre) + 2);
+    char *ruta_Fcb = malloc(strlen(config->path_fcb) + strlen(nombre) + 3);
     strcpy(ruta_Fcb, config->path_fcb);
     strcat(ruta_Fcb, "/");
-    strcat(ruta_Fcb, nombre);
+    strcat(ruta_Fcb, string_duplicate(nombre));
     FILE *file_fcb = fopen(ruta_Fcb, "r");
 
     t_fcb *fcb = malloc(sizeof(t_fcb));
-    fcb->nombre_archivo = malloc(strlen(nombre) + 1);
-    strcpy(fcb->nombre_archivo, nombre);
+    fcb->nombre_archivo = string_duplicate(nombre);
 
     if (file_fcb != NULL)
     {
-
         fread(fcb, sizeof(t_fcb), 1, file_fcb);
-        log_info(logger_main, "Abrir archivo:  %s", fcb->nombre_archivo);
+        log_info(logger_main, "Abrir archivo: %s", fcb->nombre_archivo);
         fclose(file_fcb);
-        return 0;
     }
     else
     {
         create_file(fcb->nombre_archivo);
-        open_file(fcb->nombre_archivo);
-        return 0;
+        open_file(fcb->nombre_archivo); // CHEQUEAR recursivo pero no pasa naaaaaaaaaaaaaaaa
     }
 
     free(ruta_Fcb);
     // free(fcb->nombre_archivo);
     free(fcb);
+    return 0; // CHEQUEAR no deberia salir mal nunca esto
 }
 
 int truncate_file(int nuevo_tamanio, char *nombre)
@@ -805,7 +800,7 @@ int write_file(int puntero_archivo, char *nombre, int cant_bytes, int direccion_
     free(fcb);
     free(ruta_Fcb);
     // free(fcb->nombre_archivo);
-    // free(stream);
+    free(stream);
 
     return 0;
 }

@@ -7,22 +7,10 @@
 #include <commons/string.h>
 #include <client.h> //agregado
 #include <server.h> //agregado
-
-typedef struct
-{
-    char *puerto_escucha;
-    char *puerto_memoria;
-    char *ip_memoria;
-
-    // agrego los paths
-    char *path_superbloque;
-    char *path_bitmap;
-    char *path_bloques;
-    char *path_fcb;
-
-    char *retardo_acceso_bloque;
-
-} t_config_filesystem;
+#include "types.h"
+#include "types_controllers.h"
+#include "archivo.h"
+#include "filesystem_vars.h"
 
 t_config_filesystem *read_config(char *path, t_log *logger);
 void end_program(t_log *logger_main, t_config_filesystem *config, t_log *logger_aux);
