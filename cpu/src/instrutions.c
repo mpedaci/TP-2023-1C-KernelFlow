@@ -24,7 +24,6 @@ char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
 
     // creo info_read para peticion de lectura a memoria
     t_info_read *info_read = malloc(sizeof(t_info_read));
-    info_read->pid = pid;
     info_read->base_address = atoi(direccion_fisica); // PREGUNTA - aca hay que hacer un string_duplicate o esta bien asi???????????????????????????????????
     info_read->size = tam_reg;
 
@@ -67,7 +66,6 @@ char *MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
     // creo el t_info_write para mandarle la peticion de escritura a memoria
     t_info_write *info_write = malloc(sizeof(t_info_write));
     info_write->info = malloc(sizeof(t_info));
-    info_write->pid = pid;
     info_write->base_address = atoi(direccion_fisica);
     info_write->info->data = malloc(tam_reg);
     memcpy(info_write->info->data, reg, tam_reg);

@@ -218,8 +218,9 @@ int open_file(char *nombre)
     }
     else
     {
-        printf("No existe el archivo: %s \n", nombre);
-        return 1;
+        create_file(fcb->nombre_archivo);
+        open_file(fcb->nombre_archivo);
+        return 0;
     }
 
     free(ruta_Fcb);
@@ -610,20 +611,41 @@ int read_file(int puntero_archivo, char *nombre, int cant_bytes, int direccion_f
     }
     log_info(logger_main, "Leer archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
 
-    /*-----------------funciones de la serializacion IMPLEMENTAR---------------------------
-    //send_info_read(socket_memoria, stream, log); // ENVIA A MEMORIA A ESCRIBIR
-    //t_package *package = get_package(socket, logger);
-   //t_status_code sc = get_status_code(package); // ESPERA RESPUESTA DE MEMORIA
-       //if(sc == FILE_READ)
-       //    send_status_code(socket_kernel, FILE_READ, log); // AVISA A KERNEL QUE LEYO BIEN
+    t_info_write *info_write = malloc(sizeof(t_info_write));
+    info_write->info = malloc(sizeof(t_info));
+    info_write->base_address = direccion_fisica;
+    info_write->info->data = malloc(cant_bytes);
+    memcpy(info_write->info->data, stream, cant_bytes);
+    info_write->info->size = cant_bytes;
+    
+    bool res = send_info_write(memory_socket, info_write, logger_aux);
+    if(!res)
+        log_error(logger_aux, "No se pudo enviar el info de F_READ a memoria");
 
-   ------------------------------------------------------------------------------------------*/
+    info_write_destroy(info_write);
+    
+    t_package *package = get_package(memory_socket, logger_aux);
+
+    t_status_code status_code;
+    if(package->operation_code == STATUS_CODE) {
+        status_code = get_status_code(package);
+        if(status_code == SUCCESS) {
+            log_info(logger_aux, "Se pudo escribir en memoria en el F_READ");
+        } else {
+            log_error(logger_aux, "No se pudo escribir en memoria en el F_READ");
+        }
+    } else {
+        log_error(logger_aux, "No se pudo obtener el OK de memoria en el F_READ");
+    }
+
+    package_destroy(package);
+
 
     fclose(file_fcb);
     free(fcb);
     // free(fcb->nombre_archivo);
     free(ruta_Fcb);
-    // free(stream);
+    free(stream);
 
     return 0;
 }
@@ -645,19 +667,30 @@ int write_file(int puntero_archivo, char *nombre, int cant_bytes, int direccion_
     fcb->nombre_archivo = malloc(strlen(nombre) + 1);
     fread(fcb, sizeof(t_fcb), 1, file_fcb);
 
-    /*----------------------------------funciones serializacion Implementar--------------------------*/
+    t_info_read* info_read = malloc(sizeof(t_info_read));
+    info_read->base_address = direccion_fisica;
+    info_read->size = cant_bytes;
 
-    // solicito a memoria la info q tengo q escribir
-    // request_info = (DIRMEMORIA + BYTES)
-    // send_request_info(socket_memoria, request_info, log);
-    // recibo en un paquete el stream desde memoria lo q tengo q escribir (implementar)
-    //  t_package *package = get_package(socket, logger);
-    // void *stream = get_info_write(package); // LEE MEMORIA
+    bool res = send_info_read(memory_socket, info_read, logger_aux);
+    if(!res)
+        log_error(logger_aux, "No se pudo enviar la request de lectura a memoria en el F_WRITE");
+    free(info_read);
 
-    /*-----------------------------------------------------------------------------------*/
+    t_package *package = get_package(memory_socket, logger_aux);
+
+    t_info *info;
+    if(package->operation_code == INFO) {
+        info = get_info(package);
+    } else {
+        log_error(logger_aux, "No se pudo obtener el valor de memoria en la lectura de F_WRITE");
+    }
+
+    package_destroy(package);
 
     void *stream = malloc(cant_bytes);
-    stream = "meli aprobo sistemas operativos y ahora es una persona feliz ademas ya puede tener vacaciones y tirar cualquier cosa de la facu a la mierda si es que no tiene que rendir finales";
+    memcpy(stream, info->data, info->size);
+
+    info_destroy(info);
 
     int numero_de_bloque_inicial = puntero_archivo / pSuperbloque->block_size;
     int cantida_de_bloques_a_escribir = cant_bytes / pSuperbloque->block_size;

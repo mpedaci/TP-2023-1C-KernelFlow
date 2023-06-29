@@ -13,4 +13,6 @@ extern t_log *logger_aux;
 
 extern t_config_filesystem *config;
 
+extern int memory_socket;
+
 #endif /* FILESYSTEM_VARS_H */

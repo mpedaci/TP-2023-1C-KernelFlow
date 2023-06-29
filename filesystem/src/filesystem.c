@@ -17,7 +17,7 @@ int main()
     // filesystem en MODO cliente de memoria
     log_info(logger_aux, "Iniciando cliente");
     // create_connection(config->ip_memoria, config->puerto_memoria, logger_aux);
-    int memory_socket = start_memory_client(config->ip_memoria, config->puerto_memoria, logger_aux);
+    memory_socket = start_memory_client(config->ip_memoria, config->puerto_memoria, logger_aux);
     // filesystem en MODO servidor de kernel
     log_info(logger_aux, "Iniciando servidor");
     start_filesystem_server();

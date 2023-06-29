@@ -161,11 +161,24 @@ void print_all_segments_tables()
 {
     for (int i = 0; i < list_size(all_segments_tables); i++)
     {
-        t_segments_table *aux_table = list_get(all_segments_tables, i);
+        t_segments_table *aux_table = (t_segments_table*)list_get(all_segments_tables, i);
         for (int j = 0; j < aux_table->segment_list->elements_count; j++)
         {
-            t_segment *segment = list_get(aux_table->segment_list, j);
+            t_segment *segment = (t_segment*)list_get(aux_table->segment_list, j);
             log_info(logger_main, "PID: %d - Segmento: %d - Base: %d - Tamanio: %d", aux_table->pid, segment->id, segment->base_address, segment->size);
         }
     }
+}
+
+int get_pid_by_address(int address) {
+    for(int i=0; i < list_size(all_segments_tables); i++) {
+        t_segments_table *aux_table = (t_segments_table*)list_get(all_segments_tables, i);
+        for (int j=0; j < aux_table->segment_list->elements_count; j++)
+        {
+            t_segment *segment = (t_segment*)list_get(aux_table->segment_list, j);
+            if(address > segment->base_address && address < (segment->base_address + segment->size))
+                return aux_table->pid;
+        }
+    }
+    return -1;
 }

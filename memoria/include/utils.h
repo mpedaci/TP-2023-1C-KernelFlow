@@ -32,4 +32,6 @@ void move_data(int to, int from, int length);
 
 void print_all_segments_tables();
 
+int get_pid_by_address(int address);
+
 #endif /* UTILS_H */

@@ -410,12 +410,10 @@ t_buffer *t_pid_status_create_buffer(t_pid_status *pid_status)
 t_buffer *t_info_write_create_buffer(t_info_write *info_write) {
     t_buffer *buffer = malloc(sizeof(t_buffer));
     t_buffer *buffer_info = t_info_create_buffer(info_write->info);
-    buffer->size = sizeof(uint32_t) * 3 + buffer_info->size; // 3er int es por el tam del buffer_info
+    buffer->size = sizeof(uint32_t) * 2 + buffer_info->size; // 3er int es por el tam del buffer_info
     void *stream = malloc(buffer->size);
     uint32_t offset = 0;
 
-    memcpy(stream + offset, &(info_write->pid), sizeof(uint32_t));
-    offset += sizeof(uint32_t);
     memcpy(stream + offset, &(info_write->base_address), sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(stream + offset, &(buffer_info->size), sizeof(uint32_t));
@@ -431,12 +429,10 @@ t_buffer *t_info_write_create_buffer(t_info_write *info_write) {
 
 t_buffer *t_info_read_create_buffer(t_info_read *info_read) {
     t_buffer *buffer = malloc(sizeof(t_buffer));
-    buffer->size = sizeof(uint32_t) * 3;
+    buffer->size = sizeof(uint32_t) * 2;
     void *stream = malloc(buffer->size);
     uint32_t offset = 0;
 
-    memcpy(stream + offset, &(info_read->pid), sizeof(uint32_t));
-    offset += sizeof(uint32_t);
     memcpy(stream + offset, &(info_read->base_address), sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(stream + offset, &(info_read->size), sizeof(uint32_t));
@@ -853,8 +849,7 @@ t_pid_status *t_pid_status_create_from_buffer(t_buffer *buffer)
 t_info_write *t_info_write_create_from_buffer(t_buffer *buffer) {
     t_info_write *info_write = malloc(sizeof(t_info_write));
     void *stream = buffer->stream;
-    memcpy(&(info_write->pid), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
+
     memcpy(&(info_write->base_address), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
 
@@ -876,8 +871,7 @@ t_info_write *t_info_write_create_from_buffer(t_buffer *buffer) {
 t_info_read *t_info_read_create_from_buffer(t_buffer *buffer) {
     t_info_read *info_read = malloc(sizeof(t_info_read));
     void *stream = buffer->stream;
-    memcpy(&(info_read->pid), stream, sizeof(uint32_t));
-    stream += sizeof(uint32_t);
+
     memcpy(&(info_read->base_address), stream, sizeof(uint32_t));
     stream += sizeof(uint32_t);
     memcpy(&(info_read->size), stream, sizeof(uint32_t));

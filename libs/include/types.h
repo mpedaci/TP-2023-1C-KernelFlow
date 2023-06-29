@@ -126,14 +126,12 @@ typedef struct {
 
 typedef struct
 {
-    uint32_t pid;
     uint32_t base_address;
     t_info *info;
 } t_info_write;
 
 typedef struct
 {
-    uint32_t pid;
     uint32_t base_address;
     uint32_t size;
 } t_info_read;

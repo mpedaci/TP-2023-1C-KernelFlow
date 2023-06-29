@@ -82,7 +82,6 @@ void handle_kernel_pid_instruction(int client_socket, t_pid_instruccion *pidtruc
         log_warning(logger_aux, "Instruccion desconocida");
         break;
     }
-    // HACER UN FREE DE PIDTRUCTION POR FAVOR
 }
 
 void handle_pid_status(int client_socket, t_pid_status *pid_status)
@@ -111,12 +110,16 @@ void cpu_operations(int client_socket)
     {
         t_package *package = get_package(client_socket, logger_aux);
         bool res = false;
+        int pid = -1;
         switch (package->operation_code)
         {
         case INFO_READ:
             t_info_read *info_read = get_info_read(package);
             t_info *info = read_memory(info_read->base_address, info_read->size);
-            log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: CPU ", info_read->pid, info_read->base_address, info_read->size);
+            pid = get_pid_by_address(info_read->base_address);
+            if(pid == -1)
+                log_error(logger_aux, "No se encontro un segmento para esa direccion fisica"); // CHEQUEAR ERROR HANDLE
+            log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: CPU ", pid, info_read->base_address, info_read->size);
             res = send_info(client_socket, info, logger_aux);
             if(!res)
                 log_error(logger_aux, "No se pudo enviar el valor leido de memoria a CPU (MOV_IN)");
@@ -130,7 +133,10 @@ void cpu_operations(int client_socket)
                 log_error(logger_aux, "No se pudo escribir en memoria (MOV_OUT)");
                 res = send_status_code(client_socket, SEGMENTATION_FAULT, logger_aux);
             } else {
-                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: CPU ", info_write->pid, info_write->base_address, info_write->info->size);
+                pid = get_pid_by_address(info_write->base_address);
+                if(pid == -1)
+                    log_error(logger_aux, "No se encontro un segmento para esa direccion fisica"); // CHEQUEAR ERROR HANDLE
+                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: CPU ", pid, info_write->base_address, info_write->info->size);
                 res = send_status_code(client_socket, SUCCESS, logger_aux);
             }
             if (!res)
@@ -151,14 +157,68 @@ void cpu_operations(int client_socket)
 }
 
 // FS
+// void fs_operations(int client_socket)
+// {
+//     bool exit = false;
+//     while (exit == false)
+//     {
+//         t_package *package = get_package(client_socket, logger_aux);
+//         switch (package->operation_code)
+//         {
+//         case END:
+//             log_warning(logger_aux, "Filesystem: Conexion Finalizada");
+//             exit = true;
+//             break;
+//         default:
+//             log_warning(logger_aux, "Filesystem: Operacion desconocida");
+//             exit = true;
+//             break;
+//         }
+//         package_destroy(package);
+//     }
+// }
+
+
 void fs_operations(int client_socket)
 {
     bool exit = false;
-    while (exit == false)
+    while (!exit)
     {
         t_package *package = get_package(client_socket, logger_aux);
+        bool res = false;
+        int pid = -1;
         switch (package->operation_code)
         {
+            case INFO_READ:
+            t_info_read *info_read = get_info_read(package);
+            t_info *info = read_memory(info_read->base_address, info_read->size);
+            pid = get_pid_by_address(info_read->base_address);
+            if(pid == -1)
+                log_error(logger_aux, "No se encontro un segmento para esa direccion fisica"); // CHEQUEAR ERROR HANDLE
+            log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: FILESYSTEM ", pid, info_read->base_address, info_read->size);
+            res = send_info(client_socket, info, logger_aux);
+            if(!res)
+                log_error(logger_aux, "No se pudo enviar el valor leido de memoria a FILESYSTEM");
+            free(info_read);
+            info_destroy(info);
+            break;
+        case INFO_WRITE:
+            t_info_write *info_write = get_info_write(package);
+            bool result = write_memory(info_write->base_address, info_write->info->size, info_write->info->data);
+            if (!result) {
+                log_error(logger_aux, "No se pudo escribir en memoria");
+                res = send_status_code(client_socket, SEGMENTATION_FAULT, logger_aux);
+            } else {
+                pid = get_pid_by_address(info_read->base_address);
+                if(pid == -1)
+                    log_error(logger_aux, "No se encontro un segmento para esa direccion fisica"); // CHEQUEAR ERROR HANDLE
+                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: FILESYSTEM ", pid, info_write->base_address, info_write->info->size);
+                res = send_status_code(client_socket, SUCCESS, logger_aux);
+            }
+            if (!res)
+                log_error(logger_aux, "No se pudo enviar el OK a FILESYSTEM");
+            info_write_destroy(info_write);
+            break;
         case END:
             log_warning(logger_aux, "Filesystem: Conexion Finalizada");
             exit = true;
@@ -171,53 +231,3 @@ void fs_operations(int client_socket)
         package_destroy(package);
     }
 }
-
-/*
-void fs_operations(int client_socket)
-{
-    bool exit = false;
-    while (!exit)
-    {
-        t_package *package = get_package(client_socket, logger_aux);
-        switch (package->operation_code)
-        {
-        case INFO_WRITE:
-            t_info_write *info_write = get_info_write(package);
-            bool res = write_memory(info_write->base_address, info_write->info->size, info_write->info->data);
-            if(!res){
-                log_error(logger_aux, "Direccion de escritura en memoria invalida");
-                exit = true;
-            }
-            else{
-                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: FS ", info_write->pid, info_write->base_address, info_write->size);
-                send_status_code(client_socket, SUCCESS, logger_aux);
-            }
-            //HACER UN FREE DE INFO_WRITE POR FAVOR
-            break;
-        case INFO_READ:
-            t_info_read *info_read = get_info_read(package);
-            t_info *info = read_memory(info_read->base_address, info_read->length);
-            if(info->data == NULL){
-                log_error(logger_aux, "Direccion de lectura en memoria invalida");
-                exit = true;
-            }
-            else{
-                log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: FS ", info_read->pid, info_read->base_address, info_read->size);
-                send_info(client_socket, info, logger_aux);
-            }
-            //HACER UN FREE DE INFO_READ POR FAVOR
-            break;
-        case END:
-            log_info(logger_aux, "Conexion Finalizada");
-            exit = true;
-            break;
-        default:
-            log_warning(logger_aux, "Operacion desconocida");
-            exit = true;
-            break;
-        }
-        package_destroy(package);
-    }
-    free(module);
-}
-*/
