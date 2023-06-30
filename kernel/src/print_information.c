@@ -277,4 +277,12 @@ void print_status_recursos()
         printf("INSTANCIAS: %d\n", recurso->instancias);
         printf("BLOQUEADOS: %d\n", list_size(recurso->lista_bloqueados));
     }
+
+    printf("\n\nArchivos abiertos\n");
+    for(int i=0; i < list_size(archivos_abiertos); i++) {
+        t_recurso *recurso = list_get(archivos_abiertos, i);
+        printf("RECURSO: %s\n", recurso->recurso);
+        printf("INSTANCIAS: %d\n", recurso->instancias);
+        printf("BLOQUEADOS: %d\n", list_size(recurso->lista_bloqueados));
+    }
 }

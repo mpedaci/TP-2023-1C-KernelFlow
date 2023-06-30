@@ -95,7 +95,6 @@ t_recurso *crear_archivo(char *nombre)
     recurso->recurso = string_duplicate(nombre);
     recurso->instancias = 1;
     recurso->lista_bloqueados = list_create();
-    list_add(archivos_abiertos, recurso);
     pthread_mutex_init(&recurso->mutex, NULL);
     return recurso;
 }

@@ -97,10 +97,11 @@ bool execute_fwrite(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
     pthread_mutex_lock(&archivo_abierto->archivo->mutex);
     list_add(instruccion->parametros, string_itoa(archivo_abierto->puntero));
     instruccion->p_length[3] = strlen(string_itoa(archivo_abierto->puntero)) + 1;
-    instruccion->cant_parametros++;
+    instruccion->cant_parametros++; // CHEQUEAR (se podria hacer una funcion para agregar params a la instruccion para no hacerlo manualmente)
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
     log_info(logger_main, "PID: %d - Escribir Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, archivo_abierto->puntero, direccion, tamanio);
     t_pcb_file_status *arg = malloc(sizeof(t_pcb_file_status));
+
     arg->pcb = pcb;
     arg->archivo = archivo_abierto->archivo;
     arg->status_expected = FILE_WRITTEN;
@@ -119,7 +120,7 @@ bool execute_fread(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
     pthread_mutex_lock(&archivo_abierto->archivo->mutex);
     list_add(instruccion->parametros, string_itoa(archivo_abierto->puntero));
     instruccion->p_length[3] = strlen(string_itoa(archivo_abierto->puntero)) + 1;
-    instruccion->cant_parametros++;
+    instruccion->cant_parametros++; // CHEQUEAR (se podria hacer una funcion para agregar params a la instruccion para no hacerlo manualmente)
     send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
     log_info(logger_main, "PID: %d - Leer Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, archivo_abierto->puntero, direccion, tamanio);
     t_pcb_file_status *arg = malloc(sizeof(t_pcb_file_status));
@@ -154,6 +155,8 @@ bool execute_fopen(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
                 list_add(pcb->open_files_table, archivo_abierto);
                 nuevo_archivo->instancias--;
                 status = true;
+                log_debug(logger_aux, "open - arch %d", nuevo_archivo->instancias);
+                log_debug(logger_aux, "open - arch_abiertos %d", list_size(archivos_abiertos));
             }
             else
             {
@@ -212,11 +215,15 @@ bool execute_fclose(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
             free(archivo_abierto);
             archivo->instancias++;
             log_info(logger_main, "PID: %d - Cerrar Archivo: %s", pcb->pid, nombre_archivo);
+            log_debug(logger_aux, "primero - arch %d", archivo->instancias);
             if (archivo->instancias > 0)
             {
-                int index_archivo = find_archivo_index(nombre_archivo);
-                list_remove(archivos_abiertos, index_archivo);
-                recurso_destroy(archivo);
+                log_debug(logger_aux, "segundo - arch %d", archivo->instancias);
+                log_debug(logger_aux, "segundo - arch_abiertos %d", list_size(archivos_abiertos));
+                // int index_archivo = find_archivo_index(nombre_archivo);
+                list_remove_element(archivos_abiertos, archivo);
+                recurso_destroy(archivo); // CHEQUEAR solo se deberia sacar de la lista de arch abiertos, no eliminar
+                log_debug(logger_aux, "segundo - arch_abiertos %d", list_size(archivos_abiertos));
             }
             else
             {

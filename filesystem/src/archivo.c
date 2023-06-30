@@ -183,7 +183,10 @@ int create_file(char *nombre)
     fcb->puntero_directo = 0;
     fcb->puntero_indirecto = 0;
 
-    fwrite(fcb, sizeof(t_fcb), 1, file_fcb);
+    fwrite(&(fcb->tamanio_archivo), sizeof(int), 1, file_fcb);
+    fwrite(&(fcb->puntero_directo), sizeof(uint32_t), 1, file_fcb);
+    fwrite(&(fcb->puntero_indirecto), sizeof(uint32_t), 1, file_fcb);
+
     fclose(file_fcb);
     log_info(logger_main, "Crear archivo: %s", fcb->nombre_archivo);
 
@@ -207,25 +210,27 @@ int open_file(char *nombre)
 
     if (file_fcb != NULL)
     {
-        fread(fcb, sizeof(t_fcb), 1, file_fcb);
+        fread(&(fcb->tamanio_archivo), sizeof(int), 1, file_fcb);
+        fread(&(fcb->puntero_directo), sizeof(uint32_t), 1, file_fcb);
+        fread(&(fcb->puntero_indirecto), sizeof(uint32_t), 1, file_fcb);
         log_info(logger_main, "Abrir archivo: %s", fcb->nombre_archivo);
         fclose(file_fcb);
+        if(fcb != NULL)
+            free(fcb);
     }
     else
     {
-        create_file(fcb->nombre_archivo);
-        open_file(fcb->nombre_archivo); // CHEQUEAR recursivo pero no pasa naaaaaaaaaaaaaaaa
+        create_file(nombre);
+        open_file(nombre); // CHEQUEAR recursivo pero no pasa naaaaaaaaaaaaaaaa
     }
 
     free(ruta_Fcb);
     // free(fcb->nombre_archivo);
-    free(fcb);
     return 0; // CHEQUEAR no deberia salir mal nunca esto
 }
 
 int truncate_file(int nuevo_tamanio, char *nombre)
 {
-
     char *ruta_Fcb = malloc(strlen(config->path_fcb) + strlen(nombre) + 2);
     strcpy(ruta_Fcb, config->path_fcb);
     strcat(ruta_Fcb, "/");
@@ -506,8 +511,10 @@ int read_file(int puntero_archivo, char *nombre, int cant_bytes, int direccion_f
     }
 
     t_fcb *fcb = malloc(sizeof(t_fcb));
-    fcb->nombre_archivo = malloc(strlen(nombre) + 1);
-    fread(fcb, sizeof(t_fcb), 1, file_fcb);
+    fcb->nombre_archivo = string_duplicate(nombre);
+    fread(&(fcb->tamanio_archivo), sizeof(int), 1, file_fcb);
+    fread(&(fcb->puntero_directo), sizeof(uint32_t), 1, file_fcb);
+    fread(&(fcb->puntero_indirecto), sizeof(uint32_t), 1, file_fcb);
 
     void *stream = malloc(cant_bytes);
 
@@ -654,13 +661,13 @@ int write_file(int puntero_archivo, char *nombre, int cant_bytes, int direccion_
     strcat(ruta_Fcb, nombre);
     FILE *file_fcb = fopen(ruta_Fcb, "r");
     if (file_fcb == NULL)
-    {
         return 1;
-    }
 
     t_fcb *fcb = malloc(sizeof(t_fcb));
-    fcb->nombre_archivo = malloc(strlen(nombre) + 1);
-    fread(fcb, sizeof(t_fcb), 1, file_fcb);
+    fcb->nombre_archivo = string_duplicate(nombre);
+    fread(&(fcb->tamanio_archivo), sizeof(int), 1, file_fcb);
+    fread(&(fcb->puntero_directo), sizeof(uint32_t), 1, file_fcb);
+    fread(&(fcb->puntero_indirecto), sizeof(uint32_t), 1, file_fcb);
 
     t_info_read* info_read = malloc(sizeof(t_info_read));
     info_read->base_address = direccion_fisica;

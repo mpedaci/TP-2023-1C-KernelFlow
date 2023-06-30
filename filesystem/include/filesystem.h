@@ -4,8 +4,9 @@
 #include <stdlib.h> //agrego esta tmb pa el exit successs
 #include <utils.h> //agrego los utils
 #include <stdbool.h>
-#include <archivo.h>
-#include <handle_requests_kernel.h>
+
+#include "archivo.h"
+#include "handle_requests_kernel.h"
 #include "filesystem_server.h"
 
 //cambiar las rutas si uso la vm utnso

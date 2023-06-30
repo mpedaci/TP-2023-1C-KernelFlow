@@ -1,13 +1,13 @@
 #ifndef ARCHIVO_H
 #define ARCHIVO_H
 
-#include <utils.h>
 #include <fcntl.h>    //para la funcion open
 #include <sys/mman.h> //para el mmap
 #include <math.h>     // para el ceil
 #include <pthread.h>
 #include <sys/stat.h>
 
+#include "utils.h"
 #include "filesystem_vars.h"
 
 void initialize_filesystem();

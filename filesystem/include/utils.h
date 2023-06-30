@@ -7,6 +7,7 @@
 #include <commons/string.h>
 #include <client.h> //agregado
 #include <server.h> //agregado
+
 #include "types.h"
 #include "types_controllers.h"
 #include "archivo.h"
