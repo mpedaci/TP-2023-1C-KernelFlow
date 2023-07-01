@@ -65,8 +65,9 @@ dkms.conf
 *.log
 
 # FS
-*/fs
-*/fs/*
+*/fs/fcb
+*/fs/bitmap.dat
+*/fs/bloques.dat
 # Other
 .vscode
 .metadata
