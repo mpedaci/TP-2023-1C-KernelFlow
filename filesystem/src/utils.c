@@ -1,4 +1,4 @@
-#include <utils.h>
+#include "utils.h"
 
 t_config_filesystem *read_config(char *config_path, t_log *logger)
 {
@@ -21,7 +21,7 @@ t_config_filesystem *read_config(char *config_path, t_log *logger)
    filesystem_config->path_bloques = string_duplicate(config_get_string_value(config, "PATH_BLOQUES"));
    filesystem_config->path_fcb = string_duplicate(config_get_string_value(config, "PATH_FCB"));
 
-   filesystem_config->retardo_acceso_bloque = string_duplicate(config_get_string_value(config, "RETARDO_ACCESO_BLOQUE"));
+   filesystem_config->retardo_acceso_bloque = config_get_int_value(config, "RETARDO_ACCESO_BLOQUE");
 
    log_info(logger, "Archivo de configuración leído correctamente");
 
@@ -54,8 +54,5 @@ void end_program(t_log *logger_main, t_config_filesystem *config, t_log *logger_
    free(config->path_bloques);
    free(config->path_fcb);
    free(config->path_superbloque);
-   free(config->retardo_acceso_bloque);
    free(config);
-
-   end_filesystem();
 }

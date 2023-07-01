@@ -37,6 +37,7 @@ void pcb_destroy(t_pcb *pcb);
 void info_destroy(t_info *info);
 void info_write_destroy(t_info_write *info_write);
 void pid_status_destroy(t_pid_status *pid_status);
+void data_destroy(t_data *data);
 
 // TO STRING
 

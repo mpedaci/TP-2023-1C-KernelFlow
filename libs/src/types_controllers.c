@@ -16,7 +16,7 @@ t_pcontexto *pcontexto_create(t_pcb *pcb)
     pcontexto->pid = pcb->pid;
     pcontexto->program_counter = pcb->program_counter;
     pcontexto->registers = registers_create();
-    registers_duplicate(pcontexto->registers, pcb->registers);
+    registers_duplicate(pcb->registers, pcontexto->registers);
     pcontexto->instructions = lista_instrucciones_duplicate(pcb->instrucciones);
     pcontexto->segments = segment_list_duplicate(pcb->segments_table);
     return pcontexto;
@@ -180,7 +180,10 @@ void pcb_destroy(t_pcb *pcb)
     temporal_destroy(pcb->tiempo_llegada_ready);
     temporal_destroy(pcb->tiempo_entrada_cpu);
     temporal_destroy(pcb->tiempo_salida_cpu);
-    list_destroy(pcb->open_files_table);
+    if (list_size(pcb->open_files_table) > 0)
+        list_destroy_and_destroy_elements(pcb->open_files_table, free);
+    else
+        list_destroy(pcb->open_files_table);
     free(pcb);
 }
 
@@ -199,6 +202,12 @@ void info_write_destroy(t_info_write *info_write)
 void pid_status_destroy(t_pid_status *pid_status)
 {
     free(pid_status);
+}
+
+void data_destroy(t_data *data)
+{
+    free(data->value);
+    free(data);
 }
 
 // TO STRING

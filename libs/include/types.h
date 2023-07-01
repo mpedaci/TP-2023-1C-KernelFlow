@@ -18,6 +18,7 @@ typedef enum
     FILE_READ,
     FILE_TRUNCATED,
     FILE_WRITTEN,
+    FILE_NOT_EXISTS,
     SUCCESS,
     PROCESS_NEW,
     PROCESS_END,
@@ -147,7 +148,7 @@ typedef struct
 typedef struct
 {
     char *nombre_archivo;
-    int tamanio_archivo;
+    uint32_t tamanio_archivo;
     uint32_t puntero_directo;
     uint32_t puntero_indirecto;
 } t_fcb;

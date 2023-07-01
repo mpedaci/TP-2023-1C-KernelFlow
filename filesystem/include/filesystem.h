@@ -2,12 +2,13 @@
 #define FILESYSTEM_H
 #include <stdio.h>
 #include <stdlib.h> //agrego esta tmb pa el exit successs
-#include <utils.h> //agrego los utils
 #include <stdbool.h>
 
-#include "archivo.h"
+#include "utils.h" //agrego los utils
 #include "handle_requests_kernel.h"
 #include "filesystem_server.h"
+#include "filesystem_core.h"
+#include "filesystem_vars.h"
 
 //cambiar las rutas si uso la vm utnso
 

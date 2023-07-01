@@ -26,4 +26,4 @@ void iterator_print_instruction(t_instruccion *instruccion);
 
 void print_registers(t_registers *registers);
 
-#endif
+#endif /* CPU_H */

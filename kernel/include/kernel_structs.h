@@ -65,7 +65,7 @@ typedef struct
 typedef struct
 {
     t_recurso *archivo;
-    int puntero;
+    uint32_t puntero;
 } t_archivo_abierto;
 
 typedef struct

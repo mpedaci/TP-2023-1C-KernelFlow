@@ -10,7 +10,6 @@
 
 #include "types.h"
 #include "types_controllers.h"
-#include "archivo.h"
 #include "filesystem_vars.h"
 
 t_config_filesystem *read_config(char *path, t_log *logger);

@@ -164,4 +164,7 @@ void EXIT(t_pcb *pcb)
     t_pid_status *pid_status = pid_status_create(pcb->pid, PROCESS_END);
     send_pid_status(modules_client->memory_client_socket, pid_status, logger_aux);
     pid_status_destroy(pid_status);
+
+    // Libero recursos
+
 }

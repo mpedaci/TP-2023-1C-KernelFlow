@@ -35,6 +35,7 @@ void process_client(int client_socket, t_log *logger)
             copy_registers(cpu_registers, contexto->registers);
             t_pcontexto_desalojo *contexto_desalojo = execute_process(contexto);
             copy_registers(contexto_desalojo->registers, cpu_registers);
+            // print_registers(cpu_registers);
             bool res = send_pcontexto_desalojo(client_socket, contexto_desalojo, logger);
             pcontexto_desalojo_destroy(contexto_desalojo);
             pcontexto_destroy(contexto);
@@ -57,4 +58,68 @@ void process_client(int client_socket, t_log *logger)
         }
         package_destroy(package);
     }
+}
+
+void print_registers(t_registers *registers)
+{
+   for (int i = 0; i < 4; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->AX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 4; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->BX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 4; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->CX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 4; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->DX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 8; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->EAX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 8; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->EBX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 8; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->ECX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 8; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->EDX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 16; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->RAX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 16; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->RBX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 16; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->RCX + i));
+   }
+   printf("\n");
+   for (int i = 0; i < 16; i++)
+   {
+      printf("%c", *(char *)(cpu_registers->RDX + i));
+   }
+   printf("\n");
 }

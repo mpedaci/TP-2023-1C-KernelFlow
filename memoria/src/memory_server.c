@@ -49,7 +49,8 @@ void end_memory_server()
     accept_connections = false;
     pthread_join(thr_server_conn, NULL);
     pthread_join(thr_server, NULL);
-    socket_destroy(server_socket);
+    if (server_socket != -1)
+        socket_destroy(server_socket);
     log_info(logger_aux, "Thread Memory Server: finalizado");
 }
 
@@ -67,12 +68,12 @@ void *process_client_entry(void *ptr)
         break;
     case HSCPU:
         log_info(logger_aux, "Thread Memory Client: Se conecto el modulo CPU");
-        cpu_operations(conn->socket);
+        cpu_fs_operations(conn->socket, "CPU");
         log_info(logger_aux, "Thread Memory Client: Se desconectara el modulo CPU");
         break;
     case HSFS:
         log_info(logger_aux, "Thread Memory Client: Se conecto el modulo File System");
-        fs_operations(conn->socket);
+        cpu_fs_operations(conn->socket, "Filesystem");
         log_info(logger_aux, "Thread Memory Client: Se desconectara el modulo File System");
         break;
     default:
