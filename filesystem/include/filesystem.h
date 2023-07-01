@@ -11,9 +11,9 @@
 
 //cambiar las rutas si uso la vm utnso
 
-char *config_path = "./config/filesystem.config";
-char *logger_main_path = "./logs/filesystem.log";;
-char *logger_aux_path = "./logs/filesystem_aux.log";
+char *config_path = "/home/meli/Escritorio/tp-2023-1c-KernelFlow/filesystem/config/filesystem.config";
+char *logger_main_path = "/home/meli/Escritorio/tp-2023-1c-KernelFlow/filesystem/logs/filesystem.log";
+char *logger_aux_path = "/home/meli/Escritorio/tp-2023-1c-KernelFlow/filesystem/logs/filesystem_aux.log";
 
 int main();
 
