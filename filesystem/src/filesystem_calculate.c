@@ -56,8 +56,6 @@ uint32_t *obtenerPunterosIndirectos(t_fcb *fcb)
         punterosIndirectos[i] = pIndirecto;
         i++;
     }
-    for (int i = 0; i < get_cpb(); i++)
-        log_info(logger_main, "Puntero Indirecto %d: %d", i, punterosIndirectos[i]);
     sleep(config_fs->retardo_acceso_bloque / 1000);
     return punterosIndirectos;
 }
