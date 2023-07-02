@@ -243,11 +243,6 @@ bool checkear_seg_fault(t_instruccion *instruction, t_list *segments) {
     int desplazamiento = get_desplazamiento_segmento(list_get(instruction->parametros, 1));
     int tamanio_a_leer_escribir = atoi((char*)list_get(instruction->parametros, 2));
 
-    printf("P1: %s\n", (char*)list_get(instruction->parametros, 1));
-    printf("num_seg: %d\n", num_seg);
-    printf("desplazamiento: %d\n", desplazamiento);
-    printf("tamanio_a_leer_escribir: %d\n", tamanio_a_leer_escribir);
-
     bool res = (tamanio_a_leer_escribir + desplazamiento) > segment->size;
 
     if(res) {

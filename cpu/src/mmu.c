@@ -12,14 +12,6 @@ int get_desplazamiento_segmento(char *dir_logica)
     return atoi(dir_logica) % tam_max_segmento;
 }
 
-/* char *get_direccion_logica(char *dir_fisica)
-{
-    int tam_max_segmento = atoi(config->tam_max_segmento);
-    int num_segmento = atoi(dir_fisica) / tam_max_segmento;
-    int desplazamiento = atoi(dir_fisica) % tam_max_segmento;
-    return num_segmento * tam_max_segmento + desplazamiento;
-} */
-
 char *get_direccion_fisica(char *dir_logica, t_list *segments)
 {
     int num_segmento = get_num_segmento(dir_logica);
