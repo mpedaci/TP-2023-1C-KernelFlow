@@ -9,6 +9,7 @@ void start_kernel_core()
     all_pcb_create();
     queues_create();
     pthread_mutex_init(&mutex_NEW_to_READY, NULL);
+    pthread_mutex_init(&mutex_fs_connection, NULL);
     pthread_create(&thr_core, 0, process_queues, NULL);
 }
 
@@ -24,6 +25,7 @@ void end_kernel_core()
     archives_destroy();
     recursos_destroy();
     pthread_mutex_destroy(&mutex_NEW_to_READY);
+    pthread_mutex_destroy(&mutex_fs_connection);
     log_info(logger_aux, "Thread Kernel Core: finalizado");
 }
 

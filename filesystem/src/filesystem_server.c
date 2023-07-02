@@ -34,7 +34,6 @@ void process_client(int client_socket)
         case INSTRUCCION:
             t_instruccion *instruccion = get_instruccion(package);
             handle_instruccion(instruccion, client_socket);
-            instruccion_destroy(instruccion);
             break;
         case END:
             log_warning(logger_aux, "Conexion Finalizada");
@@ -51,59 +50,74 @@ void process_client(int client_socket)
 
 void handle_instruccion(t_instruccion *instruccion, int client_socket)
 {
-    char *nombre = NULL;
-    int response = -1;
-    int puntero_archivo = -1;
-    int cant_bytes = -1;
-    int direccion_fisica = -1;
     switch (instruccion->identificador)
     {
     case I_F_OPEN:
         log_info(logger_aux, "Se recibio una instruccion de abrir archivo");
-        nombre = (char*)list_get(instruccion->parametros, 0);
-        response = open_file(nombre);
-        if (response)
+        char *nombre = (char*)list_get(instruccion->parametros, 0);
+        if (open_file(nombre))
             send_status_code(client_socket, FILE_OPEN, logger_aux);
         else
             send_status_code(client_socket, ERROR, logger_aux);
+        instruccion_destroy(instruccion);
         break;
     case I_F_READ:
-        log_info(logger_aux, "Se recibio una instruccion de leer archivo");
-        nombre = list_get(instruccion->parametros, 0);
-        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 1));
-        cant_bytes = atoi((char*)list_get(instruccion->parametros, 2));
-        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 3));
-        response = read_file(nombre, puntero_archivo, cant_bytes, direccion_fisica);
-        if (response)
-            send_status_code(client_socket, FILE_READ, logger_aux);
-        else
-            send_status_code(client_socket, ERROR, logger_aux);
-        break;
     case I_F_WRITE:
-        log_info(logger_aux, "Se recibio una instruccion de escribir archivo");
-        nombre = (char*)list_get(instruccion->parametros, 0);
-        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 1));
-        cant_bytes = atoi((char*)list_get(instruccion->parametros, 2));
-        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 3));
-        response = write_file(nombre, puntero_archivo, cant_bytes, direccion_fisica);
-        if (response)
-            send_status_code(client_socket, FILE_WRITTEN, logger_aux);
-        else
-            send_status_code(client_socket, ERROR, logger_aux);
-        break;
     case I_F_TRUNCATE:
-        log_info(logger_aux, "Se recibio una instruccion de truncar archivo");
-        nombre = list_get(instruccion->parametros, 0);
-        int nuevo_tamanio = atoi((char*)list_get(instruccion->parametros, 1));
-        response = truncate_file(nombre, nuevo_tamanio);
-        if (response)
-            send_status_code(client_socket, FILE_TRUNCATED, logger_aux);
-        else 
-            send_status_code(client_socket, FILE_NOT_EXISTS, logger_aux);
+        log_info(logger_aux, "Se recibio una instruccion de leer/escribir/truncar archivo");
+        t_inst_client *ic = malloc(sizeof(t_inst_client));
+        ic->instruccion = instruccion;
+        ic->client_socket = client_socket;
+        process_request_async(ic);
         break;
     default:
         log_warning(logger_aux, "Instruccion desconocida.");
         send_status_code(client_socket, ERROR, logger_aux);
         break;
     }
+}
+
+void process_request_async(t_inst_client *icr)
+{
+    t_instruccion *instruccion = icr->instruccion;
+    int client_socket = icr->client_socket;
+    char *nombre = (char *)list_get(instruccion->parametros, 0);
+    int puntero_archivo = -1;
+    int cant_bytes = -1;
+    int direccion_fisica = -1;
+    switch (instruccion->identificador)
+    {
+    case I_F_READ:
+        log_info(logger_aux, "Se recibio una instruccion de leer archivo");
+        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 1));
+        cant_bytes = atoi((char*)list_get(instruccion->parametros, 2));
+        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 3));
+        if (read_file(nombre, puntero_archivo, cant_bytes, direccion_fisica))
+            send_status_code(client_socket, FILE_READ, logger_aux);
+        else
+            send_status_code(client_socket, FILE_NOT_EXISTS, logger_aux);
+        break;
+    case I_F_WRITE:
+        log_info(logger_aux, "Se recibio una instruccion de escribir archivo");
+        direccion_fisica = atoi((char*)list_get(instruccion->parametros, 1));
+        cant_bytes = atoi((char*)list_get(instruccion->parametros, 2));
+        puntero_archivo = atoi((char*)list_get(instruccion->parametros, 3));
+        if (write_file(nombre, puntero_archivo, cant_bytes, direccion_fisica))
+            send_status_code(client_socket, FILE_WRITTEN, logger_aux);
+        else
+            send_status_code(client_socket, ERROR, logger_aux);
+        break;
+    case I_F_TRUNCATE:
+        log_info(logger_aux, "Se recibio una instruccion de truncar archivo");
+        int nuevo_tamanio = atoi((char*)list_get(instruccion->parametros, 1));
+        if (truncate_file(nombre, nuevo_tamanio))
+            send_status_code(client_socket, FILE_TRUNCATED, logger_aux);
+        else 
+            send_status_code(client_socket, FILE_NOT_EXISTS, logger_aux);
+        break;
+    default:
+        break;
+    }
+    instruccion_destroy(instruccion);
+    free(icr);
 }

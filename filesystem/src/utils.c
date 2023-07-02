@@ -42,7 +42,7 @@ int start_memory_client(char *ip, char *port, t_log *logger)
 
 void end_program(t_log *logger_main, t_config_filesystem *config, t_log *logger_aux)
 {
-   log_info(logger_aux, "Finalizando programa");
+   log_info(logger_aux, "Finalizando programa"); 
    // Logs destroy
    log_destroy(logger_main);
    log_destroy(logger_aux);

@@ -127,6 +127,7 @@ bool truncate_file(char *nombre, int nuevo_tamanio)
 bool read_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion_fisica)
 {
     int cant_bytes_inicial = cant_bytes;
+    bool status = true;
     t_fcb *fcb = load_fcb(nombre);
     if (fcb == NULL)
         return false;
@@ -156,9 +157,7 @@ bool read_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion_
     int cant_bytes_a_leer = 0;
 
     if (fcb->puntero_indirecto != 0)
-    {
         punterosIndirectos = obtenerPunterosIndirectos(fcb);
-    }
 
     if (numero_de_bloque_inicial == 0)
     {
@@ -231,37 +230,38 @@ bool read_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion_
 
     bool res = send_info_write(memory_socket, info_write, logger_aux);
     if (!res)
-        log_error(logger_aux, "No se pudo enviar el info de F_READ a memoria");
-
-    info_write_destroy(info_write);
-
-    t_package *package = get_package(memory_socket, logger_aux);
-
-    t_status_code status_code;
-    if (package->operation_code == STATUS_CODE)
     {
-        status_code = get_status_code(package);
-        if (status_code == SUCCESS)
-        {
-            log_info(logger_aux, "Se pudo escribir en memoria en el F_READ");
-        }
-        else
-        {
-            log_error(logger_aux, "No se pudo escribir en memoria en el F_READ");
-        }
+        log_error(logger_aux, "No se pudo enviar el info de F_READ a memoria");
+        status = false;
     }
     else
     {
-        log_error(logger_aux, "No se pudo obtener el OK de memoria en el F_READ");
+        t_package *package = get_package(memory_socket, logger_aux);
+        t_status_code status_code;
+        if (package->operation_code == STATUS_CODE)
+        {
+            status_code = get_status_code(package);
+            if (status_code == SUCCESS)
+                log_info(logger_aux, "Se pudo escribir en memoria en el F_READ");
+            else
+            {
+                log_error(logger_aux, "No se pudo escribir en memoria en el F_READ");
+                status = false;
+            }
+        }
+        else
+        {
+            log_error(logger_aux, "No se pudo obtener el OK de memoria en el F_READ");
+            status = false;
+        }
+        package_destroy(package);
     }
-
-    package_destroy(package);
-
+    info_write_destroy(info_write);
     free(stream);
     free(punterosIndirectos);
     free(fcb->nombre_archivo);
     free(fcb);
-    return true;
+    return status;
 }
 
 bool write_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion_fisica)

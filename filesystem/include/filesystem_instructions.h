@@ -1,6 +1,8 @@
 #ifndef FILESYSTEM_INSTRUCTIONS_H
 #define FILESYSTEM_INSTRUCTIONS_H
 
+#include <pthread.h>
+
 #include <commons/config.h>
 #include <commons/bitarray.h>
 

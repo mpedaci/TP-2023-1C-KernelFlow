@@ -38,25 +38,6 @@ bool initialize_filesystem()
         log_error(logger_main, "No se pudo cargar el archivo de bloques");
         return false;
     }
-
-    // create_file("pruebaA");
-    // create_file("pruebaB");
-    // create_file("pruebaC");
-    // create_file("pruebaD");
-
-    // truncate_file(68, "pruebaA");
-    // save_bitmap();
-    // printf("HOLA\n");
-    // truncate_file(50, "pruebaB");
-    // truncate_file(12, "pruebaC");
-    // truncate_file(64, "pruebaD");
-
-    // write_file("pruebaA", 0, 69, -1);
-    
-    // read_file("pruebaA", 0, 68, -1);
-
-    // msync(blocks, get_blocks_size(), MS_SYNC);
-    
     return true;
 }
 

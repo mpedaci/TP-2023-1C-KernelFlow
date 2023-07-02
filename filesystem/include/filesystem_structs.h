@@ -18,5 +18,11 @@ typedef struct
     int retardo_acceso_bloque;
 } t_config_filesystem;
 
+typedef struct
+{
+    t_instruccion *instruccion;
+    int client_socket;
+} t_inst_client;
+
 #endif /* FILESYSTEM_STRUCTS_H */
 

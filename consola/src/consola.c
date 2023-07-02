@@ -6,14 +6,14 @@ int main(int argc, char **argv)
     logger_console = log_create(logger_console_path, "Consola", 1, LOG_LEVEL_DEBUG);
 
     // leer configuracion
-    char *path_console_config = "./config/console.config";
-    // char *path_console_config = argv[1];
+    // char *path_console_config = "./config/console.config";
+    char *path_console_config = argv[1];
     t_config_console *config = NULL;
     config = read_config(path_console_config, logger_console);
 
     // abro archivo de instrucciones
-    char *path_pseudocodigo = "./pseudocodigo.txt";
-    // char *path_pseudocodigo = argv[2];
+    // char *path_pseudocodigo = "./pseudocodigo.txt";
+    char *path_pseudocodigo = argv[2];
     FILE *file_instructions = fopen(path_pseudocodigo, "rt");
 
     if (config == NULL || logger_console == NULL)

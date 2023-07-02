@@ -4,5 +4,5 @@ mkdir -p logs
 make clean
 make
 if test -f "./$FILE"; then
-    ./$FILE
+    ./$FILE ./config/console.config $1
 fi

@@ -89,48 +89,52 @@ bool execute_exit(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
 
 bool execute_fwrite(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
 {
-    t_instruccion *instruccion = pcontexto_desalojo->motivo_desalojo;
+    t_instruccion *instruccion = instruccion_duplicate(pcontexto_desalojo->motivo_desalojo);
     char *archivo = list_get(instruccion->parametros, 0);
-    int direccion = atoi(list_get(instruccion->parametros, 1));
-    int tamanio = atoi(list_get(instruccion->parametros, 2));
     t_archivo_abierto *archivo_abierto = buscar_archivo_abierto(pcb, archivo);
-    pthread_mutex_lock(&archivo_abierto->archivo->mutex);
+    // Agrego informacion a la instruccion
     char puntero[16];
-    sprintf(puntero,"%u", archivo_abierto->puntero);
+    sprintf(puntero, "%u", archivo_abierto->puntero);
     list_add(instruccion->parametros, puntero);
     instruccion->p_length[3] = strlen(puntero) + 1;
-    instruccion->cant_parametros++; // CHEQUEAR (se podria hacer una funcion para agregar params a la instruccion para no hacerlo manualmente)
-    send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
-    log_info(logger_main, "PID: %d - Escribir Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, archivo_abierto->puntero, direccion, tamanio);
-    t_pcb_file_status *arg = malloc(sizeof(t_pcb_file_status));
+    instruccion->cant_parametros++;
+    // Armo la tarea para el hilo
+    t_pcb_inst_status *arg = malloc(sizeof(t_pcb_inst_status));
     arg->pcb = pcb;
-    arg->archivo = archivo_abierto->archivo;
+    arg->instruccion = instruccion;
     arg->status_expected = FILE_WRITTEN;
+    // Genero el hilo de trabajo
     pthread_create(&thr_file, 0, file_processing, (void *)arg);
+    log_info(logger_main,
+             "PID: %d - Escribir Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d",
+             pcb->pid, archivo, archivo_abierto->puntero, atoi(list_get(instruccion->parametros, 1)), atoi(list_get(instruccion->parametros, 2)));
+
     pcb->next_queue = QBLOCK;
     return false;
 }
 
 bool execute_fread(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
 {
-    t_instruccion *instruccion = pcontexto_desalojo->motivo_desalojo;
+    t_instruccion *instruccion = instruccion_duplicate(pcontexto_desalojo->motivo_desalojo);
     char *archivo = list_get(instruccion->parametros, 0);
-    int direccion = atoi(list_get(instruccion->parametros, 1));
-    int tamanio = atoi(list_get(instruccion->parametros, 2));
     t_archivo_abierto *archivo_abierto = buscar_archivo_abierto(pcb, archivo);
-    pthread_mutex_lock(&archivo_abierto->archivo->mutex);
+    // Agrego informacion a la instruccion
     char puntero[16];
-    sprintf(puntero,"%u", archivo_abierto->puntero);
+    sprintf(puntero, "%u", archivo_abierto->puntero);
     list_add(instruccion->parametros, puntero);
     instruccion->p_length[3] = strlen(puntero) + 1;
-    instruccion->cant_parametros++; // CHEQUEAR (se podria hacer una funcion para agregar params a la instruccion para no hacerlo manualmente)
-    send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
-    log_info(logger_main, "PID: %d - Leer Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d", pcb->pid, archivo, archivo_abierto->puntero, direccion, tamanio);
-    t_pcb_file_status *arg = malloc(sizeof(t_pcb_file_status));
+    instruccion->cant_parametros++;
+    // Armo la tarea para el hilo
+    t_pcb_inst_status *arg = malloc(sizeof(t_pcb_inst_status));
     arg->pcb = pcb;
-    arg->archivo = archivo_abierto->archivo;
+    arg->instruccion = instruccion;
     arg->status_expected = FILE_READ;
+    // Genero el hilo de trabajo
     pthread_create(&thr_file, 0, file_processing, (void *)arg);
+    log_info(logger_main,
+             "PID: %d - Leer Archivo: %s - Puntero: %d - Direccion Memoria: %d - Tamanio: %d",
+             pcb->pid, archivo, archivo_abierto->puntero, atoi(list_get(instruccion->parametros, 1)), atoi(list_get(instruccion->parametros, 2)));
+
     pcb->next_queue = QBLOCK;
     return false;
 }
@@ -143,8 +147,10 @@ bool execute_fopen(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
     t_recurso *archivo = buscar_archivo(nombre_archivo);
     if (archivo == NULL)
     {
+        pthread_mutex_lock(&mutex_fs_connection);
         send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
         t_package *package = get_package(modules_client->filesystem_client_socket, logger_aux);
+        pthread_mutex_unlock(&mutex_fs_connection);
         switch (package->operation_code)
         {
         case STATUS_CODE:
@@ -264,50 +270,62 @@ bool execute_fseek(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
 
 bool execute_ftruncate(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
 {
-    t_instruccion *instruccion = pcontexto_desalojo->motivo_desalojo;
-    char *nombre_archivo = list_get(instruccion->parametros, 0);
-    int tamanio = atoi(list_get(instruccion->parametros, 1));
-    t_recurso *archivo = buscar_archivo(nombre_archivo);
-    send_instruccion(modules_client->filesystem_client_socket, instruccion, logger_aux);
-    log_info(logger_main, "PID: %d - Truncar Archivo: %s - Tamanio: %d", pcb->pid, nombre_archivo, tamanio);
-    t_pcb_file_status *arg = malloc(sizeof(t_pcb_file_status));
+    t_instruccion *instruccion = instruccion_duplicate(pcontexto_desalojo->motivo_desalojo);
+    char *archivo = list_get(instruccion->parametros, 0);
+    // Armo la tarea para el hilo
+    t_pcb_inst_status *arg = malloc(sizeof(t_pcb_inst_status));
     arg->pcb = pcb;
-    arg->archivo = archivo;
+    arg->instruccion = instruccion;
     arg->status_expected = FILE_TRUNCATED;
+    // Genero el hilo de trabajo
     pthread_create(&thr_file, 0, file_processing, (void *)arg);
+    log_info(logger_main,
+             "PID: %d - Truncar Archivo: %s - Tamanio: %d",
+             pcb->pid, archivo, atoi(list_get(instruccion->parametros, 1)));
+
     pcb->next_queue = QBLOCK;
     return false;
 }
 
 void *file_processing(void *args)
 {
-    t_pcb_file_status *pcb_file_status = (t_pcb_file_status *)args;
-    t_package *package = get_package(modules_client->filesystem_client_socket, logger_aux);
-    if (pcb_file_status->status_expected == FILE_WRITTEN || pcb_file_status->status_expected == FILE_READ)
-        pthread_mutex_unlock(&pcb_file_status->archivo->mutex);
-    switch (package->operation_code)
+    t_pcb_inst_status *pcb_inst_status = (t_pcb_inst_status *)args;
+    bool finish = false;
+    while (!finish && !end_program_flag)
     {
-    case STATUS_CODE:
-        t_status_code code = get_status_code(package);
-        if (code == pcb_file_status->status_expected)
+        if (!compactation_flag)
         {
-            move_pcb_from_to(pcb_file_status->pcb, QBLOCK, QREADY);
+            if (!pthread_mutex_trylock(&mutex_fs_connection)) // Si entra es que tomo el mutex
+            {
+                send_instruccion(modules_client->filesystem_client_socket, pcb_inst_status->instruccion, logger_aux);
+                t_package *package = get_package(modules_client->filesystem_client_socket, logger_aux);
+                pthread_mutex_unlock(&mutex_fs_connection);
+                switch (package->operation_code)
+                {
+                case STATUS_CODE:
+                    t_status_code code = get_status_code(package);
+                    if (code == pcb_inst_status->status_expected)
+                        move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QREADY);
+                    else
+                    {
+                        pcb_inst_status->pcb->exit_status = code;
+                        move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QEXIT);
+                        EXIT(pcb_inst_status->pcb);
+                    }
+                    break;
+                default:
+                    pcb_inst_status->pcb->exit_status = ERROR;
+                    move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QEXIT);
+                    EXIT(pcb_inst_status->pcb);
+                    break;
+                }
+                package_destroy(package);
+                finish = true;
+            }
         }
-        else
-        {
-            pcb_file_status->pcb->exit_status = code;
-            move_pcb_from_to(pcb_file_status->pcb, QBLOCK, QEXIT);
-            EXIT(pcb_file_status->pcb);
-        }
-        break;
-    default:
-        pcb_file_status->pcb->exit_status = ERROR;
-        move_pcb_from_to(pcb_file_status->pcb, QBLOCK, QEXIT);
-        EXIT(pcb_file_status->pcb);
-        break;
     }
-    package_destroy(package);
-    free(pcb_file_status);
+    instruccion_destroy(pcb_inst_status->instruccion);
+    free(pcb_inst_status);
     pthread_exit(0);
 }
 
@@ -385,8 +403,9 @@ bool execute_delete_segment(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo
 
 void compactar()
 {
+    compactation_flag = true;
     log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
-    block_all_archives();
+    pthread_mutex_lock(&mutex_fs_connection); // Prohibo la comunicacion con FS
     log_info(logger_main, "Compactacion: Se solicito compactacion");
     send_compactar(modules_client->memory_client_socket, logger_aux);
     t_package *package = get_package(modules_client->memory_client_socket, logger_aux);
@@ -404,5 +423,6 @@ void compactar()
         break;
     }
     package_destroy(package);
-    unblock_all_archives();
+    pthread_mutex_unlock(&mutex_fs_connection); // Habilito la comunicacion con FS
+    compactation_flag = false;
 }

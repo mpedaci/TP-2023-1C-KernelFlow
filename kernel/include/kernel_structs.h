@@ -77,9 +77,9 @@ typedef struct
 typedef struct 
 {
     t_pcb *pcb;
-    t_recurso *archivo;
+    t_instruccion *instruccion;
     t_status_code status_expected;
-} t_pcb_file_status;
+} t_pcb_inst_status;
 
 
 #endif /* KERNEL_STRUCTS_H */

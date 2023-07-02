@@ -68,6 +68,8 @@ void EXEC(t_pcb *pcb, bool is_second_execution)
         {
             log_error(logger_aux, "PID: %d | Error al recibir respuesta de CPU", pcb->pid);
             pcb->exit_status = ERROR;
+            pcb->next_queue = QEXIT;
+            move_pcb_from_to(pcb, QEXEC, QEXIT);
             EXIT(pcb);
         }
     }
@@ -166,5 +168,26 @@ void EXIT(t_pcb *pcb)
     pid_status_destroy(pid_status);
 
     // Libero recursos
-
+    if (list_size(pcb->open_files_table) > 0)
+    {
+        for (int i = 0; i < list_size(pcb->open_files_table); i++)
+        {
+            t_archivo_abierto *archivo_abierto = list_get(pcb->open_files_table, i);
+            archivo_abierto->archivo->instancias++;
+            log_info(logger_main, "PID: %d - Cerrar Archivo: %s", pcb->pid, archivo_abierto->archivo->recurso);
+            if (archivo_abierto->archivo->instancias > 0)
+            {
+                list_remove_element(archivos_abiertos, archivo_abierto->archivo);
+                recurso_destroy(archivo_abierto->archivo);
+            }
+            else
+            {
+                t_pcb *pendiente = remove_pcb_from_queue_resourse(archivo_abierto->archivo);
+                move_pcb_from_to(pendiente, QBLOCK, QREADY);
+            }
+            free(archivo_abierto);
+        }
+        list_destroy(pcb->open_files_table);
+        pcb->open_files_table = list_create();
+    }
 }

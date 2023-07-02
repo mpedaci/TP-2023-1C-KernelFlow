@@ -22,6 +22,7 @@ pthread_t thr_core;
 pthread_mutex_t mutex_NEW_to_READY;
 
 bool core_running = true;
+bool compactation_flag = false;
 
 t_list *all_pcb = NULL; 
 
@@ -34,5 +35,6 @@ t_list *archivos_abiertos = NULL;
 // IO
 pthread_t thr_io;
 
-// Archivos
+// Archivos en FS
 pthread_t thr_file;
+pthread_mutex_t mutex_fs_connection;

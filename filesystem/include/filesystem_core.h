@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <pthread.h>
 
 #include <commons/config.h>
 #include <commons/string.h>

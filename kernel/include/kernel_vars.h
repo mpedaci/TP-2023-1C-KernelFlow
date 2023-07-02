@@ -31,6 +31,7 @@ extern pthread_t thr_core;
 extern pthread_mutex_t mutex_NEW_to_READY;
 
 extern bool core_running;
+extern bool compactation_flag;
 
 extern t_list *all_pcb;
 
@@ -43,7 +44,8 @@ extern t_list *archivos_abiertos;
 // IO
 extern pthread_t thr_io;
 
-// Archivos
+// Archivos en FS
 extern pthread_t thr_file;
+extern pthread_mutex_t mutex_fs_connection;
 
 #endif /* KERNEL_VARS_H */

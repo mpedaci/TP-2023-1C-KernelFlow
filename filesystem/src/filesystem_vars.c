@@ -15,4 +15,4 @@ void *blocks = NULL;
 int bitmap_file = -1;
 int blocks_file = -1;
 
-pthread_t crear_y_manejar_blocks;
+pthread_t thr_requestAsync;

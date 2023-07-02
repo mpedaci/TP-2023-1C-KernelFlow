@@ -28,6 +28,7 @@ int main()
     start_filesystem_server();
     send_end(memory_socket, logger_aux);
     // terminar programa
+    pthread_join(thr_requestAsync, NULL);
     end_filesystem();
     end_program(logger_main, config_fs, logger_aux);
 
