@@ -41,6 +41,11 @@ void *start_server_listen(void *listen_port)
                 free(connection_info);
             }
         }
+        if (fs_connected && cpu_connected && kernel_connected)
+        {
+            accept_connections = false;
+            log_info(logger_aux, "Thread Memory Server: Se conectaron todos los modulos");
+        }
     }
     pthread_exit(0);
 }
