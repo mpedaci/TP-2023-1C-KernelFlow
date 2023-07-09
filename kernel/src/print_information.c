@@ -266,6 +266,8 @@ void print_internal_states()
     printf("Puede ejecutar proceso: %d\n", can_execute_process());
     printf("Aceptar conexiones consola: %d\n", accept_connections);
     printf("Nucleo kernel estado: %d\n", core_running);
+    printf("Solicitud de compactar: %d\n", compactation_flag);
+    printf("FS bloqueado: %d\n", fs_blocked);
 }
 
 void print_status_recursos()

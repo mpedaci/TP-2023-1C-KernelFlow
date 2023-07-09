@@ -10,6 +10,7 @@ void kernel_operations(int client_socket)
         switch (package->operation_code)
         {
         case COMPACTAR:
+            log_info(logger_main, "Solicitud de Compactacion");
             compact_memory();
             log_info(logger_main, "RESULTADO DE LA COMPACTACION");
             print_all_segments_tables();
@@ -73,7 +74,7 @@ void handle_kernel_pid_instruction(int client_socket, t_pid_instruccion *pidtruc
                 else
                 {
                     // COMPACTATION REQUIRED
-                    log_info(logger_main, "Solicitud de Compactacion");
+                    log_info(logger_main, "Se envio una solicitud de compactacion");
                     send_status_code(client_socket, COMPACTATION_REQUIRED, logger_aux);
                 }
                 free(segment);

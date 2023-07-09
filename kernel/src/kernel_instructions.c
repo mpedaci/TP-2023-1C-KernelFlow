@@ -110,6 +110,7 @@ bool execute_fwrite(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
              pcb->pid, archivo, archivo_abierto->puntero, atoi(list_get(instruccion->parametros, 1)), atoi(list_get(instruccion->parametros, 2)));
 
     pcb->next_queue = QBLOCK;
+    log_info(logger_main, "PID: %d - Bloqueado por: %s", pcb->pid, archivo);
     return false;
 }
 
@@ -136,6 +137,7 @@ bool execute_fread(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
              pcb->pid, archivo, archivo_abierto->puntero, atoi(list_get(instruccion->parametros, 1)), atoi(list_get(instruccion->parametros, 2)));
 
     pcb->next_queue = QBLOCK;
+    log_info(logger_main, "PID: %d - Bloqueado por: %s", pcb->pid, archivo);
     return false;
 }
 
@@ -284,6 +286,7 @@ bool execute_ftruncate(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
              pcb->pid, archivo, atoi(list_get(instruccion->parametros, 1)));
 
     pcb->next_queue = QBLOCK;
+    log_info(logger_main, "PID: %d - Bloqueado por: %s", pcb->pid, archivo);
     return false;
 }
 
@@ -295,35 +298,38 @@ void *file_processing(void *args)
     {
         if (!compactation_flag)
         {
-            if (!pthread_mutex_trylock(&mutex_fs_connection)) // Si entra es que tomo el mutex
+            pthread_mutex_lock(&mutex_fs_connection);
+            log_warning(logger_aux, "PID: %d - file_processing - Mutex FS lock", pcb_inst_status->pcb->pid);
+            send_instruccion(modules_client->filesystem_client_socket, pcb_inst_status->instruccion, logger_aux);
+            t_package *package = get_package(modules_client->filesystem_client_socket, logger_aux);
+            log_warning(logger_aux, "PID: %d - file_processing - Mutex FS unlock", pcb_inst_status->pcb->pid);
+            pthread_mutex_unlock(&mutex_fs_connection);
+            switch (package->operation_code)
             {
-                send_instruccion(modules_client->filesystem_client_socket, pcb_inst_status->instruccion, logger_aux);
-                t_package *package = get_package(modules_client->filesystem_client_socket, logger_aux);
-                pthread_mutex_unlock(&mutex_fs_connection);
-                switch (package->operation_code)
-                {
-                case STATUS_CODE:
-                    t_status_code code = get_status_code(package);
-                    if (code == pcb_inst_status->status_expected)
-                        move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QREADY);
-                    else
+            case STATUS_CODE:
+                t_status_code code = get_status_code(package);
+                if (code == pcb_inst_status->status_expected)
+                    move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QREADY);
+                else
                     {
                         pcb_inst_status->pcb->exit_status = code;
                         move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QEXIT);
                         EXIT(pcb_inst_status->pcb);
                     }
-                    break;
-                default:
-                    pcb_inst_status->pcb->exit_status = ERROR;
-                    move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QEXIT);
-                    EXIT(pcb_inst_status->pcb);
-                    break;
-                }
-                package_destroy(package);
-                finish = true;
+                break;
+            default:
+                pcb_inst_status->pcb->exit_status = ERROR;
+                move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QEXIT);
+                EXIT(pcb_inst_status->pcb);
+                break;
             }
+            package_destroy(package);
+            finish = true;
         }
+        sleep(1);
     }
+    if (pcb_inst_status->instruccion->identificador == I_F_READ || pcb_inst_status->instruccion->identificador == I_F_WRITE)
+        list_remove(pcb_inst_status->instruccion->parametros, 3);
     instruccion_destroy(pcb_inst_status->instruccion);
     free(pcb_inst_status);
     pthread_exit(0);
@@ -413,6 +419,7 @@ void compactar()
     compactation_flag = true;
     log_info(logger_main, "Compactacion: Esperando Fin de Operacion de FS");
     pthread_mutex_lock(&mutex_fs_connection); // Prohibo la comunicacion con FS
+    fs_blocked = true;
     log_info(logger_main, "Compactacion: Se solicito compactacion");
     send_compactar(modules_client->memory_client_socket, logger_aux);
     t_package *package = get_package(modules_client->memory_client_socket, logger_aux);

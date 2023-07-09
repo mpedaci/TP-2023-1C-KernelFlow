@@ -23,6 +23,7 @@ void end_filesystem()
 
 bool initialize_filesystem()
 {
+    create_fcb_dir();
     if (!load_superbloque())
     {
         log_error(logger_main, "No se pudo cargar el superbloque");
@@ -39,6 +40,11 @@ bool initialize_filesystem()
         return false;
     }
     return true;
+}
+
+void create_fcb_dir()
+{
+    mkdir(config_fs->path_fcb, 0777);
 }
 
 bool load_superbloque()

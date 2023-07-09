@@ -32,6 +32,7 @@ extern pthread_mutex_t mutex_NEW_to_READY;
 
 extern bool core_running;
 extern bool compactation_flag;
+extern bool fs_blocked;
 
 extern t_list *all_pcb;
 

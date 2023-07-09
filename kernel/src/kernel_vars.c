@@ -23,6 +23,7 @@ pthread_mutex_t mutex_NEW_to_READY;
 
 bool core_running = true;
 bool compactation_flag = false;
+bool fs_blocked = false;
 
 t_list *all_pcb = NULL; 
 

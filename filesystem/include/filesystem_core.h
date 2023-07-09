@@ -22,6 +22,7 @@
 
 void end_filesystem();
 bool initialize_filesystem();
+void create_fcb_dir();
 bool load_superbloque();
 t_fcb *load_fcb(char *filename);
 void update_fcb(t_fcb *fcb);
