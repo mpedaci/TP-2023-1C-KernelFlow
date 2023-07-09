@@ -23,6 +23,13 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    if (file_instructions == NULL)
+    {
+        log_error(logger_console, "No se pudo abrir el archivo de instrucciones");
+        end_program(logger_console, config, file_instructions);
+        return EXIT_FAILURE;
+    }
+
     log_debug(logger_console, "Consola iniciada");
 
     // parsear archivo pseudocodigo
