@@ -299,10 +299,8 @@ void *file_processing(void *args)
         if (!compactation_flag)
         {
             pthread_mutex_lock(&mutex_fs_connection);
-            log_warning(logger_aux, "PID: %d - file_processing - Mutex FS lock", pcb_inst_status->pcb->pid);
             send_instruccion(modules_client->filesystem_client_socket, pcb_inst_status->instruccion, logger_aux);
             t_package *package = get_package(modules_client->filesystem_client_socket, logger_aux);
-            log_warning(logger_aux, "PID: %d - file_processing - Mutex FS unlock", pcb_inst_status->pcb->pid);
             pthread_mutex_unlock(&mutex_fs_connection);
             switch (package->operation_code)
             {
@@ -438,5 +436,6 @@ void compactar()
     }
     package_destroy(package);
     pthread_mutex_unlock(&mutex_fs_connection); // Habilito la comunicacion con FS
+    fs_blocked = false;
     compactation_flag = false;
 }
