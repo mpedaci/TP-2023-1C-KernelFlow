@@ -15,6 +15,7 @@ void *start_server_listen(void *listen_port)
     if (server_socket == -1)
     {
         accept_connections = false;
+        end_program_flag = true;
         pthread_exit(0);
     }
     while (accept_connections)

@@ -35,4 +35,8 @@ t_instruccion *cambiar_dir_logica_a_fisica_files(t_instruccion *instruccion, t_l
 
 bool checkear_seg_fault(t_instruccion *instruction, t_list *segments);
 
+bool chequear_seg_fault_segment_size(t_instruccion *instruction);
+
+bool chequear_seg_fault_movs(char *dir_logica, t_list *segments, char *registro);
+
 #endif

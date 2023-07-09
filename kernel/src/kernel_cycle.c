@@ -149,7 +149,7 @@ void process_pcontexto_desalojo(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_resp
         se = execute_delete_segment(pcb, pcontexto_response);
         break;
     default:
-        if (pcb->exit_status != SUCCESS)
+        if (pcb->exit_status != SUCCESS || pcontexto_response->status_code != SUCCESS)
             se = execute_exit(pcb, pcontexto_response);
         break;
     }

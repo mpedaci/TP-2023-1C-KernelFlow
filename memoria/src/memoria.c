@@ -21,7 +21,8 @@ int main(void)
     start_memory_server(config->port);
     
     // ESPERO QUE SE CONECTEN TODOS LOS MODULOS
-    while (!(fs_connected && cpu_connected && kernel_connected) && !end_program_flag);
+    while (!(fs_connected && cpu_connected && kernel_connected) && !end_program_flag)
+        sleep(1);
 
     // SI SE SELECCIONA "SALIR" TERMINO EL PROGRAMA SIN HABER INICIALIZADO LA MEMORIA
     if(!end_program_flag){

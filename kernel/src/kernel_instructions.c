@@ -335,6 +335,13 @@ bool execute_create_segment(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo
 {
     bool status = false;
     t_instruccion *instruccion = pcontexto_desalojo->motivo_desalojo;
+    if (pcontexto_desalojo->status_code == SEGMENTATION_FAULT)
+    {
+        log_info(logger_main, "PID: %d - Crear Segmento - Error de Segmentacion", pcb->pid);
+        pcb->exit_status = SEGMENTATION_FAULT;
+        pcb->next_queue = QEXIT;
+        return false;
+    }
     t_pid_instruccion *pid_instruccion = malloc(sizeof(t_pid_instruccion));
     pid_instruccion->instruccion = instruccion;
     pid_instruccion->pid = pcb->pid;

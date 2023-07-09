@@ -15,14 +15,14 @@ int server_start(char *port, t_log *logger)
     int flags = fcntl(server_socket, F_GETFL, 0);
     if (flags == -1)
     {
-        perror("Error getting socket flags");
-        exit(1);
+        log_error(logger, "Error getting socket flags");
+        return -1;
     }
     flags |= O_NONBLOCK;
     if (fcntl(server_socket, F_SETFL, flags) == -1)
     {
-        perror("Error setting socket to non-blocking");
-        exit(1);
+        log_error(logger, "Error setting socket to non-blocking");
+        return -1;
     }
     // Asociamos el socket a un puerto
     if (bind(server_socket, servinfo->ai_addr, servinfo->ai_addrlen) < 0)

@@ -35,18 +35,22 @@ char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
     t_package *package = get_package(socket_client_memoria, logger);
 
     t_info *info;
-    char *value = malloc(tam_reg + 1);
-    *(value + tam_reg) = '\0';
+    char *value = NULL;
 
-    if(package->operation_code == INFO) {
+    switch (package->operation_code)
+    {
+    case INFO:
+        value = malloc(tam_reg + 1);
+        *(value + tam_reg) = '\0';
         info = get_info(package);
         memcpy(reg, info->data, tam_reg);
         memcpy(value, info->data, tam_reg);
         info_destroy(info);
-    } else {
-        log_error(logger_aux, "No se pudo obtener el valor de memoria en el MOV_IN");
+        break;
+    default:
+        log_error(logger_aux, "Recibido error de memoria en el MOV_IN (STATUS_CODE) - SEGMENTATION_FAULT");
+        break;
     }
-
     package_destroy(package);
 
     return value;
@@ -79,16 +83,24 @@ char *MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
     
     t_package *package = get_package(socket_client_memoria, logger);
 
-    t_status_code status_code;
-    if(package->operation_code == STATUS_CODE) {
+    switch (package->operation_code)
+    {
+    case STATUS_CODE:
+        t_status_code status_code;
         status_code = get_status_code(package);
         if(status_code == SUCCESS) {
             log_info(logger_aux, "Se pudo escribir en memoria en el MOV_OUT");
         } else {
-            log_error(logger_aux, "No se pudo escribir en memoria en el MOV_OUT");
+            log_error(logger_aux, "Recibido error de memoria en el MOV_OUT (STATUS_CODE) - SEGMENTATION_FAULT");
+            free(valor_reg);
+            valor_reg = NULL;
         }
-    } else {
+        break;
+    default:
         log_error(logger_aux, "No se pudo obtener el OK de memoria en el MOV_OUT");
+        free(valor_reg);
+        valor_reg = NULL;
+        break;
     }
 
     package_destroy(package);

@@ -48,6 +48,7 @@ extern bool kernel_connected;
 
 // Estructuras
 extern void *memory_space;
+extern pthread_mutex_t memory_space_mutex;
 extern t_bitarray *free_space_table;
 extern t_segment *segment_0;
 extern t_list *all_segments_tables;

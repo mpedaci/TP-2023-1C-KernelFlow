@@ -49,26 +49,35 @@ void handle_kernel_pid_instruction(int client_socket, t_pid_instruccion *pidtruc
     switch (instruccion->identificador)
     {
     case I_CREATE_SEGMENT:
-        int size = atoi((char *)list_get(instruccion->parametros, 1));
-        t_segment *segment = create_segment(id, size);
-        if (segment != NULL && segment->base_address != -1)
+        t_segments_table *pid_segments_table = get_segments_table_by_pid(pid);
+        if (list_size(pid_segments_table->segment_list) >= config->segment_quantity)
         {
-            // SUCCESS
-            add_segment_to_table(pid, segment);
-            log_info(logger_main, "PID: %d - Crear Segmento: %d - Base: %d - Tamanio: %d", pid, id, segment->base_address, size);
-            send_segment(client_socket, segment, logger_aux);
+            send_status_code(client_socket, MAX_SEG_QUANTITY_REACHED, logger_aux);
+            log_warning(logger_main, "PID: %d - Crear Segmento - No se puede crear mas segmentos", pid);
         }
         else
         {
-            if (segment == NULL) // OUT OF MEMORY
-                send_status_code(client_socket, OUT_OF_MEMORY, logger_aux);
+            int size = atoi((char *)list_get(instruccion->parametros, 1));
+            t_segment *segment = create_segment(id, size);
+            if (segment != NULL && segment->base_address != -1)
+            {
+                // SUCCESS
+                add_segment_to_table(pid, segment);
+                log_info(logger_main, "PID: %d - Crear Segmento: %d - Base: %d - Tamanio: %d", pid, id, segment->base_address, size);
+                send_segment(client_socket, segment, logger_aux);
+            }
             else
             {
-                // COMPACTATION REQUIRED
-                log_info(logger_main, "Solicitud de Compactacion");
-                send_status_code(client_socket, COMPACTATION_REQUIRED, logger_aux);
+                if (segment == NULL) // OUT OF MEMORY
+                    send_status_code(client_socket, OUT_OF_MEMORY, logger_aux);
+                else
+                {
+                    // COMPACTATION REQUIRED
+                    log_info(logger_main, "Solicitud de Compactacion");
+                    send_status_code(client_socket, COMPACTATION_REQUIRED, logger_aux);
+                }
+                free(segment);
             }
-            free(segment);
         }
         break;
     case I_DELETE_SEGMENT:
@@ -117,46 +126,54 @@ void cpu_fs_operations(int client_socket, char *modulo)
             t_info *info = read_memory(info_read->base_address, info_read->size);
             pid = get_pid_by_address(info_read->base_address);
             if (pid == -1)
+            {
                 log_error(logger_aux, "No se encontro un segmento para esa direccion fisica"); // CHEQUEAR ERROR HANDLE
-            log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s ", pid, info_read->base_address, info_read->size, modulo);
-
-            char *vR = malloc(info_read->size + 1);
-            *(vR + info_read->size) = '\0';
-            memcpy(vR, info->data, info_read->size);
-            log_info(logger_aux, "Valor leido: %s", vR);
-            free(vR);
-
-            res = send_info(client_socket, info, logger_aux);
-            if (!res)
-                log_error(logger_aux, "No se pudo enviar el valor leido de memoria a %s", modulo);
-            free(info_read);
+                send_status_code(client_socket, SEGMENTATION_FAULT, logger_aux);
+            }
+            else
+            {
+                log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s ", pid, info_read->base_address, info_read->size, modulo);
+                char *vR = malloc(info_read->size + 1);
+                *(vR + info_read->size) = '\0';
+                memcpy(vR, info->data, info_read->size);
+                log_info(logger_aux, "Valor leido: %s", vR);
+                free(vR);
+                res = send_info(client_socket, info, logger_aux);
+                if (!res)
+                    log_error(logger_aux, "No se pudo enviar el valor leido de memoria a %s", modulo);
+                free(info_read);
+            }
             info_destroy(info);
             break;
         case INFO_WRITE:
             t_info_write *info_write = get_info_write(package);
-            bool result = write_memory(info_write->base_address, info_write->info->size, info_write->info->data);
-            if (!result)
+            pid = get_pid_by_address(info_write->base_address);
+            if (pid == -1)
             {
-                log_error(logger_aux, "No se pudo escribir en memoria");
-                res = send_status_code(client_socket, SEGMENTATION_FAULT, logger_aux);
+                log_error(logger_aux, "No se encontro un segmento para esa direccion fisica"); // CHEQUEAR ERROR HANDLE
+                send_status_code(client_socket, SEGMENTATION_FAULT, logger_aux);
             }
-            else
-            {
-                pid = get_pid_by_address(info_write->base_address);
-                if (pid == -1)
-                    log_error(logger_aux, "No se encontro un segmento para esa direccion fisica"); // CHEQUEAR ERROR HANDLE
-                log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: %s ", pid, info_write->base_address, info_write->info->size, modulo);
+            else {
+                bool result = write_memory(info_write->base_address, info_write->info->size, info_write->info->data);
+                if (!result)
+                {
+                    log_error(logger_aux, "No se pudo escribir en memoria");
+                    res = send_status_code(client_socket, SEGMENTATION_FAULT, logger_aux);
+                }
+                else
+                {
+                    log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: %s ", pid, info_write->base_address, info_write->info->size, modulo);
+                    char *vW = malloc(info_write->info->size + 1);
+                    *(vW + info_write->info->size) = '\0';
+                    memcpy(vW, info_write->info->data, info_write->info->size);
+                    log_info(logger_aux, "Valor escrito: %s", vW);
+                    free(vW);
 
-                char *vW = malloc(info_write->info->size + 1);
-                *(vW + info_write->info->size) = '\0';
-                memcpy(vW, info_write->info->data, info_write->info->size);
-                log_info(logger_aux, "Valor escrito: %s", vW);
-                free(vW);
-
-                res = send_status_code(client_socket, SUCCESS, logger_aux);
+                    res = send_status_code(client_socket, SUCCESS, logger_aux);
+                }
+                if (!res)
+                    log_error(logger_aux, "No se pudo enviar el OK a %s", modulo);
             }
-            if (!res)
-                log_error(logger_aux, "No se pudo enviar el OK a %s", modulo);
             info_write_destroy(info_write);
             break;
         case END:

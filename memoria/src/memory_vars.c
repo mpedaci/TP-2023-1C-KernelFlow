@@ -21,5 +21,6 @@ t_list *all_segments_tables = NULL;
 t_segment *segment_0 = NULL;
 
 void *memory_space = NULL;
+pthread_mutex_t memory_space_mutex;
 
 t_bitarray *free_space_table = NULL;

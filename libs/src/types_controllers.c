@@ -242,6 +242,8 @@ char *status_code_string(t_status_code sc)
         return "ERROR";
     case INVALID_RESOURCE:
         return "INVALID RESOURCE";
+    case MAX_SEG_QUANTITY_REACHED:
+        return "MAX SEG QUANTITY REACHED";
     default:
         return "UNKNOWN";
     }

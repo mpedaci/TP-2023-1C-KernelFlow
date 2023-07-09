@@ -3,6 +3,7 @@
 void start_memory(t_config_memoria *config)
 {
     // memory_space = malloc(config->memory_size);
+    pthread_mutex_init(&memory_space_mutex, NULL);
     memory_space = calloc(1, config->memory_size);
     all_segments_tables = list_create();
     free_space_table = create_free_space_table(config->memory_size);
@@ -43,6 +44,7 @@ void end_memory()
     free(segment_0);
     bitarray_destroy(free_space_table);
     free(memory_space);
+    pthread_mutex_destroy(&memory_space_mutex);
 }
 
 t_bitarray *create_free_space_table(size_t memory_size)
