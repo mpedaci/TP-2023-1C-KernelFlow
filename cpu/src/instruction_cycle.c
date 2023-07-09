@@ -71,7 +71,8 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
         }
         else
             seg_fault = true;
-        list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+        char *dir_logMI = list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+        free(dir_logMI);
         break;
     case I_MOV_OUT:
         valor = MOV_OUT((char*)list_get(instruccionListaParaEjecutar->parametros, 0), (char*)list_get(instruccionListaParaEjecutar->parametros, 1), contexto->pid);
@@ -82,10 +83,10 @@ t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pco
                 (char*)list_get(instruccionListaParaEjecutar->parametros, 0), 
                 valor);
             free(valor);
-        } else {
+        } else 
             seg_fault = true;
-        }
-        list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+        char *dir_logMO = list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+        free(dir_logMO);
         break;
     case I_I_O:
         return I_O(contexto, instruccionListaParaEjecutar);
