@@ -17,5 +17,6 @@ void FIFO(t_queue *queue);
 void HRRN(t_queue *queue);
 bool sort_by_rr(t_pcb *pcb1, t_pcb *pcb2);
 double calculate_rr(t_pcb *pcb, t_temporal *tiempo_actual);
+double calculate_s(t_pcb *pcb, t_temporal *tiempo_actual);
 
 #endif /* PLANNER_H */

@@ -87,7 +87,6 @@ void move_pcb_from_to(t_pcb *pcb_to_move, t_queue_id qSource, t_queue_id qDestin
     {
         temporal_destroy(pcb_to_move->tiempo_llegada_ready);
         pcb_to_move->tiempo_llegada_ready = temporal_create();
-        apply_planner_algorithm();
     }
 
     pthread_mutex_unlock(&destiny->mutex);

@@ -71,9 +71,18 @@ void move_READY_to_EXEC()
 {
     if (can_execute_process())
     {
+        apply_planner_algorithm();
         t_pcb *to_execute = move_fist_from_to(QREADY, QEXEC);
         if (to_execute != NULL)
+        {
+            if (algorithm_is("HRRN"))
+            {
+                t_temporal *tiempo_actual = temporal_create();
+                to_execute->est_sig_rafaga = calculate_s(to_execute, tiempo_actual);
+                temporal_destroy(tiempo_actual);
+            }
             EXEC(NULL, false);
+        }
     }
 }
 
