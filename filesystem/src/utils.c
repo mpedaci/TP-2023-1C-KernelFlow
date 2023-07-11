@@ -7,7 +7,7 @@ t_config_filesystem *read_config(char *config_path, t_log *logger)
 
    if (config == NULL)
    {
-      log_error(logger, "No se pudo leer el archivo de configuración");
+      log_error(logger, "No se pudo leer el archivo de configuracion");
       return NULL;
    }
 
@@ -23,7 +23,7 @@ t_config_filesystem *read_config(char *config_path, t_log *logger)
 
    filesystem_config->retardo_acceso_bloque = config_get_int_value(config, "RETARDO_ACCESO_BLOQUE");
 
-   log_info(logger, "Archivo de configuración leído correctamente");
+   log_info(logger, "Archivo de configuracion leido correctamente");
 
    config_destroy(config);
    return filesystem_config;

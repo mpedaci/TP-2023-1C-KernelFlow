@@ -133,7 +133,7 @@ void cpu_fs_operations(int client_socket, char *modulo)
             }
             else
             {
-                log_info(logger_main, "PID: %d - Acción: LEER - Dirección física: %d - Tamaño: %d - Origen: %s ", pid, info_read->base_address, info_read->size, modulo);
+                log_info(logger_main, "PID: %d - Accion: LEER - Direccion fisica: %d - Tamanio: %d - Origen: %s ", pid, info_read->base_address, info_read->size, modulo);
                 char *vR = malloc(info_read->size + 1);
                 *(vR + info_read->size) = '\0';
                 memcpy(vR, info->data, info_read->size);
@@ -163,7 +163,7 @@ void cpu_fs_operations(int client_socket, char *modulo)
                 }
                 else
                 {
-                    log_info(logger_main, "PID: %d - Acción: ESCRIBIR - Dirección física: %d - Tamaño: %d - Origen: %s ", pid, info_write->base_address, info_write->info->size, modulo);
+                    log_info(logger_main, "PID: %d - Accion: ESCRIBIR - Direccion fisica: %d - Tamanio: %d - Origen: %s ", pid, info_write->base_address, info_write->info->size, modulo);
                     char *vW = malloc(info_write->info->size + 1);
                     *(vW + info_write->info->size) = '\0';
                     memcpy(vW, info_write->info->data, info_write->info->size);

@@ -7,14 +7,14 @@
 
 typedef struct
 {
-    // Configuración del cliente
-    char *ip_memoria;                // Dirección IP de la memoria
+    // Configuracion del cliente
+    char *ip_memoria;                // Direccion IP de la memoria
     char *puerto_memoria;            // Puerto de la memoria
-    char *ip_filesystem;             // Dirección IP del filesystem
+    char *ip_filesystem;             // Direccion IP del filesystem
     char *puerto_filesystem;         // Puerto del filesystem
-    char *ip_cpu;                    // Dirección IP de la CPU
+    char *ip_cpu;                    // Direccion IP de la CPU
     char *puerto_cpu;                // Puerto de la CPU
-    // Configuración del servidor
+    // Configuracion del servidor
     char *puerto_escucha;            // Puerto escucha conexiones entrantes
     // Algoritmo Planificacion
     char *algoritmo_planificacion;

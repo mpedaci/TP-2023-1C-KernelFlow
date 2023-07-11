@@ -8,7 +8,7 @@ t_config_memoria *read_config(char *config_path)
 
     if (config_aux == NULL)
     {
-        log_error(logger_aux, "No se encontro el archivo de configuración");
+        log_error(logger_aux, "No se encontro el archivo de configuracion");
         return NULL;
     }
 
@@ -20,7 +20,7 @@ t_config_memoria *read_config(char *config_path)
     memoria_config->compactation_time_delay = config_get_int_value(config_aux, "RETARDO_COMPACTACION");
     memoria_config->compactation_algorithm = string_duplicate(config_get_string_value(config_aux, "ALGORITMO_ASIGNACION"));
 
-    log_info(logger_aux, "Archivo de configuración leído correctamente");
+    log_info(logger_aux, "Archivo de configuracion leido correctamente");
 
     config_destroy(config_aux);
     return memoria_config;

@@ -16,7 +16,7 @@ void SET(char *registro_char, char *valor_char)
 }
 
 // mem -> reg -- lectura
-// Lee el valor de memoria correspondiente a la Dirección Lógica y lo almacena en el Registro
+// Lee el valor de memoria correspondiente a la Direccion Logica y lo almacena en el Registro
 char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
 {
     void *reg = get_register(registro);
@@ -57,7 +57,7 @@ char *MOV_IN(char *registro, char *direccion_fisica, uint32_t pid)
 }
 
 // reg -> mem -- escritura
-// Lee el valor del Registro y lo escribe en la dirección física de memoria obtenida a partir de la Dirección Lógica
+// Lee el valor del Registro y lo escribe en la direccion fisica de memoria obtenida a partir de la Direccion Logica
 char *MOV_OUT(char *direccion_fisica, char *registro, uint32_t pid)
 {
     void *reg = get_register(registro);

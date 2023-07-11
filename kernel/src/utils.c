@@ -31,7 +31,7 @@ t_config_kernel *read_config(char *config_path, t_log *logger)
     t_config *config = config_create(config_path);
     if (config == NULL)
     {
-        log_error(logger, "No se pudo leer el archivo de configuración");
+        log_error(logger, "No se pudo leer el archivo de configuracion");
         return NULL;
     }
     // CLIENTE - SERVIDOR
@@ -54,7 +54,7 @@ t_config_kernel *read_config(char *config_path, t_log *logger)
     char **instancias_recursos = config_get_array_value(config, "INSTANCIAS_RECURSOS");
     add_to_list(recursos, kernel_config->recursos);
     add_to_list(instancias_recursos, kernel_config->instancias_recursos);
-    log_debug(logger, "Archivo de configuración leído correctamente");
+    log_debug(logger, "Archivo de configuracion leido correctamente");
     config_destroy(config);
     free_arr(recursos);
     free_arr(instancias_recursos);
