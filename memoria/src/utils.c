@@ -168,7 +168,7 @@ void print_all_segments_tables()
     for (int i = 0; i < list_size(all_segments_tables); i++)
     {
         t_segments_table *aux_table = (t_segments_table *)list_get(all_segments_tables, i);
-        for (int j = 0; j < list_size(aux_table->segment_list); j++)
+        for (int j = 1; j < list_size(aux_table->segment_list); j++)
         {
             t_segment *segment = (t_segment *)list_get(aux_table->segment_list, j);
             log_info(logger_main, "PID: %d - Segmento: %d - Base: %d - Tamanio: %d", aux_table->pid, segment->id, segment->base_address, segment->size);
