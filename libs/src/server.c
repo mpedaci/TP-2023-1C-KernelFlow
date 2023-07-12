@@ -24,6 +24,12 @@ int server_start(char *port, t_log *logger)
         log_error(logger, "Error setting socket to non-blocking");
         return -1;
     }
+    const int enable = 1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+    {
+        log_error(logger, "setsockopt(SO_REUSEADDR) failed");
+        return -1;
+    }
     // Asociamos el socket a un puerto
     if (bind(server_socket, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
     {
