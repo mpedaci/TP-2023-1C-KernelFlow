@@ -49,14 +49,14 @@ sed -E -i "s/$sKer/IP_KERNEL=$ipKernel/" $cc0
 
 # FS
 fsc0="./filesystem/config/filesystem.config"
-# Search and replace Kernel
+# Search and replace Memoria
 sed -E -i "s/$sMem/IP_MEMORIA=$ipMemoria/" $fsc0
 
 # FS
 cpc0="./cpu/config/cpu.config"
 cpc1="./tests/Configs/cpu/cpu.t1.config"
 cpc2="./tests/Configs/cpu/cpu.t2.config"
-# Search and replace Kernel
+# Search and replace Memoria
 sed -E -i "s/$sMem/IP_MEMORIA=$ipMemoria/" $cpc0
 sed -E -i "s/$sMem/IP_MEMORIA=$ipMemoria/" $cpc1
 sed -E -i "s/$sMem/IP_MEMORIA=$ipMemoria/" $cpc2
