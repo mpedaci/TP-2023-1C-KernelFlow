@@ -180,6 +180,7 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
         if (seg_fault)
         {
             seg_fault = false;
+            log_error(logger, "PID: %d - Error SEG_FAULT - Modulo: MEMORIA", contexto->pid);
             contexto_desalojo = stop_exec(contexto, instruccionListaParaEjecutar, SEGMENTATION_FAULT);
         }
     }
