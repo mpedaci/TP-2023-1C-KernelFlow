@@ -285,6 +285,8 @@ bool write_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion
     free(info_read);
     t_package *package = get_package(memory_socket, logger_aux);
 
+    int cant_bytes_inicial = cant_bytes;
+
     switch (package->operation_code)
     {
     case INFO:
@@ -370,7 +372,7 @@ bool write_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion
             }
         }
 
-        log_info(logger_main, "Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes);
+        log_info(logger_main, "Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
         info_destroy(info);
         free(punterosIndirectos);
         break;
