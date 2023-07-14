@@ -244,6 +244,8 @@ char *status_code_string(t_status_code sc)
         return "INVALID RESOURCE";
     case MAX_SEG_QUANTITY_REACHED:
         return "MAX SEG QUANTITY REACHED";
+    case PROCESS_ABORTED:
+        return "PROCESS ABORTED";
     default:
         return "UNKNOWN";
     }

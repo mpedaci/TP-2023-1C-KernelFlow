@@ -168,6 +168,7 @@ void EXIT(t_pcb *pcb)
     pid_status_destroy(pid_status);
 
     // Libero recursos
+    // 1. Archivos abiertos
     if (list_size(pcb->open_files_table) > 0)
     {
         for (int i = 0; i < list_size(pcb->open_files_table); i++)

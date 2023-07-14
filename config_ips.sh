@@ -1,5 +1,16 @@
 #!/bin/bash
 
+validate_ip() {
+  # Regular expression pattern for IP address validation
+  local ip_pattern='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+
+  if [[ $1 =~ $ip_pattern ]]; then
+    return 0  # Valid IP address
+  else
+    return 1  # Invalid IP address
+  fi
+}
+
 # Take the replace string
 read -p "Enter the kernel IP: " ipKernel
 read -p "Enter the memory IP: " ipMemoria
@@ -9,6 +20,12 @@ read -p "Enter the cpu IP: " ipCPU
 if [[ $ipKernel == "" || $ipMemoria == "" || $ipFS == "" || $ipCPU == "" ]]; then
 echo "Error: Empty IP"
 exit 0
+fi
+
+if validate_ip "$ipKernel" && validate_ip "$ipMemoria" && validate_ip "$ipFS" && validate_ip "$ipCPU"; then
+  echo "All entered IP addresses are valid updating configs"
+else
+  echo "One or more IP addresses are invalid"
 fi
 
 # Regexs
@@ -52,7 +69,7 @@ fsc0="./filesystem/config/filesystem.config"
 # Search and replace Memoria
 sed -E -i "s/$sMem/IP_MEMORIA=$ipMemoria/" $fsc0
 
-# FS
+# CPU
 cpc0="./cpu/config/cpu.config"
 cpc1="./tests/Configs/cpu/cpu.t1.config"
 cpc2="./tests/Configs/cpu/cpu.t2.config"

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-echo “Seleccione el tipo de prueba a realizar:”
-echo “1. Base”
-echo “2. Deadlock”
-echo “3. Memoria”
-echo “4. File System”
-echo “5. Errores”
+echo "Seleccione el tipo de prueba a realizar:"
+echo "1. Base"
+echo "2. Deadlock"
+echo "3. Memoria"
+echo "4. File System"
+echo "5. Errores"
 
 read -p "Ingrese el numero de la prueba: " prueba
 

@@ -124,10 +124,15 @@ void wait_to_end_process(t_client_connection *conn)
 {
     t_pcb *last = NULL;
     last = search_pid(queues->EXIT->queue, conn->pid);
-    while (last == NULL)
+    while (last == NULL && end_program_flag == false)
     {
         last = search_pid(queues->EXIT->queue, conn->pid);
         sleep(1);
+    }
+    if (end_program_flag == true)
+    {
+        last = search_pid(all_pcb, conn->pid);
+        last->exit_status = PROCESS_ABORTED;
     }
     t_pid_status *pid_status = pid_status_create(conn->pid, last->exit_status);
     send_pid_status(conn->socket, pid_status, logger_aux);

@@ -25,7 +25,8 @@ typedef enum
     PROCESS_NEW,
     PROCESS_END,
     ERROR,
-    INVALID_RESOURCE
+    INVALID_RESOURCE,
+    PROCESS_ABORTED
 } t_status_code;
 
 // CONSOLA
