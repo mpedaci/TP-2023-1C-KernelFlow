@@ -12,8 +12,8 @@ bool open_file(char *nombre)
     t_fcb *fcb = load_fcb(nombre);
     if (fcb == NULL)
     {
-        create_file(nombre);
-        fcb = load_fcb(nombre);
+        log_info(logger_main, "Abrir archivo: %s - El archivo no existe", nombre);
+        return false;
     }
     log_info(logger_main, "Abrir archivo: %s", fcb->nombre_archivo);
     free(fcb->nombre_archivo);
@@ -94,14 +94,15 @@ bool truncate_file(char *nombre, int nuevo_tamanio)
             int bloques_a_liberar = calculate_freeBlocks(fcb, nuevo_tamanio);
             uint32_t *punterosIndirectos = obtenerPunterosIndirectos(fcb);
             int cantPunterosIndirectos = cantidadPunterosIndirectos(punterosIndirectos);
-            if (cantPunterosIndirectos == bloques_a_liberar)
+            if (cantPunterosIndirectos == bloques_a_liberar && punterosIndirectos != NULL)
             {
                 for (int i = 0; i < cantPunterosIndirectos; i++)
                     set_freeBlock_bitmap(punterosIndirectos[i]);
                 set_freeBlock_bitmap(fcb->puntero_indirecto);
                 fcb->puntero_indirecto = 0;
+                free(punterosIndirectos);
             }
-            else
+            else if (punterosIndirectos != NULL)
             {
                 int i = cantPunterosIndirectos - 1;
                 while (bloques_a_liberar > 0)
@@ -113,12 +114,13 @@ bool truncate_file(char *nombre, int nuevo_tamanio)
                 }
                 sleep(config_fs->retardo_acceso_bloque / 1000);
                 memcpy(blocks + fcb->puntero_indirecto * superbloque->block_size, punterosIndirectos, sizeof(uint32_t) * get_cpb());
+                free(punterosIndirectos);
             }
         }
     }
     fcb->tamanio_archivo = nuevo_tamanio;
     update_fcb(fcb);
-    log_info(logger_main, "Truncar archivo:  %s - Tamaño: %d ", fcb->nombre_archivo, fcb->tamanio_archivo);
+    log_info(logger_main, "Truncar archivo: %s - Tamaño: %d ", fcb->nombre_archivo, fcb->tamanio_archivo);
     free(fcb->nombre_archivo);
     free(fcb);
     return true;
@@ -219,7 +221,7 @@ bool read_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion_
             }
         }
     }
-    log_info(logger_main, "Leer archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
+    log_info(logger_main, "Leer archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
 
     t_info_write *info_write = malloc(sizeof(t_info_write));
     info_write->info = malloc(sizeof(t_info));
@@ -372,7 +374,7 @@ bool write_file(char *nombre, int puntero_archivo, int cant_bytes, int direccion
             }
         }
 
-        log_info(logger_main, "Escribir archivo:  %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
+        log_info(logger_main, "Escribir archivo: %s - Puntero: %d - Memoria: %d - Tamanio: %d", fcb->nombre_archivo, puntero_archivo, direccion_fisica, cant_bytes_inicial);
         info_destroy(info);
         free(punterosIndirectos);
         break;

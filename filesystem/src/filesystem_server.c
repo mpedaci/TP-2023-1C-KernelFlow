@@ -55,10 +55,19 @@ void handle_instruccion(t_instruccion *instruccion, int client_socket)
     case I_F_OPEN:
         log_info(logger_aux, "Se recibio una instruccion de abrir archivo");
         char *nombre = (char*)list_get(instruccion->parametros, 0);
-        if (open_file(nombre))
-            send_status_code(client_socket, FILE_OPEN, logger_aux);
-        else
-            send_status_code(client_socket, ERROR, logger_aux);
+        if (instruccion->cant_parametros > 1)
+        {
+            if (create_file(nombre))
+                send_status_code(client_socket, FILE_CREATED, logger_aux);
+            else
+                send_status_code(client_socket, FILE_OPEN, logger_aux);
+        } else {
+            if (open_file(nombre))
+                send_status_code(client_socket, FILE_OPEN, logger_aux);
+            else
+                send_status_code(client_socket, FILE_NOT_EXIST, logger_aux);
+        }
+        
         instruccion_destroy(instruccion);
         break;
     case I_F_READ:

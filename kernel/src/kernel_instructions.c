@@ -141,6 +141,55 @@ bool execute_fread(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
     return false;
 }
 
+bool execute_fcreate(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
+{
+    t_instruccion *instruccion = pcontexto_desalojo->motivo_desalojo;
+    bool status = false;
+    char *nombre_archivo = list_get(instruccion->parametros, 0);
+    t_instruccion *instfcreate = instruccion_duplicate(instruccion);
+    char *c = "create";
+    list_add(instfcreate->parametros, c);
+    instfcreate->cant_parametros++;
+    instfcreate->p_length[1] = strlen(c) + 1;
+    pthread_mutex_lock(&mutex_fs_connection);
+    send_instruccion(modules_client->filesystem_client_socket, instfcreate, logger_aux);
+    t_package *package = get_package(modules_client->filesystem_client_socket, logger_aux);
+    pthread_mutex_unlock(&mutex_fs_connection);
+    list_remove(instfcreate->parametros, 1);
+    instfcreate->cant_parametros--;
+    instfcreate->p_length[1] = 0;
+    instruccion_destroy(instfcreate);
+    switch (package->operation_code)
+    {
+    case STATUS_CODE:
+        t_status_code code = get_status_code(package);
+        if (code == FILE_OPEN || code == FILE_CREATED)
+        {
+            log_info(logger_main, "PID: %d - Crear Archivo: %s", pcb->pid, nombre_archivo);
+            t_recurso *nuevo_archivo = crear_archivo(nombre_archivo);
+            list_add(archivos_abiertos, nuevo_archivo);
+            t_archivo_abierto *archivo_abierto = archivo_abierto_create(nuevo_archivo);
+            list_add(pcb->open_files_table, archivo_abierto);
+            nuevo_archivo->instancias--;
+            status = true;
+        }
+        else
+        {
+            log_error(logger_main, "PID: %d - Crear Archivo: %s - Error al crear archivo", pcb->pid, nombre_archivo);
+            pcb->exit_status = code;
+            pcb->next_queue = QEXIT;
+        }
+        break;
+    default:
+        log_error(logger_main, "PID: %d - Abrir Archivo: %s - Error al recibir respuesta de FS", pcb->pid, nombre_archivo);
+        pcb->exit_status = ERROR;
+        pcb->next_queue = QEXIT;
+        break;
+    }
+    package_destroy(package);
+    return status;
+}
+
 bool execute_fopen(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
 {
     t_instruccion *instruccion = pcontexto_desalojo->motivo_desalojo;
@@ -157,7 +206,7 @@ bool execute_fopen(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
         {
         case STATUS_CODE:
             t_status_code code = get_status_code(package);
-            if (code == FILE_OPEN || code == FILE_CREATED)
+            if (code == FILE_OPEN)
             {
                 log_info(logger_main, "PID: %d - Abrir Archivo: %s", pcb->pid, nombre_archivo);
                 t_recurso *nuevo_archivo = crear_archivo(nombre_archivo);
@@ -167,9 +216,13 @@ bool execute_fopen(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
                 nuevo_archivo->instancias--;
                 status = true;
             }
+            else if (code == FILE_NOT_EXIST)
+            {
+                status = execute_fcreate(pcb, pcontexto_desalojo);
+            }
             else
             {
-                log_error(logger_main, "PID: %d - Abrir Archivo: %s - Error al crear archivo", pcb->pid, nombre_archivo);
+                log_error(logger_main, "PID: %d - Abrir Archivo: %s - Error al abrir archivo", pcb->pid, nombre_archivo);
                 pcb->exit_status = code;
                 pcb->next_queue = QEXIT;
             }
@@ -309,11 +362,11 @@ void *file_processing(void *args)
                 if (code == pcb_inst_status->status_expected)
                     move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QREADY);
                 else
-                    {
-                        pcb_inst_status->pcb->exit_status = code;
-                        move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QEXIT);
-                        EXIT(pcb_inst_status->pcb);
-                    }
+                {
+                    pcb_inst_status->pcb->exit_status = code;
+                    move_pcb_from_to(pcb_inst_status->pcb, QBLOCK, QEXIT);
+                    EXIT(pcb_inst_status->pcb);
+                }
                 break;
             default:
                 pcb_inst_status->pcb->exit_status = ERROR;

@@ -36,6 +36,7 @@ bool execute_exit(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
 
 bool execute_fwrite(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
 bool execute_fread(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
+bool execute_fcreate(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
 bool execute_fopen(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
 bool execute_fclose(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
 bool execute_fseek(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo);
