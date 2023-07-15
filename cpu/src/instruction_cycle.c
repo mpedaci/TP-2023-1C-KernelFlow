@@ -53,7 +53,6 @@ t_instruccion *decode(t_instruccion *instruccionSiguiente, t_pcontexto *contexto
 t_pcontexto_desalojo *execute(t_instruccion *instruccionListaParaEjecutar, t_pcontexto *contexto)
 {
     char *valor;
-
     switch (instruccionListaParaEjecutar->identificador)
     {
     case I_SET:
@@ -146,13 +145,15 @@ t_pcontexto_desalojo *execute_instruction_cycle(t_pcontexto *contexto)
             s = get_num_segmento((char *)list_get(instruccionListaParaEjecutar->parametros, 2));
             o = get_desplazamiento_segmento((char*)list_get(instruccionListaParaEjecutar->parametros, 1));
             t = get_sizeof_register((char*)list_get(instruccionListaParaEjecutar->parametros, 0));
-            list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+            char *dir_logMI = list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+            free(dir_logMI);
             break;
         case I_MOV_OUT:
             s = get_num_segmento((char *)list_get(instruccionListaParaEjecutar->parametros, 2));
             o = get_desplazamiento_segmento((char*)list_get(instruccionListaParaEjecutar->parametros, 0));
             t = get_sizeof_register((char*)list_get(instruccionListaParaEjecutar->parametros, 1));
-            list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+            char *dir_logMO = list_remove(instruccionListaParaEjecutar->parametros, 2); // elimino el numero de segmento que agregue en decode
+            free(dir_logMO);
             break;
         case I_F_READ:
         case I_F_WRITE:

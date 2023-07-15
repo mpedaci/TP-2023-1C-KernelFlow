@@ -107,54 +107,59 @@ void update_pcb(t_pcb *pcb, t_pcontexto_desalojo *pcontexto)
 void process_pcontexto_desalojo(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_response)
 {
     bool se = false;
-    switch (pcontexto_response->motivo_desalojo->identificador)
+    if (pcontexto_response->status_code == SUCCESS)
     {
-    case I_WAIT:
-        se = execute_wait(pcb, pcontexto_response);
-        break;
-    case I_SIGNAL:
-        se = execute_signal(pcb, pcontexto_response);
-        break;
-    case I_I_O:
-        se = execute_io(pcb, pcontexto_response);
-        break;
-    case I_YIELD:
-        se = execute_yield(pcb, pcontexto_response);
-        break;
-    case I_EXIT:
-        se = execute_exit(pcb, pcontexto_response);
-        break;
-    case I_F_WRITE:
-        se = execute_fwrite(pcb, pcontexto_response);
-        break;
-    case I_F_CLOSE:
-        se = execute_fclose(pcb, pcontexto_response);
-        break;
-    case I_F_OPEN:
-        se = execute_fopen(pcb, pcontexto_response);
-        break;
-    case I_F_READ:
-        se = execute_fread(pcb, pcontexto_response);
-        break;
-    case I_F_SEEK:
-        se = execute_fseek(pcb, pcontexto_response);
-        break;
-    case I_F_TRUNCATE:
-        se = execute_ftruncate(pcb, pcontexto_response);
-        break;
-    case I_CREATE_SEGMENT:
-        se = execute_create_segment(pcb, pcontexto_response);
-        break;
-    case I_DELETE_SEGMENT:
-        se = execute_delete_segment(pcb, pcontexto_response);
-        break;
-    default:
-        if (pcb->exit_status != SUCCESS || pcontexto_response->status_code != SUCCESS)
+        switch (pcontexto_response->motivo_desalojo->identificador)
+        {
+        case I_WAIT:
+            se = execute_wait(pcb, pcontexto_response);
+            break;
+        case I_SIGNAL:
+            se = execute_signal(pcb, pcontexto_response);
+            break;
+        case I_I_O:
+            se = execute_io(pcb, pcontexto_response);
+            break;
+        case I_YIELD:
+            se = execute_yield(pcb, pcontexto_response);
+            break;
+        case I_EXIT:
             se = execute_exit(pcb, pcontexto_response);
-        break;
+            break;
+        case I_F_WRITE:
+            se = execute_fwrite(pcb, pcontexto_response);
+            break;
+        case I_F_CLOSE:
+            se = execute_fclose(pcb, pcontexto_response);
+            break;
+        case I_F_OPEN:
+            se = execute_fopen(pcb, pcontexto_response);
+            break;
+        case I_F_READ:
+            se = execute_fread(pcb, pcontexto_response);
+            break;
+        case I_F_SEEK:
+            se = execute_fseek(pcb, pcontexto_response);
+            break;
+        case I_F_TRUNCATE:
+            se = execute_ftruncate(pcb, pcontexto_response);
+            break;
+        case I_CREATE_SEGMENT:
+            se = execute_create_segment(pcb, pcontexto_response);
+            break;
+        case I_DELETE_SEGMENT:
+            se = execute_delete_segment(pcb, pcontexto_response);
+            break;
+        default:
+            if (pcb->exit_status != SUCCESS || pcontexto_response->status_code != SUCCESS)
+                se = execute_exit(pcb, pcontexto_response);
+            break;
+        }
+        if (se)
+            EXEC(pcb, true);
+    } else {
+        se = execute_exit(pcb, pcontexto_response);
     }
-    if (se)
-        EXEC(pcb, true);
 }
 
 // EXIT
