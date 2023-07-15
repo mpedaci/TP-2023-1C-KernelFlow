@@ -40,6 +40,7 @@ int find_first_one_after_first_zero(int fst_zero)
 void compact_memory()
 {
     log_info(logger_aux, "Iniciando compactacion");
+    sleep(config->compactation_time_delay/1000);
     int first_zero = 0, last_one = 0, first_one_after_first_zero = 0;
     first_zero = find_first_zero();
     last_one = find_last_one();
