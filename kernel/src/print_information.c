@@ -161,6 +161,8 @@ void print_pcb(t_pcb *pcb)
     print_segments(pcb->segments_table->segment_list);
     printf("  Archivos abiertos:\n");
     print_archivos_abiertos(pcb->open_files_table);
+    printf("  Recursos compartidos:\n");
+    print_recursos_compartidos(pcb->shared_resources);
 }
 
 void print_archivos_abiertos(t_list *archivos_abiertos)
@@ -170,6 +172,15 @@ void print_archivos_abiertos(t_list *archivos_abiertos)
     {
         t_archivo_abierto *archivo_abierto = list_get(archivos_abiertos, i);
         printf("    %s\t%d\n", archivo_abierto->archivo->recurso, archivo_abierto->puntero);
+    }
+}
+
+void print_recursos_compartidos(t_list *recursos_compartidos)
+{
+    for (int i = 0; i < list_size(recursos_compartidos); i++)
+    {
+        t_recurso *recurso = list_get(recursos_compartidos, i);
+        printf("    %s\n", recurso->recurso);
     }
 }
 

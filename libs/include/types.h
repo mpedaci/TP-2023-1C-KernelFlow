@@ -184,6 +184,7 @@ typedef struct
     t_temporal *tiempo_entrada_cpu;
     t_temporal *tiempo_salida_cpu;
     t_list *open_files_table;
+    t_list *shared_resources;
     t_status_code exit_status;
     t_queue_id next_queue;
 } t_pcb;

@@ -76,6 +76,7 @@ t_pcb *pcb_create(uint32_t pid, t_list *instrucciones)
     pcb->tiempo_entrada_cpu = temporal_create();
     pcb->tiempo_salida_cpu = temporal_create();
     pcb->open_files_table = list_create();
+    pcb->shared_resources = list_create();
     pcb->exit_status = SUCCESS;
     pcb->next_queue = QREADY;
     return pcb;

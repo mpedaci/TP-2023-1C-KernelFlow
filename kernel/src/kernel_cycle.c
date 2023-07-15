@@ -191,4 +191,36 @@ void EXIT(t_pcb *pcb)
         list_destroy(pcb->open_files_table);
         pcb->open_files_table = list_create();
     }
+    // 2. Recursos compartidos
+    if (list_size(pcb->shared_resources) > 0)
+    {
+        for (int i = 0; i < list_size(pcb->shared_resources); i++)
+        {
+            t_recurso *recurso = list_get(pcb->shared_resources, i);
+            recurso->instancias++;
+            log_info(logger_main, "PID: %d - Liberar Recurso: %s", pcb->pid, recurso->recurso);
+            bool is_blocked = false;
+            for (int j = 0; j < list_size(recurso->lista_bloqueados); j++)
+            {
+                t_pcb *pcb_blocked = list_get(recurso->lista_bloqueados, j);
+                if (pcb_blocked->pid == pcb->pid)
+                {
+                    is_blocked = true;
+                    break;
+                }
+            }
+            if (is_blocked)
+                list_remove_element(recurso->lista_bloqueados, pcb);
+            else
+            {
+                if (recurso->instancias <= 0)
+                {
+                    t_pcb *pendiente = remove_pcb_from_queue_resourse(recurso);
+                    move_pcb_from_to(pendiente, QBLOCK, QREADY);
+                }
+            }
+        }
+        list_destroy(pcb->shared_resources);
+        pcb->shared_resources = list_create();
+    }
 }

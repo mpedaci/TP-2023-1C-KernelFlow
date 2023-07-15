@@ -22,6 +22,7 @@ void print_queues();
 void print_pcb_pid(t_pcb *pcb);
 void print_pcb(t_pcb *pcb);
 void print_archivos_abiertos(t_list *archivos_abiertos);
+void print_recursos_compartidos(t_list *recursos_compartidos);
 void print_segments(t_list *segments);
 void print_registers(t_registers *registers);
 void print_internal_states();

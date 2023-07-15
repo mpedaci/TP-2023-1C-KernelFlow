@@ -14,6 +14,7 @@ bool execute_wait(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
         return false;
     }
     recurso->instancias--;
+    list_add(pcb->shared_resources, recurso);
     if (recurso->instancias >= 0)
     {
         log_info(logger_main, "PID: %d - Wait: %s - Instancias: %d", pcb->pid, recurso->recurso, recurso->instancias);
@@ -40,6 +41,7 @@ bool execute_signal(t_pcb *pcb, t_pcontexto_desalojo *pcontexto_desalojo)
         return false;
     }
     recurso->instancias++;
+    list_remove_element(pcb->shared_resources, recurso);
     log_info(logger_main, "PID: %d - Signal: %s - Instancias: %d", pcb->pid, recurso->recurso, recurso->instancias);
     if (recurso->instancias <= 0)
     {

@@ -184,6 +184,7 @@ void pcb_destroy(t_pcb *pcb)
         list_destroy_and_destroy_elements(pcb->open_files_table, free);
     else
         list_destroy(pcb->open_files_table);
+    list_destroy(pcb->shared_resources);
     free(pcb);
 }
 

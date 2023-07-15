@@ -18,14 +18,15 @@ read -p "Enter the fs IP: " ipFS
 read -p "Enter the cpu IP: " ipCPU
 
 if [[ $ipKernel == "" || $ipMemoria == "" || $ipFS == "" || $ipCPU == "" ]]; then
-echo "Error: Empty IP"
-exit 0
+  echo "Error: Empty IP"
+  exit 0
 fi
 
 if validate_ip "$ipKernel" && validate_ip "$ipMemoria" && validate_ip "$ipFS" && validate_ip "$ipCPU"; then
   echo "All entered IP addresses are valid updating configs"
 else
-  echo "One or more IP addresses are invalid"
+  echo "Error: One or more IP addresses are invalid"
+  exit 0
 fi
 
 # Regexs
