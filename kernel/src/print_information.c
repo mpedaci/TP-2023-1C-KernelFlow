@@ -356,6 +356,11 @@ void kill_process(t_pcb *pcb_to_kill)
     pcb_to_kill->next_queue = QEXIT;
     pcb_to_kill->exit_status = PROCESS_ABORTED;
     t_queue_id queue_id = get_queue_id(pcb_to_kill);
+    if (queue_id == QEXIT)
+    {
+        printf("El proceso ya se encuentra en EXIT\n");
+        return;
+    }
     move_pcb_from_to(pcb_to_kill, queue_id, QEXIT);
     EXIT(pcb_to_kill);
 }
