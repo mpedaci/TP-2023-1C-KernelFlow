@@ -27,5 +27,7 @@ void print_segments(t_list *segments);
 void print_registers(t_registers *registers);
 void print_internal_states();
 void print_status_recursos();
+t_queue_id get_queue_id(t_pcb *pcb);
+void kill_process(t_pcb *pcb_to_kill);
 
 #endif /* PRINT_INFORMATION_H */

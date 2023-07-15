@@ -52,6 +52,7 @@ void print_menu()
     printf("3. Mostrar estados internos\n");
     printf("4. Mostrar PCB\n");
     printf("5. Mostrar recursos\n");
+    printf("9. Finalizar proceso\n");
     printf("6. Salir\n");
     if (fgets(line, sizeof(line), stdin)) {
         if (1 == sscanf(line, "%d", &i)) {
@@ -90,6 +91,21 @@ void print_menu()
         break;
     case 6:
         end_program_flag = true;
+        break;
+    case 9:
+        input = -1;
+        printf("Ingrese el PID del PCB: ");
+        if (fgets(line, sizeof(line), stdin)) {
+            if (1 == sscanf(line, "%d", &i)) {
+                input = i;
+            }
+        }
+        t_pcb *pcb_to_kill = get_pcb_by_pid(input);
+        printf("\n");
+        if (pcb_to_kill != NULL)
+            kill_process(pcb_to_kill);
+        else
+            printf("No se encontro el PCB\n");
         break;
     default:
         printf("Opcion invalida\n");
@@ -298,4 +314,48 @@ void print_status_recursos()
         printf("INSTANCIAS: %d\n", recurso->instancias);
         printf("BLOQUEADOS: %d\n", list_size(recurso->lista_bloqueados));
     }
+}
+
+t_queue_id get_queue_id(t_pcb *pcb)
+{
+    for (int i = 0; i < list_size(queues->NEW->queue); i++)
+    {
+        t_pcb *pcb_in_queue = list_get(queues->NEW->queue, i);
+        if (pcb_in_queue->pid == pcb->pid)
+            return QNEW;
+    }
+    for (int i = 0; i < list_size(queues->READY->queue); i++)
+    {
+        t_pcb *pcb_in_queue = list_get(queues->READY->queue, i);
+        if (pcb_in_queue->pid == pcb->pid)
+            return QREADY;
+    }
+    for (int i = 0; i < list_size(queues->EXEC->queue); i++)
+    {
+        t_pcb *pcb_in_queue = list_get(queues->EXEC->queue, i);
+        if (pcb_in_queue->pid == pcb->pid)
+            return QEXEC;
+    }
+    for (int i = 0; i < list_size(queues->BLOCK->queue); i++)
+    {
+        t_pcb *pcb_in_queue = list_get(queues->BLOCK->queue, i);
+        if (pcb_in_queue->pid == pcb->pid)
+            return QBLOCK;
+    }
+    for (int i = 0; i < list_size(queues->EXIT->queue); i++)
+    {
+        t_pcb *pcb_in_queue = list_get(queues->EXIT->queue, i);
+        if (pcb_in_queue->pid == pcb->pid)
+            return QEXIT;
+    }
+    return QEXIT;
+}
+
+void kill_process(t_pcb *pcb_to_kill)
+{
+    pcb_to_kill->next_queue = QEXIT;
+    pcb_to_kill->exit_status = PROCESS_ABORTED;
+    t_queue_id queue_id = get_queue_id(pcb_to_kill);
+    move_pcb_from_to(pcb_to_kill, queue_id, QEXIT);
+    EXIT(pcb_to_kill);
 }
